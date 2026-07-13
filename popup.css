@@ -68,6 +68,25 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
+.open-dashboard-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px 10px;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 8px;
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.open-dashboard-btn:hover {
+  background: rgba(139, 92, 246, 0.24);
+  border-color: var(--accent-color);
+}
+
 .logo-text {
   font-size: 1.1rem;
   font-weight: 700;

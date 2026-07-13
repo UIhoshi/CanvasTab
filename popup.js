@@ -12,6 +12,13 @@ let bookmarksCache = {}; // 缓存各文件夹下的书签
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
   setupEventListeners();
+  const openDashboardBtn = document.getElementById('open-dashboard-btn');
+  if (openDashboardBtn) {
+    openDashboardBtn.addEventListener('click', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html?mode=dashboard') });
+      window.close();
+    });
+  }
 });
 
 // 初始化应用

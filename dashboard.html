@@ -18,7 +18,7 @@
       <button class="sidebar-toggle" id="sidebar-toggle" title="折叠/展开侧边栏">
         <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      
+
       <div class="sidebar-header">
         <span class="logo-text">
           <svg style="width:1.15em;height:1.15em;vertical-align:middle;display:inline-flex;margin-right:8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="8" x2="22" y2="12"/><line x1="12" y1="2" x2="22" y2="12"/><polyline points="12 2 20 10 12 18"/><line x1="6" y1="12" x2="12" y2="18"/><line x1="2" y1="22" x2="11" y2="13"/></svg>
@@ -38,24 +38,6 @@
       <header class="main-header">
         <div class="header-left">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <!-- 模式切换 -->
-            <div class="mode-switcher-container">
-              <div class="mode-switcher" id="main-mode-switcher">
-                <button class="mode-btn active" data-mode="manage">
-                  <svg style="width:1.15em;height:1.15em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-                  <span class="btn-text">极简管理</span>
-                </button>
-                <button class="mode-btn" data-mode="visual">
-                  <svg style="width:1.15em;height:1.15em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/></svg>
-                  <span class="btn-text">无界视觉</span>
-                </button>
-              </div>
-            </div>
-            <!-- 手动设为首页按钮 (默认显示，识别后自动隐藏) -->
-            <button class="set-homepage-btn" id="header-set-homepage-btn" title="将此页面设为浏览器主页/启动页">
-              <svg style="width:1.15em;height:1.15em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              设为首页
-            </button>
             <!-- 新建文件夹按钮 -->
             <button class="set-homepage-btn" id="add-folder-global-btn" title="新建文件夹" style="margin-left: 8px;">
               <svg style="width:1.15em;height:1.15em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
@@ -64,7 +46,7 @@
           </div>
           <p class="subtitle" id="folder-stats">正在计算书签数量...</p>
         </div>
-        
+
         <!-- 搜索框 -->
         <div class="search-box">
           <div class="search-engine-selector" id="search-engine-selector">
@@ -75,98 +57,93 @@
             </div>
           </div>
           <input type="text" id="search-input" placeholder="搜索书签、链接或关键词...">
+          <div class="search-history-dropdown" id="search-history-dropdown" hidden></div>
           <kbd class="shortcut-hint">/</kbd>
         </div>
 
         <div class="header-right">
-          <!-- 背景壁纸设置控制面板 (新加) -->
-          <div class="bg-settings-container">
-            <button class="bg-settings-toggle" id="bg-settings-toggle" title="背景壁纸设置">
-              <svg style="width:1.1em;height:1.1em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </button>
-            
-            <!-- 悬浮面板 -->
-            <div class="bg-settings-panel" id="bg-settings-panel">
-              <div class="panel-row">
-                <label id="lbl-enable-bg">启用壁纸背景</label>
-                <input type="checkbox" id="bg-enable-toggle">
-              </div>
-              <div class="panel-row">
-                <label id="lbl-enable-slideshow">幻灯片播放</label>
-                <input type="checkbox" id="bg-slideshow-toggle">
-              </div>
-              <div class="panel-row">
-                <label id="lbl-bg-fit">展示效果</label>
-                <select id="bg-fit-select">
-                  <option value="cover" id="opt-fit-cover">拉伸填充</option>
-                  <option value="contain" id="opt-fit-contain">适应缩放</option>
-                  <option value="repeat" id="opt-fit-tile">复制平铺</option>
-                </select>
-              </div>
-              <div class="panel-row">
-                <label id="lbl-bg-opacity">壁纸清晰度</label>
-                <div class="slider-wrapper">
-                  <input type="range" id="bg-opacity-slider" min="0" max="100" value="70">
-                  <span id="bg-opacity-val">70%</span>
-                </div>
-              </div>
-              <div class="panel-row file-upload-row">
-                <button class="upload-btn" id="bg-upload-trigger">上传图片 (最多6张)</button>
-                <input type="file" id="bg-file-inputs" accept="image/*" multiple style="display: none;">
-              </div>
-              <div class="thumbs-grid" id="bg-thumbs-grid">
-                <!-- 动态渲染缩略图 -->
-              </div>
-              <div class="panel-row" id="homepage-status-row" style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 12px; font-size: 0.8rem; flex-direction: column; align-items: flex-start; gap: 8px; width: 100%;">
-                <div style="display: flex; align-items: center; gap: 6px; width: 100%; justify-content: space-between;">
-                  <span style="color: var(--text-secondary);">主页模式状态:</span>
-                  <span id="homepage-status-badge" style="font-weight: 500; display: flex; align-items: center; gap: 6px;">
-                    <span id="homepage-status-dot" style="width: 8px; height: 8px; border-radius: 50%; background-color: #9ca3af; display: inline-block;"></span>
-                    <span id="homepage-status-text" style="font-size: 0.75rem;">未检测到</span>
-                  </span>
-                </div>
-                <button class="upload-btn" id="btn-homepage-reset" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); font-weight: 500; font-size: 0.72rem; padding: 4px 10px; width: 100%; display: none;">恢复显示顶部“设为首页”</button>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- 语言选择下拉菜单 -->
-          <div class="dropdown-container" id="lang-dropdown-container">
-            <button class="dropdown-toggle-btn" id="lang-toggle-btn" title="切换语言">
-              <svg style="width:1.15em;height:1.15em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            </button>
-            <div class="dropdown-menu-list" id="lang-dropdown-menu">
-              <!-- JS 动态加载 -->
-            </div>
-          </div>
-
-          <!-- 主题选择下拉菜单 -->
-          <div class="dropdown-container" id="theme-dropdown-container">
-            <button class="dropdown-toggle-btn" id="theme-toggle-btn" title="切换主题配色">
-              <svg style="width:1.15em;height:1.15em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22C17.52 22 22 17.52 22 12S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10z"/><circle cx="7.5" cy="10.5" r="1.5"/><circle cx="11.5" cy="7.5" r="1.5"/><circle cx="16.5" cy="9.5" r="1.5"/><circle cx="15.5" cy="14.5" r="1.5"/></svg>
-            </button>
-            <div class="dropdown-menu-list" id="theme-dropdown-menu">
-              <!-- JS 动态加载 -->
-            </div>
-          </div>
-          <!-- 视图模式切换器 -->
-          <div class="view-switcher" id="view-switcher">
-            <button class="view-btn active" data-mode="card">
-              <svg style="width:1.15em;height:1.15em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              <span class="btn-text">卡片</span>
-            </button>
-            <button class="view-btn" data-mode="list">
-              <svg style="width:1.15em;height:1.15em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-              <span class="btn-text">列表</span>
-            </button>
-            <button class="view-btn" data-mode="icon">
-              <svg style="width:1.15em;height:1.15em;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-              <span class="btn-text">图标</span>
-            </button>
-          </div>
+          <button class="universal-folder-back-btn" id="universal-folder-back-btn" type="button" hidden>
+            <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span>返回上一层</span>
+          </button>
         </div>
       </header>
+
+      <!-- 谷歌原本风格的搜索容器 -->
+      <div class="google-search-container" id="google-search-container">
+        <div class="google-center-area">
+          <!-- Brand Logo (CanvasTab) -->
+          <div class="brand-logo-wrapper">
+            <span class="brand-logo-icon">
+              <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <defs>
+                  <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#8b5cf6" />
+                    <stop offset="100%" stop-color="#06b6d4" />
+                  </linearGradient>
+                </defs>
+                <line x1="18" y1="8" x2="22" y2="12"/><line x1="12" y1="2" x2="22" y2="12"/><polyline points="12 2 20 10 12 18"/><line x1="6" y1="12" x2="12" y2="18"/><line x1="2" y1="22" x2="11" y2="13"/>
+              </svg>
+            </span>
+            <div class="brand-logo-text-container">
+              <h1 class="brand-logo-title">CanvasTab</h1>
+              <span class="brand-logo-subtitle">浏览器书签画布</span>
+            </div>
+          </div>
+          <!-- Google Search Box -->
+          <div class="google-search-bar" id="google-search-bar-wrap">
+            <div class="search-engine-selector" id="google-search-engine-selector">
+              <span class="engine-current-icon" id="google-engine-current-icon">📁</span>
+              <span class="engine-arrow">▼</span>
+              <div class="engine-dropdown" id="google-engine-dropdown">
+                <!-- JS 动态渲染项 -->
+              </div>
+            </div>
+            <input type="text" id="google-search-input" placeholder="在 Google 中搜索或输入网址">
+            <div class="search-history-dropdown google-history-dropdown" id="google-search-history-dropdown" hidden></div>
+            <div class="google-search-right-icons">
+              <button class="google-icon-btn" id="google-voice-btn" title="语音搜索">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                  <path fill="#4285f4" d="M12 14c1.66 0 3-1.31 3-2.94V5.94c0-1.63-1.34-2.94-3-2.94s-3 1.31-3 2.94v5.12c0 1.63 1.34 2.94 3 2.94z"/>
+                  <path fill="#34a853" d="M12 18.06c-3.11 0-5.63-2.52-5.63-5.63h-1.87c0 3.82 2.89 6.98 6.62 7.45v3.12h1.87v-3.12c3.73-.47 6.62-3.63 6.62-7.45h-1.87c0 3.11-2.52 5.63-5.63 5.63z"/>
+                  <path fill="#fbbc05" d="M6.38 12.43h1.87c0 .87.19 1.69.52 2.44l-1.64 1.15c-.47-1.07-.75-2.27-.75-3.59z" />
+                  <path fill="#ea4335" d="M17.62 12.43c0 1.32-.28 2.52-.75 3.59l-1.64-1.15c.33-.75.52-1.57.52-2.44h1.87z" />
+                </svg>
+              </button>
+              <button class="google-icon-btn" id="google-lens-btn" title="相机搜索">
+                <svg viewBox="0 0 24 24" width="20" height="20">
+                  <path fill="#4285f4" d="M17.3 19.3h-10.6c-.9 0-1.7-.7-1.7-1.7v-2.3H3.3v2.3c0 2.2 1.8 4 4 4h10.6c2.2 0 4-1.8 4-4v-2.3h-1.7v2.3c-.1.9-.8 1.7-1.7 1.7z"/>
+                  <path fill="#34a853" d="M17.3 3.3h-10.6c-2.2 0-4 1.8-4 4v2.3h1.7V7.3c0-.9.7-1.7 1.7-1.7h10.6c.9 0 1.7.7 1.7 1.7v2.3h1.7V7.3c0-2.2-1.8-4-4-4z"/>
+                  <path fill="#fbbc05" d="M12 7.7a4.3 4.3 0 1 0 0 8.6 4.3 4.3 0 0 0 0-8.6z"/>
+                  <circle cx="17.7" cy="6.3" r="1.3" fill="#ea4335"/>
+                </svg>
+              </button>
+              <button class="google-ai-mode-btn" id="google-ai-mode-btn" title="切换展示模式">
+                <svg style="width:14px;height:14px;margin-right:4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span id="google-ai-mode-text">AI 模式</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 模式2专用的收起/展开控制按钮 -->
+        <div class="google-collapse-toggle-container" id="google-collapse-toggle-container">
+          <div class="google-collapse-actions">
+            <button class="google-back-folder-btn" id="google-back-folder-btn" type="button" hidden>
+              <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              <span id="google-back-folder-text">返回上一级</span>
+            </button>
+          <button class="google-collapse-toggle-btn" id="google-collapse-toggle-btn">
+            <span id="google-collapse-toggle-text">展开书签看板</span>
+            <svg class="toggle-arrow-icon" style="width:14px;height:14px;margin-left:4px;transition: transform 0.3s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          </div>
+        </div>
+        <button class="google-add-folder-btn" id="google-add-folder-btn" type="button">
+          <span class="google-add-folder-icon">＋</span>
+          <span id="google-add-folder-text">新建文件夹</span>
+        </button>
+      </div>
 
       <!-- 书签卡片展示区 -->
       <section class="cards-grid view-mode-card" id="cards-grid">
@@ -201,13 +178,47 @@
           本插件已就绪。为了符合你的浏览习惯，请选择是否将本看板作为你的<b>默认新标签页</b>？
         </p>
         <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-          <button class="upload-btn" id="btn-onboarding-keep" style="background: linear-gradient(135deg, var(--accent-color), #8b5cf6); color: white; font-weight: 600; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.82rem;">🏠 是的，设置为首页</button>
-          <button class="upload-btn" id="btn-onboarding-homepage" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); font-weight: 500; padding: 9px; border-radius: 8px; cursor: pointer; font-size: 0.82rem;">🎴 不，仅作为新标签页</button>
+          <button class="upload-btn" id="btn-onboarding-keep" style="background: linear-gradient(135deg, var(--accent-color), #8b5cf6); color: white; font-weight: 600; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.82rem;">✨ 开启 CanvasTab 新标签页</button>
+          <button class="upload-btn" id="btn-onboarding-homepage" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); font-weight: 500; padding: 9px; border-radius: 8px; cursor: pointer; font-size: 0.82rem;">🌐 使用浏览器默认新标签页</button>
         </div>
       </div>
     </div>
 
   </div>
-  <script src="dashboard.js"></script>
-</body>
-</html>
+
+  <!-- 侧边滑出控制中心 (Control Center Panel) -->
+  <div class="control-drawer-overlay" id="control-drawer-overlay"></div>
+  <aside class="control-drawer" id="control-drawer" aria-label="控制中心">
+    <div class="drawer-header"><h3 id="txt-drawer-title">控制中心</h3><button type="button" class="drawer-close-btn" id="drawer-close-btn" aria-label="关闭">&times;</button></div>
+    <div class="drawer-body">
+      <div class="drawer-section"><h4 id="txt-sec-mode">看板运行模式</h4><p class="section-desc" id="txt-sec-mode-desc">切换资源管理与视觉多维看板</p><div class="drawer-opt-group" id="drawer-mode-switcher"><button type="button" class="drawer-opt-btn" data-mode="manage">极简管理</button><button type="button" class="drawer-opt-btn" data-mode="visual">无界视觉</button></div></div>
+      <div class="drawer-section"><h4 id="txt-sec-layout">搜索栏布局</h4><p class="section-desc" id="txt-sec-layout-desc">调整搜索框位置及看板展示状态</p><div class="drawer-opt-group" id="drawer-layout-switcher"><button type="button" class="drawer-opt-btn" data-layout="google-visual">搜索 + 看板</button><button type="button" class="drawer-opt-btn" data-layout="google-collapse">搜索 + 抽屉</button><button type="button" class="drawer-opt-btn" data-layout="pure-visual">经典书签栏</button></div></div>
+      <div class="drawer-section"><h4 id="txt-sec-view">书签显示样式</h4><p class="section-desc" id="txt-sec-view-desc">切换书签卡片的网格排版</p><div class="drawer-opt-group" id="drawer-view-switcher"><button type="button" class="drawer-opt-btn" data-view="card">卡片</button><button type="button" class="drawer-opt-btn" data-view="list">列表</button><button type="button" class="drawer-opt-btn" data-view="icon">图标</button></div></div>
+      <div class="drawer-section"><h4 id="txt-sec-theme">个性化主题</h4><p class="section-desc" id="txt-sec-theme-desc">选择系统的全局配色主题</p><div class="drawer-theme-grid" id="drawer-theme-grid"></div></div>
+      <div class="drawer-section"><h4 id="txt-sec-lang">多国语言</h4><div class="drawer-select-wrapper"><select id="drawer-lang-select" class="drawer-select"></select></div></div>
+      <div class="drawer-section"><h4 id="txt-sec-wallpaper">壁纸背景设置</h4><div class="panel-row"><label id="drawer-lbl-enable-bg">启用壁纸背景</label><input type="checkbox" id="drawer-bg-enable-toggle"></div><div class="panel-row"><label id="drawer-lbl-enable-slideshow">幻灯片播放</label><input type="checkbox" id="drawer-bg-slideshow-toggle"></div><div class="panel-row"><label id="drawer-lbl-bg-fit">展示效果</label><select id="drawer-bg-fit-select" class="drawer-select"><option value="cover" id="drawer-opt-fit-cover">拉伸填充</option><option value="contain" id="drawer-opt-fit-contain">适应缩放</option><option value="repeat" id="drawer-opt-fit-tile">平铺</option></select></div><div class="panel-row"><label id="drawer-lbl-bg-opacity">壁纸清晰度</label><div class="slider-wrapper"><input type="range" id="drawer-bg-opacity-slider" min="0" max="100" value="70"><span id="drawer-bg-opacity-val">70%</span></div></div><div class="panel-row file-upload-row"><button type="button" class="upload-btn" id="drawer-bg-upload-trigger">上传图片（最多6张）</button><input type="file" id="drawer-bg-file-inputs" accept="image/*" multiple hidden></div><div class="thumbs-grid" id="drawer-bg-thumbs-grid"></div><div class="panel-row" id="drawer-homepage-status-row"><span>新标签页状态</span><span id="drawer-homepage-status-badge"><span id="drawer-homepage-status-dot"></span><span id="drawer-homepage-status-text">已由扩展接管</span></span></div><button type="button" class="upload-btn" id="drawer-btn-homepage-reset" hidden>恢复显示顶部按钮</button><button type="button" class="upload-btn" id="drawer-btn-newtab-toggle">恢复浏览器原生新标签页</button><button type="button" class="upload-btn dead-link-check-btn" id="dead-link-check-btn">死链检测</button><div class="dead-link-results" id="dead-link-results" hidden></div></div>
+    </div>
+  </aside>
+  <div class="floating-control-group" id="floating-control-group">
+    <button type="button" class="set-homepage-btn floating-btn" id="header-set-homepage-btn" title="设置为新标签页" aria-label="新标签页"><svg style="width:1.15em;height:1.15em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
+    <button type="button" class="settings-drawer-btn floating-btn" id="settings-drawer-btn" title="个性化设置 / 控制中心" aria-label="打开控制中心"><svg style="width:1.25em;height:1.25em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+  </div>
+
+    <div class="custom-context-menu" id="custom-context-menu" style="display: none; position: fixed; z-index: 3000;">
+      <div class="context-menu-item" id="ctx-add-folder">
+        <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        <span id="ctx-txt-add">新建子文件夹</span>
+      </div>
+      <div class="context-menu-item" id="ctx-rename-folder">
+        <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span id="ctx-txt-rename">重命名文件夹</span>
+      </div>
+      <div class="context-menu-item danger" id="ctx-delete-folder">
+        <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <span id="ctx-txt-delete">删除此文件夹</span>
+      </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+  </body>
+  </html>

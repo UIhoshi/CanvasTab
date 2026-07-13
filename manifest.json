@@ -1,13 +1,18 @@
 {
   "manifest_version": 3,
   "name": "CanvasTab: Wallpaper Canvas & Bookmark Organizer",
-  "version": "1.2",
+  "version": "1.2.1",
   "description": "CanvasTab is a minimal, aesthetic card-style bookmarks manager and customizable New Tab dashboard.",
   "permissions": [
     "bookmarks",
     "favicon",
+    "history",
     "search",
-    "storage"
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js"

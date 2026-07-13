@@ -1,9 +1,9 @@
-// 早期重定向判定：如果已配置不将此插件用作新标签页，且当前是以默认新标签形式加载（无 ?mode=homepage 参数），则立刻重定向至 Chrome 原生新标签页
+// 早期重定向判定：如果已配置不将此插件用作新标签页，且当前是以默认新标签形式加载（无 mode 参数，即 Ctrl+T 触发），则立刻重定向至 Chrome 原生新标签页
 (() => {
   const urlParams = new URLSearchParams(window.location.search);
-  if (localStorage.getItem('isNewtabDisabled') === 'true' && urlParams.get('mode') !== 'homepage') {
+  if (localStorage.getItem('isNewtabDisabled') === 'true' && !urlParams.has('mode')) {
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.update) {
-      chrome.tabs.update({ url: 'chrome://newtab/' });
+      chrome.tabs.update({ url: 'chrome://new-tab-page/' });
     }
   }
 })();
@@ -284,6 +284,7 @@ let dragHoverTimer = null;
 let currentHoveredFolderId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  setupControlSurface();
   const urlParams = new URLSearchParams(window.location.search);
   const isHomepageMode = urlParams.get('mode') === 'homepage';
 
@@ -399,29 +400,39 @@ function applyTranslations() {
   const modalBack = document.getElementById('modal-back-btn');
   if (modalBack) modalBack.title = t.tooltipBack;
 
+  // 返回上一级按钮翻译
+  const universalBackText = document.querySelector('#universal-folder-back-btn span');
+  if (universalBackText) {
+    universalBackText.textContent = currentLang.startsWith('zh') ? '返回上一层' : 'Back';
+  }
+  const googleBackText = document.getElementById('google-back-folder-text');
+  if (googleBackText) {
+    googleBackText.textContent = currentLang.startsWith('zh') ? '返回上一级' : 'Back';
+  }
+
   // 壁纸翻译
-  const lblEnableBg = document.getElementById('lbl-enable-bg');
+  const lblEnableBg = document.getElementById('lbl-enable-bg') || document.getElementById('drawer-lbl-enable-bg');
   if (lblEnableBg) lblEnableBg.textContent = currentLang.startsWith('zh') ? '启用壁纸背景' : 'Enable Wallpaper';
   
-  const lblEnableSlideshow = document.getElementById('lbl-enable-slideshow');
+  const lblEnableSlideshow = document.getElementById('lbl-enable-slideshow') || document.getElementById('drawer-lbl-enable-slideshow');
   if (lblEnableSlideshow) lblEnableSlideshow.textContent = currentLang.startsWith('zh') ? '幻灯片播放' : 'Slideshow Mode';
   
-  const lblBgFit = document.getElementById('lbl-bg-fit');
+  const lblBgFit = document.getElementById('lbl-bg-fit') || document.getElementById('drawer-lbl-bg-fit');
   if (lblBgFit) lblBgFit.textContent = currentLang.startsWith('zh') ? '展示效果' : 'Display Mode';
 
-  const lblBgOpacity = document.getElementById('lbl-bg-opacity');
+  const lblBgOpacity = document.getElementById('lbl-bg-opacity') || document.getElementById('drawer-lbl-bg-opacity');
   if (lblBgOpacity) lblBgOpacity.textContent = currentLang.startsWith('zh') ? '壁纸清晰度' : 'Wallpaper Clarity';
   
-  const optFitCover = document.getElementById('opt-fit-cover');
+  const optFitCover = document.getElementById('opt-fit-cover') || document.getElementById('drawer-opt-fit-cover');
   if (optFitCover) optFitCover.textContent = currentLang.startsWith('zh') ? '拉伸填充' : 'Cover';
   
-  const optFitContain = document.getElementById('opt-fit-contain');
+  const optFitContain = document.getElementById('opt-fit-contain') || document.getElementById('drawer-opt-fit-contain');
   if (optFitContain) optFitContain.textContent = currentLang.startsWith('zh') ? '适应缩放' : 'Contain';
   
-  const optFitTile = document.getElementById('opt-fit-tile');
+  const optFitTile = document.getElementById('opt-fit-tile') || document.getElementById('drawer-opt-fit-tile');
   if (optFitTile) optFitTile.textContent = currentLang.startsWith('zh') ? '复制平铺' : 'Tile';
   
-  const bgUploadTrigger = document.getElementById('bg-upload-trigger');
+  const bgUploadTrigger = document.getElementById('bg-upload-trigger') || document.getElementById('drawer-bg-upload-trigger');
   if (bgUploadTrigger) bgUploadTrigger.textContent = currentLang.startsWith('zh') ? '上传图片 (最多6张)' : 'Upload Images (Max 6)';
 
   // 首次安装向导弹窗多语言翻译
@@ -488,98 +499,82 @@ function applyTranslations() {
   renderThemeSelector();
 }
 
-// 检测并切换顶部“设为首页”按钮的显示状态与面板指示器状态
-function checkHomepageButtonVisibility() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const isHomepageMode = urlParams.get('mode') === 'homepage';
-
-  // 同步判定：基于当前 localStorage + URL 参数立即渲染
-  const isSet = (localStorage.getItem('isHomepageSet') === 'true') || isHomepageMode;
-  renderHomepageState(isSet);
+// 检测并切换顶部“新标签页接管”按钮的显示状态与面板指示器状态
+function checkNewtabVisibility() {
+  // 同步判定：基于当前 localStorage 立即渲染
+  const isDisabled = localStorage.getItem('isNewtabDisabled') === 'true';
+  renderNewtabState(!isDisabled);
 
   // 异步自愈：从 chrome.storage.local 二次校验，若有差异则自动修正 UI
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(['isHomepageSet'], (data) => {
-      const storedValue = (data.isHomepageSet !== undefined) ? String(data.isHomepageSet) === 'true' : false;
-      const correctedIsSet = storedValue || isHomepageMode;
-      if (correctedIsSet !== isSet) {
-        // chrome.storage.local 的值与 localStorage 不一致，以持久化存储为准，修复 localStorage 并重新渲染
-        if (storedValue) {
-          localStorage.setItem('isHomepageSet', 'true');
-        }
-        renderHomepageState(correctedIsSet);
-      }
-      // 正向迁移：如果 localStorage 有值但 chrome.storage.local 没有，补写一份
-      if (isSet && !storedValue) {
-        chrome.storage.local.set({ isHomepageSet: 'true' });
+    chrome.storage.local.get(['isNewtabDisabled'], (data) => {
+      const storedDisabled = data.isNewtabDisabled === true || data.isNewtabDisabled === 'true';
+      if (storedDisabled !== isDisabled) {
+        localStorage.setItem('isNewtabDisabled', String(storedDisabled));
+        renderNewtabState(!storedDisabled);
       }
     });
   }
-
-  // 异步自愈层2：通过 service worker 中转查询（最可靠，解决停用/启用后直接读取不到的问题）
-  if (!isSet && typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-    try {
-      chrome.runtime.sendMessage({ action: 'getHomepageState' }, (response) => {
-        if (chrome.runtime.lastError) return;
-        if (response && String(response.isHomepageSet) === 'true') {
-          localStorage.setItem('isHomepageSet', 'true');
-          renderHomepageState(true);
-        }
-      });
-    } catch (e) { /* 忽略通信异常 */ }
-  }
 }
 
-// 根据 isSet 状态渲染按钮、指示灯和重置按钮的实际 UI
-function renderHomepageState(isSet) {
+// 根据新标签页启用状态渲染按钮、指示灯和面板的实际 UI
+function renderNewtabState(isEnabled) {
   const btn = document.getElementById('header-set-homepage-btn');
   const statusDot = document.getElementById('homepage-status-dot');
   const statusText = document.getElementById('homepage-status-text');
   const resetBtn = document.getElementById('btn-homepage-reset');
+  const drawerNewtabToggle = document.getElementById('drawer-btn-newtab-toggle');
 
-  // 1. 始终保持顶部主按钮显示，更新内容与状态类名以展示已设置/移除交互
+  // 1. 始终保持顶部主按钮显示，更新内容与状态类名以展示已设置/取消接管交互
   if (btn) {
     btn.style.display = 'flex';
-    if (isSet) {
-      btn.classList.add('is-homepage-active');
+    if (isEnabled) {
+      btn.classList.add('is-homepage-active'); // 复用原本的 CSS 高亮样式
       btn.innerHTML = `
         <span class="btn-icon">${SVGS.check}</span>
-        <span class="btn-text-normal">${currentLang.startsWith('zh') ? '已设为主页' : 'Homepage Active'}</span>
-        <span class="btn-text-hover" style="display: none;">${currentLang.startsWith('zh') ? '移除设为首页' : 'Remove Homepage'}</span>
+        <span class="btn-text-normal">${currentLang.startsWith('zh') ? '新标签页已开启' : 'New Tab Enabled'}</span>
+        <span class="btn-text-hover" style="display: none;">${currentLang.startsWith('zh') ? '取消接管' : 'Disable'}</span>
       `;
-      btn.title = currentLang.startsWith('zh') ? '点击移除或重置主页设置' : 'Click to remove or reset homepage setting';
+      btn.title = currentLang.startsWith('zh') ? '点击恢复使用浏览器默认新标签页' : 'Click to restore system default New Tab page';
     } else {
       btn.classList.remove('is-homepage-active');
       btn.innerHTML = `
         <span class="btn-icon">${SVGS.homepage}</span>
-        <span class="btn-text">${currentLang.startsWith('zh') ? '设为首页' : 'Set as Homepage'}</span>
+        <span class="btn-text">${currentLang.startsWith('zh') ? '开启新标签页' : 'Enable New Tab'}</span>
       `;
-      btn.title = currentLang.startsWith('zh') ? '将此页面设为浏览器主页/启动页' : 'Set this page as homepage';
+      btn.title = currentLang.startsWith('zh') ? '开启 CanvasTab 接管浏览器新标签页' : 'Enable CanvasTab as your New Tab page';
     }
   }
 
   // 2. 更新壁纸设置面板中的指示器状态
   if (statusDot && statusText) {
-    if (isSet) {
+    if (isEnabled) {
       statusDot.style.backgroundColor = '#10b981'; // 亮绿灯
-      statusText.textContent = currentLang.startsWith('zh') ? '已设为主页' : 'Homepage Set';
+      statusText.textContent = currentLang.startsWith('zh') ? '已由 CanvasTab 接管' : 'Taken over by CanvasTab';
       statusText.style.color = '#10b981';
     } else {
       statusDot.style.backgroundColor = '#9ca3af'; // 灰色
-      statusText.textContent = currentLang.startsWith('zh') ? '未检测到' : 'Not Set';
+      statusText.textContent = currentLang.startsWith('zh') ? '系统默认新标签页' : 'System Default New Tab';
       statusText.style.color = 'var(--text-secondary)';
     }
   }
 
-  // 3. 决定是否显示“恢复显示按钮”
+  // 3. 更新设置侧栏底部的接管状态控制按钮文本
+  if (drawerNewtabToggle) {
+    drawerNewtabToggle.textContent = isEnabled
+      ? (currentLang.startsWith('zh') ? '恢复浏览器原生新标签页' : 'Restore Native New Tab')
+      : (currentLang.startsWith('zh') ? '开启 CanvasTab 新标签页' : 'Enable CanvasTab New Tab');
+  }
+
+  // 隐藏无用的主页重置按钮
   if (resetBtn) {
-    resetBtn.style.display = isSet ? 'block' : 'none';
+    resetBtn.style.display = 'none';
   }
 }
 
 // 加载用户配置
 function loadSavedSettings() {
-  checkHomepageButtonVisibility();
+  checkNewtabVisibility();
 
   const savedMode = localStorage.getItem('viewMode') || 'card';
   setViewMode(savedMode);
@@ -1031,6 +1026,7 @@ function selectFolder(id, fromSidebar = false) {
     statsEl.textContent = t.folderStatsFolder.replace('{folders}', foldersCount).replace('{links}', linksCount);
   }
   renderItems(foldersCache[id] || [], bookmarksCache[id] || [], 'cards-grid');
+  updateBackFolderButtons();
 }
 
 // 统一渲染网格列表
@@ -1041,7 +1037,12 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
   grid.innerHTML = '';
   grid.scrollTop = 0;
 
-  if (subFolders.length === 0 && bookmarks.length === 0) {
+  const searchInput = document.getElementById('search-input');
+  const googleSearchInput = document.getElementById('google-search-input');
+  const isSearching = (searchInput && searchInput.value.trim() !== '') || 
+                      (googleSearchInput && googleSearchInput.value.trim() !== '');
+
+  if (isSearching && subFolders.length === 0 && bookmarks.length === 0) {
     grid.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">${SVGS.empty}</div>
@@ -1051,12 +1052,47 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
     return;
   }
 
-  // 1. 优先渲染子文件夹
+  const animationOffset = isSearching ? 0 : 1;
+
+  // 1. 如果非搜索状态，在每一层首位追加“新建文件夹”卡片
+  if (!isSearching) {
+    const newFolderCard = document.createElement('div');
+    newFolderCard.className = 'new-folder-card';
+    newFolderCard.innerHTML = `
+      <div class="new-folder-card-icon">${SVGS.add}</div>
+      <div class="new-folder-card-label">${currentLang.startsWith('zh') ? '新建文件夹' : 'New Folder'}</div>
+    `;
+    
+    newFolderCard.addEventListener('click', () => {
+      let parentId = '1';
+      if (targetContainerId === 'modal-cards-grid') {
+        parentId = modalActiveFolderId || '1';
+      } else if (currentMode === 'manage') {
+        parentId = activeFolderId || '1';
+      } else {
+        parentId = '1';
+      }
+      
+      const addGlobalBtn = document.getElementById('add-folder-global-btn');
+      if (addGlobalBtn) {
+        if (targetContainerId === 'modal-cards-grid') {
+          modalActiveFolderId = parentId;
+        } else {
+          activeFolderId = parentId;
+        }
+        addGlobalBtn.click();
+      }
+    });
+    
+    grid.appendChild(newFolderCard);
+  }
+
+  // 2. 优先渲染子文件夹
   subFolders.forEach((folder, index) => {
     const card = document.createElement('div');
     card.className = 'folder-card';
     card.dataset.id = folder.id;
-    card.style.animationDelay = `${index * 20}ms`;
+    card.style.animationDelay = `${(index + animationOffset) * 20}ms`;
 
     const subItemCount = (foldersCache[folder.id] || []).length + (bookmarksCache[folder.id] || []).length;
     const textBadge = i18n[currentLang].folderCardCount.replace('{count}', subItemCount);
@@ -1158,14 +1194,14 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
     grid.appendChild(card);
   });
 
-  // 2. 渲染网页书签
+  // 3. 渲染网页书签
   bookmarks.forEach((bookmark, index) => {
     const card = document.createElement('a');
     card.className = 'bookmark-card';
     card.href = bookmark.url;
     card.target = '_blank';
     card.title = bookmark.title;
-    card.style.animationDelay = `${(subFolders.length + index) * 20}ms`;
+    card.style.animationDelay = `${(subFolders.length + index + animationOffset) * 20}ms`;
 
     card.draggable = true;
     card.addEventListener('dragstart', (e) => {
@@ -1507,9 +1543,13 @@ function applyBackgroundSettings() {
 function renderSearchEngineSelector() {
   const dropdown = document.getElementById('engine-dropdown');
   const currentIconEl = document.getElementById('engine-current-icon');
+  const googleDropdown = document.getElementById('google-engine-dropdown');
+  const googleCurrentIconEl = document.getElementById('google-engine-current-icon');
+  
   if (!dropdown || !currentIconEl) return;
 
   dropdown.innerHTML = '';
+  if (googleDropdown) googleDropdown.innerHTML = '';
 
   // 默认网页搜索引擎列表
   const defaultEngines = [
@@ -1530,16 +1570,16 @@ function renderSearchEngineSelector() {
 
   // 渲染所有引擎选项
   allEngines.forEach(engine => {
+    const iconHtml = engine.iconSvg || `<span>${engine.icon || '🔍'}</span>`;
+    
+    // 1. 经典下拉菜单选项
     const opt = document.createElement('div');
     opt.className = 'engine-option';
-    const iconHtml = engine.iconSvg || `<span>${engine.icon || '🔍'}</span>`;
     if (engine.id === currentSearchEngine) {
       opt.classList.add('active');
       currentIconEl.innerHTML = iconHtml; // 更新当前选中的图标
     }
     opt.dataset.engine = engine.id;
-    
-    // 自定义引擎输出删除按钮
     if (engine.id.startsWith('custom-')) {
       opt.innerHTML = `
         <div class="engine-info-wrap">
@@ -1547,21 +1587,48 @@ function renderSearchEngineSelector() {
         </div>
         <span class="engine-delete-btn" title="${currentLang.startsWith('zh') ? '删除此引擎' : 'Delete Engine'}">&times;</span>
       `;
-      // 绑定删除动作
       opt.querySelector('.engine-delete-btn').addEventListener('click', (e) => {
-        e.stopPropagation(); // 阻止冒泡，避免触发选中事件
+        e.stopPropagation();
         deleteCustomSearchEngine(engine.id);
       });
     } else {
       opt.innerHTML = `<span class="engine-icon-wrapper">${iconHtml}</span> <span>${engine.name}</span>`;
     }
-    
     opt.addEventListener('click', (e) => {
       e.stopPropagation();
       selectSearchEngine(engine.id);
     });
-
     dropdown.appendChild(opt);
+
+    // 2. Google 下拉菜单选项
+    if (googleDropdown && googleCurrentIconEl) {
+      const gOpt = document.createElement('div');
+      gOpt.className = 'engine-option';
+      if (engine.id === currentSearchEngine) {
+        gOpt.classList.add('active');
+        googleCurrentIconEl.innerHTML = iconHtml;
+      }
+      gOpt.dataset.engine = engine.id;
+      if (engine.id.startsWith('custom-')) {
+        gOpt.innerHTML = `
+          <div class="engine-info-wrap">
+            <span class="engine-icon-wrapper">${iconHtml}</span> <span>${engine.name}</span>
+          </div>
+          <span class="engine-delete-btn" title="${currentLang.startsWith('zh') ? '删除此引擎' : 'Delete Engine'}">&times;</span>
+        `;
+        gOpt.querySelector('.engine-delete-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteCustomSearchEngine(engine.id);
+        });
+      } else {
+        gOpt.innerHTML = `<span class="engine-icon-wrapper">${iconHtml}</span> <span>${engine.name}</span>`;
+      }
+      gOpt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectSearchEngine(engine.id);
+      });
+      googleDropdown.appendChild(gOpt);
+    }
   });
 
   // 追加“自定义新增按钮”
@@ -1574,16 +1641,28 @@ function renderSearchEngineSelector() {
   });
   dropdown.appendChild(addBtn);
 
-  // 动态更新搜索输入框 Placeholder (书签与网页搜索引擎整合)
-  const searchInput = document.getElementById('search-input');
-  if (searchInput) {
-    const activeEngine = allEngines.find(e => e.id === currentSearchEngine);
-    const name = activeEngine ? activeEngine.name : 'Web';
-    searchInput.placeholder = currentLang.startsWith('zh') ? `在 ${name} 或书签中搜索...` : `Search in ${name} or bookmarks...`;
+  if (googleDropdown) {
+    const gAddBtn = document.createElement('div');
+    gAddBtn.className = 'engine-option custom-add-btn';
+    gAddBtn.innerHTML = `<span class="engine-icon-wrapper">${SVGS.add}</span> <span>${currentLang.startsWith('zh') ? '自定义追加' : 'Add Custom'}</span>`;
+    gAddBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      promptAddCustomEngine();
+    });
+    googleDropdown.appendChild(gAddBtn);
   }
+
+  // 动态更新搜索输入框 Placeholder
+  const searchInput = document.getElementById('search-input');
+  const googleSearchInput = document.getElementById('google-search-input');
+  const activeEngine = allEngines.find(e => e.id === currentSearchEngine);
+  const name = activeEngine ? activeEngine.name : 'Web';
+  const placeholderText = currentLang.startsWith('zh') ? `在 ${name} 或书签中搜索...` : `Search in ${name} or bookmarks...`;
+  
+  if (searchInput) searchInput.placeholder = placeholderText;
+  if (googleSearchInput) googleSearchInput.placeholder = placeholderText;
 }
 
-// 选中某一搜索引擎 (仅修改当前引擎状态，无卡顿刷新)
 function selectSearchEngine(engineId) {
   currentSearchEngine = engineId;
   localStorage.setItem('searchEngine', engineId);
@@ -1591,13 +1670,19 @@ function selectSearchEngine(engineId) {
   // 收起下拉菜单
   const selector = document.getElementById('search-engine-selector');
   if (selector) selector.classList.remove('active');
+  const googleSelector = document.getElementById('google-search-engine-selector');
+  if (googleSelector) googleSelector.classList.remove('active');
 
   renderSearchEngineSelector();
 
-  // 切换后直接聚焦输入框，保留原输入，不引起刷新
+  // 聚焦当前显示的输入框
   const searchInput = document.getElementById('search-input');
-  if (searchInput) {
+  if (searchInput && window.getComputedStyle(searchInput).display !== 'none') {
     searchInput.focus();
+  }
+  const googleSearchInput = document.getElementById('google-search-input');
+  if (googleSearchInput && window.getComputedStyle(googleSearchInput).display !== 'none') {
+    googleSearchInput.focus();
   }
 }
 
@@ -1921,6 +2006,84 @@ function closeFolderModal() {
 
 // ================= 事件监听 =================
 function setupEventListeners() {
+  // 控制中心：直接展开，不使用遮罩层
+  const collapseToggle = document.getElementById('google-collapse-toggle-btn');
+  if (collapseToggle) collapseToggle.addEventListener('click', () => {
+    const open = document.body.classList.toggle('google-collapse-board-open');
+    const text = document.getElementById('google-collapse-toggle-text');
+    if (text) text.textContent = open
+      ? (currentLang.startsWith('zh') ? '收起书签看板' : 'Hide bookmark board')
+      : (currentLang.startsWith('zh') ? '展开书签看板' : 'Show bookmark board');
+    collapseToggle.querySelector('.toggle-arrow-icon')?.style.setProperty('transform', open ? 'rotate(180deg)' : 'rotate(0deg)');
+  });
+
+  const drawerModeSwitcher = document.getElementById('drawer-mode-switcher');
+  if (drawerModeSwitcher) drawerModeSwitcher.addEventListener('click', (event) => {
+    const btn = event.target.closest('.drawer-opt-btn[data-mode]');
+    if (btn) setMainMode(btn.dataset.mode);
+    syncDrawerControls();
+  });
+
+  const drawerLayoutSwitcher = document.getElementById('drawer-layout-switcher');
+  if (drawerLayoutSwitcher) drawerLayoutSwitcher.addEventListener('click', (event) => {
+    const btn = event.target.closest('.drawer-opt-btn[data-layout]');
+    if (btn) setSearchLayout(btn.dataset.layout);
+  });
+
+  const drawerViewSwitcher = document.getElementById('drawer-view-switcher');
+  if (drawerViewSwitcher) drawerViewSwitcher.addEventListener('click', (event) => {
+    const btn = event.target.closest('.drawer-opt-btn[data-view]');
+    if (btn) setViewMode(btn.dataset.view);
+    syncDrawerControls();
+  });
+
+  const drawerLangSelect = document.getElementById('drawer-lang-select');
+  if (drawerLangSelect) drawerLangSelect.addEventListener('change', (event) => {
+    selectLanguage(event.target.value);
+    syncDrawerControls();
+  });
+
+  const drawerBgEnable = document.getElementById('drawer-bg-enable-toggle');
+  if (drawerBgEnable) drawerBgEnable.addEventListener('change', (event) => {
+    wallpaperEnabled = event.target.checked;
+    applyBackgroundSettings();
+  });
+  const drawerBgSlideshow = document.getElementById('drawer-bg-slideshow-toggle');
+  if (drawerBgSlideshow) drawerBgSlideshow.addEventListener('change', (event) => {
+    slideshowEnabled = event.target.checked;
+    applyBackgroundSettings();
+  });
+  const drawerBgFit = document.getElementById('drawer-bg-fit-select');
+  if (drawerBgFit) drawerBgFit.addEventListener('change', (event) => {
+    wallpaperFit = event.target.value;
+    applyBackgroundSettings();
+  });
+  const drawerBgOpacity = document.getElementById('drawer-bg-opacity-slider');
+  if (drawerBgOpacity) drawerBgOpacity.addEventListener('input', (event) => {
+    wallpaperOpacity = Number(event.target.value);
+    const value = document.getElementById('drawer-bg-opacity-val');
+    if (value) value.textContent = `${wallpaperOpacity}%`;
+    applyBackgroundSettings();
+  });
+  const drawerUploadTrigger = document.getElementById('drawer-bg-upload-trigger');
+  const drawerFileInput = document.getElementById('drawer-bg-file-inputs');
+  if (drawerUploadTrigger && drawerFileInput) {
+    drawerUploadTrigger.addEventListener('click', () => drawerFileInput.click());
+    drawerFileInput.addEventListener('change', event => {
+      if (event.target.files.length) handleBgUploads(event.target.files);
+    });
+  }
+  
+  const googleAddFolderBtn = document.getElementById('google-add-folder-btn');
+  if (googleAddFolderBtn) {
+    const addGlobalBtn = document.getElementById('add-folder-global-btn');
+    if (addGlobalBtn) {
+      googleAddFolderBtn.addEventListener('click', () => addGlobalBtn.click());
+    }
+  }
+
+  syncDrawerControls();
+
   // 文件夹增删及事件委托监听
   const folderList = document.getElementById('folder-list');
   if (folderList) {
@@ -2185,61 +2348,6 @@ function setupEventListeners() {
       }
     });
   }
-
-  // 顶部“设为首页”按钮点击事件 (双向切换：设为/移除)
-  const headerSetHomepageBtn = document.getElementById('header-set-homepage-btn');
-  if (headerSetHomepageBtn) {
-    headerSetHomepageBtn.addEventListener('click', () => {
-      const isSet = localStorage.getItem('isHomepageSet') === 'true';
-
-      if (isSet) {
-        // 移除首页逻辑：只需清除 isHomepageSet 标记
-        removeStorageItem('isHomepageSet');
-        checkHomepageButtonVisibility();
-        
-        alert(currentLang.startsWith('zh') 
-          ? '已经恢复为默认设置！即将为您打开浏览器“启动时”设置页以删除此链接。' 
-          : 'Restored to default settings! Opening browser "On startup" settings page to remove this URL.');
-        
-        if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
-          chrome.tabs.create({ url: 'chrome://settings/onStartup' });
-        }
-      } else {
-        // 设为首页逻辑
-        const baseUrl = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL
-          ? chrome.runtime.getURL('dashboard.html')
-          : window.location.origin + window.location.pathname;
-
-        const homepageUrl = `${baseUrl}?mode=homepage`;
-
-        navigator.clipboard.writeText(homepageUrl).then(() => {
-          alert(currentLang.startsWith('zh') ? '已经设置为首页' : 'Already set as homepage');
-          
-          setStorageItem('isHomepageSet', 'true');
-          checkHomepageButtonVisibility();
-        }).catch(err => {
-          alert('Copy failed: ' + err);
-        });
-      }
-    });
-  }
-
-  const homepageResetBtn = document.getElementById('btn-homepage-reset');
-  if (homepageResetBtn) {
-    homepageResetBtn.addEventListener('click', () => {
-      removeStorageItem('isHomepageSet');
-      checkHomepageButtonVisibility();
-      
-      alert(currentLang.startsWith('zh') 
-        ? '已经恢复为默认设置！即将为您打开浏览器“启动时”设置页以删除此链接。' 
-        : 'Restored to default settings! Opening browser "On startup" settings page to remove this URL.');
-      
-      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
-        chrome.tabs.create({ url: 'chrome://settings/onStartup' });
-      }
-    });
-  }
-
   // 首次安装引导 Onboarding 弹窗事件
   const btnOnboardingKeep = document.getElementById('btn-onboarding-keep');
   const btnOnboardingHomepage = document.getElementById('btn-onboarding-homepage');
@@ -2247,38 +2355,52 @@ function setupEventListeners() {
 
   if (btnOnboardingKeep) {
     btnOnboardingKeep.addEventListener('click', () => {
-      // 是的，设置为首页
       setStorageItem('onboarding_completed', 'true');
       setStorageItem('isNewtabDisabled', 'false');
-      setStorageItem('isHomepageSet', 'true');
-      checkHomepageButtonVisibility();
-      
-      const baseUrl = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL
-        ? chrome.runtime.getURL('dashboard.html')
-        : window.location.origin + window.location.pathname;
-      const homepageUrl = `${baseUrl}?mode=homepage`;
-      
-      navigator.clipboard.writeText(homepageUrl).then(() => {
-        alert(currentLang.startsWith('zh') ? '已经设置为首页' : 'Already set as homepage');
-      }).catch(err => {
-        alert(currentLang.startsWith('zh') ? '已经设置为首页' : 'Already set as homepage');
-      });
-      
+      checkNewtabVisibility();
+      alert(currentLang.startsWith('zh') ? '新标签页设置成功！CanvasTab 已接管新标签页。' : 'Set successfully! CanvasTab has taken over the New Tab page.');
       if (onboardingOverlay) onboardingOverlay.classList.remove('active');
     });
   }
 
   if (btnOnboardingHomepage) {
     btnOnboardingHomepage.addEventListener('click', () => {
-      // 不，仅作为新标签页
       setStorageItem('onboarding_completed', 'true');
-      setStorageItem('isNewtabDisabled', 'false');
-      checkHomepageButtonVisibility();
+      setStorageItem('isNewtabDisabled', 'true');
+      checkNewtabVisibility();
+      alert(currentLang.startsWith('zh') ? '已设定为使用浏览器默认新标签页。后续可在控制中心修改。' : 'Set to use system default New Tab page. You can change this later in settings.');
       if (onboardingOverlay) onboardingOverlay.classList.remove('active');
     });
   }
 
-  // 7. 弹窗监听
+  // 顶部/设置栏“新标签页接管”切换事件
+  const toggleNewtabState = () => {
+    const currentDisabled = localStorage.getItem('isNewtabDisabled') === 'true';
+    if (currentDisabled) {
+      setStorageItem('isNewtabDisabled', 'false');
+      checkNewtabVisibility();
+      alert(currentLang.startsWith('zh')
+        ? 'CanvasTab 已成功接管新标签页！'
+        : 'CanvasTab has successfully taken over the New Tab page!');
+    } else {
+      setStorageItem('isNewtabDisabled', 'true');
+      checkNewtabVisibility();
+      alert(currentLang.startsWith('zh')
+        ? '已取消接管，已恢复浏览器默认新标签页。在新开标签页时生效。'
+        : 'New Tab override disabled. System default New Tab page restored.');
+    }
+  };
+
+  const headerSetHomepageBtn = document.getElementById('header-set-homepage-btn');
+  if (headerSetHomepageBtn) {
+    headerSetHomepageBtn.addEventListener('click', toggleNewtabState);
+  }
+
+  const drawerNewtab = document.getElementById('drawer-btn-newtab-toggle');
+  if (drawerNewtab) {
+    drawerNewtab.addEventListener('click', toggleNewtabState);
+  }
+
   const modalClose = document.getElementById('modal-close');
   if (modalClose) {
     modalClose.addEventListener('click', closeFolderModal);
@@ -2326,52 +2448,104 @@ function setupEventListeners() {
     });
   }
 
+  const googleSelector = document.getElementById('google-search-engine-selector');
+  const googleDropdown = document.getElementById('google-engine-dropdown');
+  if (googleSelector && googleDropdown) {
+    googleSelector.addEventListener('click', (e) => {
+      e.stopPropagation();
+      googleSelector.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!googleSelector.contains(e.target)) {
+        googleSelector.classList.remove('active');
+      }
+    });
+  }
+
   // 9. 搜索框输入与回车处理
   const searchInput = document.getElementById('search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase().trim();
-      if (!query) {
+  const googleSearchInput = document.getElementById('google-search-input');
+
+  const handleSearchInput = (e, otherInput) => {
+    const query = e.target.value.toLowerCase().trim();
+    if (otherInput) otherInput.value = e.target.value; // 双向同步输入框内容
+
+    if (!query) {
+      refreshMainView();
+      return;
+    }
+
+    closeFolderModal();
+
+    const matchedFolders = allFolders.filter(folder => 
+      folder.title.toLowerCase().includes(query)
+    );
+    
+    const allBookmarks = bookmarksCache['all'] || [];
+    const matchedLinks = allBookmarks.filter(item => 
+      item.title.toLowerCase().includes(query) || 
+      item.url.toLowerCase().includes(query)
+    );
+
+    document.getElementById('folder-stats').textContent = i18n[currentLang].statsSearch
+      .replace('{folders}', matchedFolders.length)
+      .replace('{links}', matchedLinks.length);
+    renderItems(matchedFolders, matchedLinks, 'cards-grid');
+  };
+
+  const handleSearchKeydown = (e, inputEl) => {
+    if (e.key === 'Enter') {
+      const query = inputEl.value.trim();
+      if (query) {
+        triggerWebSearch(query);
+        inputEl.value = '';
+        if (searchInput) searchInput.value = '';
+        if (googleSearchInput) googleSearchInput.value = '';
         refreshMainView();
-        return;
       }
+    }
+  };
 
-      closeFolderModal();
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => handleSearchInput(e, googleSearchInput));
+    searchInput.addEventListener('keydown', (e) => handleSearchKeydown(e, searchInput));
+  }
 
-      const matchedFolders = allFolders.filter(folder => 
-        folder.title.toLowerCase().includes(query)
-      );
-      
-      const allBookmarks = bookmarksCache['all'] || [];
-      const matchedLinks = allBookmarks.filter(item => 
-        item.title.toLowerCase().includes(query) || 
-        item.url.toLowerCase().includes(query)
-      );
+  if (googleSearchInput) {
+    googleSearchInput.addEventListener('input', (e) => handleSearchInput(e, searchInput));
+    googleSearchInput.addEventListener('keydown', (e) => handleSearchKeydown(e, googleSearchInput));
+  }
 
-      document.getElementById('folder-stats').textContent = i18n[currentLang].statsSearch
-        .replace('{folders}', matchedFolders.length)
-        .replace('{links}', matchedLinks.length);
-      renderItems(matchedFolders, matchedLinks, 'cards-grid');
-    });
-
-    searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const query = searchInput.value.trim();
-        if (query) {
-          triggerWebSearch(query);
-          searchInput.value = ''; // 搜索发起后清空输入框
-          refreshMainView(); // 重置书签显示为完整视图
-        }
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === '/' && document.activeElement !== searchInput) {
+  // 键盘快捷键 / 自动聚焦当前显示的搜索框
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement !== searchInput && document.activeElement !== googleSearchInput) {
+      const isPureVisual = document.body.getAttribute('data-search-layout') === 'pure-visual';
+      const inputToFocus = isPureVisual ? searchInput : googleSearchInput;
+      if (inputToFocus) {
         e.preventDefault();
-        searchInput.focus();
-        searchInput.select();
+        inputToFocus.focus();
+        inputToFocus.select();
       }
-    });
+    }
+  });
+
+  // 10. 目录面包屑 / 返回上一级按钮逻辑
+  const handleBackFolder = () => {
+    const currentFolder = allFolders.find(f => f.id === activeFolderId);
+    if (currentFolder && currentFolder.parentId) {
+      selectFolder(currentFolder.parentId);
+    }
+  };
+
+  const universalBackBtn = document.getElementById('universal-folder-back-btn');
+  if (universalBackBtn) {
+    universalBackBtn.addEventListener('click', handleBackFolder);
+  }
+
+  const googleBackBtn = document.getElementById('google-back-folder-btn');
+  if (googleBackBtn) {
+    googleBackBtn.addEventListener('click', handleBackFolder);
   }
 }
 
@@ -2452,4 +2626,207 @@ function loadMockData() {
   activeFolderId = '1';
   renderSidebar();
   refreshMainView();
+}
+
+
+function setSearchLayout(layout) {
+  const allowed = ['google-visual', 'google-collapse', 'pure-visual'];
+  if (!allowed.includes(layout)) return;
+  localStorage.setItem('searchLayout', layout);
+  document.body.setAttribute('data-search-layout', layout);
+  document.querySelectorAll('#drawer-layout-switcher .drawer-opt-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.layout === layout);
+  });
+}
+
+function syncDrawerControls() {
+  const layout = localStorage.getItem('searchLayout') || 'google-visual';
+  setSearchLayout(layout);
+  document.querySelectorAll('#drawer-mode-switcher .drawer-opt-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === currentMode);
+  });
+  document.querySelectorAll('#drawer-view-switcher .drawer-opt-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === viewMode);
+  });
+
+  const themeGrid = document.getElementById('drawer-theme-grid');
+  if (themeGrid) {
+    themeGrid.innerHTML = '';
+    THEMES_LIST.forEach(item => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'drawer-opt-btn';
+      btn.dataset.theme = item.id;
+      btn.innerHTML = `<span class="theme-dot" style="background:${item.color}"></span>${currentLang.startsWith('zh') ? item.nameZh : item.name}`;
+      btn.classList.toggle('active', item.id === theme);
+      btn.addEventListener('click', () => setTheme(item.id));
+      themeGrid.appendChild(btn);
+    });
+  }
+
+  const langSelect = document.getElementById('drawer-lang-select');
+  if (langSelect) {
+    langSelect.innerHTML = '';
+    LANGUAGES_LIST.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.name;
+      option.selected = item.id === currentLang;
+      langSelect.appendChild(option);
+    });
+  }
+
+  const bgEnabled = document.getElementById('drawer-bg-enable-toggle');
+  const bgSlideshow = document.getElementById('drawer-bg-slideshow-toggle');
+  const bgFit = document.getElementById('drawer-bg-fit-select');
+  const bgOpacity = document.getElementById('drawer-bg-opacity-slider');
+  const bgOpacityVal = document.getElementById('drawer-bg-opacity-val');
+  if (bgEnabled) bgEnabled.checked = wallpaperEnabled;
+  if (bgSlideshow) bgSlideshow.checked = slideshowEnabled;
+  if (bgFit) bgFit.value = wallpaperFit;
+  if (bgOpacity) bgOpacity.value = wallpaperOpacity;
+  if (bgOpacityVal) bgOpacityVal.textContent = `${wallpaperOpacity}%`;
+}
+
+function setupControlSurface() {
+  const body = document.body;
+  const drawer = document.getElementById('control-drawer');
+  const settings = document.getElementById('settings-drawer-btn');
+  const close = document.getElementById('drawer-close-btn');
+  const overlay = document.getElementById('control-drawer-overlay');
+  const group = document.getElementById('floating-control-group');
+  if (!drawer || !settings) return;
+
+  const sides = ['left', 'right'];
+  const getSide = () => sides.includes(localStorage.getItem('drawerSide')) ? localStorage.getItem('drawerSide') : 'right';
+  const getTop = () => Math.max(12, Math.min(window.innerHeight - 70, Number(localStorage.getItem('floatingTop')) || 80));
+  const setSide = side => {
+    const safeSide = sides.includes(side) ? side : 'right';
+    body.setAttribute('data-drawer-side', safeSide);
+    localStorage.setItem('drawerSide', safeSide);
+    if (group) {
+      group.style.top = `${getTop()}px`;
+      group.style.bottom = 'auto';
+      group.style.transform = 'none';
+      if (safeSide === 'left') {
+        group.style.left = '12px';
+        group.style.right = 'auto';
+      } else {
+        group.style.left = 'auto';
+        group.style.right = '12px';
+      }
+    }
+  };
+  const openDrawer = () => {
+    const side = getSide();
+    ['left', 'right', 'top', 'bottom'].forEach(item => body.classList.remove(`drawer-open-${item}`));
+    body.classList.add(`drawer-open-${side}`);
+    drawer.classList.add('active');
+  };
+  const closeDrawer = () => {
+    ['left', 'right', 'top', 'bottom'].forEach(item => body.classList.remove(`drawer-open-${item}`));
+    drawer.classList.remove('active');
+  };
+
+  setSide(getSide());
+
+  // 绑定设置抽屉的打开/关闭点击事件
+  settings.addEventListener('click', openDrawer);
+  if (close) close.addEventListener('click', closeDrawer);
+  if (overlay) overlay.addEventListener('click', closeDrawer);
+
+  if (!group || group.dataset.dragBound === 'true') return;
+  group.dataset.dragBound = 'true';
+  let pointerId = null;
+  let dragging = false;
+  let suppressClick = false;
+  let grabX = 0;
+  let grabY = 0;
+  let startTop = 0;
+  let startX = 0;
+  let startY = 0;
+
+  group.addEventListener('pointerdown', event => {
+    pointerId = event.pointerId;
+    dragging = false;
+    suppressClick = false;
+    startX = event.clientX;
+    startY = event.clientY;
+    
+    const rect = group.getBoundingClientRect();
+    grabX = event.clientX - rect.left;
+    grabY = event.clientY - rect.top;
+    startTop = rect.top;
+  });
+  group.addEventListener('pointermove', event => {
+    if (event.pointerId !== pointerId) return;
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+    if (!dragging) {
+      if (Math.hypot(dx, dy) < 5) return;
+      dragging = true;
+      suppressClick = true;
+      try { group.setPointerCapture(pointerId); } catch (_) {}
+    }
+    event.preventDefault();
+    const rect = group.getBoundingClientRect();
+    const top = Math.max(8, Math.min(window.innerHeight - rect.height - 8, event.clientY - grabY));
+    const side = event.clientX < window.innerWidth / 2 ? 'left' : 'right';
+    group.style.top = `${top}px`;
+    group.style.bottom = 'auto';
+    group.style.transform = 'none';
+    if (side === 'left') {
+      group.style.left = '12px'; group.style.right = 'auto';
+    } else {
+      group.style.left = 'auto'; group.style.right = '12px';
+    }
+    body.setAttribute('data-drawer-side', side);
+    localStorage.setItem('floatingTop', String(Math.round(top)));
+  });
+  group.addEventListener('pointerup', event => {
+    if (event.pointerId !== pointerId) return;
+    if (dragging) {
+      try { group.releasePointerCapture(pointerId); } catch (_) {}
+      const side = event.clientX < window.innerWidth / 2 ? 'left' : 'right';
+      setSide(side);
+      localStorage.setItem('floatingTop', String(Math.round(parseFloat(group.style.top) || startTop)));
+    }
+    pointerId = null;
+    dragging = false;
+    window.setTimeout(() => { suppressClick = false; }, 80);
+  });
+  group.addEventListener('pointercancel', () => {
+    pointerId = null;
+    dragging = false;
+    suppressClick = false;
+    setSide(getSide());
+  });
+  group.addEventListener('click', event => {
+    if (suppressClick) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, true);
+}
+
+function updateBackFolderButtons() {
+  const universalBtn = document.getElementById('universal-folder-back-btn');
+  const googleBtn = document.getElementById('google-back-folder-btn');
+  
+  const rootIds = ['1', '2', '3', 'root', '0'];
+  const isAtRoot = rootIds.includes(activeFolderId) || !activeFolderId;
+
+  if (isAtRoot) {
+    if (universalBtn) universalBtn.setAttribute('hidden', '');
+    if (googleBtn) googleBtn.setAttribute('hidden', '');
+  } else {
+    const currentFolder = allFolders.find(f => f.id === activeFolderId);
+    if (currentFolder && currentFolder.parentId) {
+      if (universalBtn) universalBtn.removeAttribute('hidden');
+      if (googleBtn) googleBtn.removeAttribute('hidden');
+    } else {
+      if (universalBtn) universalBtn.setAttribute('hidden', '');
+      if (googleBtn) googleBtn.setAttribute('hidden', '');
+    }
+  }
 }

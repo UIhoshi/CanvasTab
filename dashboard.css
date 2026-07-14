@@ -1530,6 +1530,30 @@ body[data-theme="light"] .panel-row select {
   transform: scale(1.1);
 }
 
+.thumb-preview {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 15px;
+  height: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  font-size: 8px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  line-height: 1;
+}
+
+.thumb-preview:hover {
+  background: var(--accent-color);
+  transform: scale(1.1);
+}
+
 /* ================= 开启壁纸后，使原有主题渐变淡化为半透明蒙版 ================= */
 body.has-wallpaper .app-container {
   background: transparent !important;
@@ -4060,4 +4084,189 @@ body[data-drawer-side="left"] .control-drawer.active {
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
+}
+
+/* ================= Onboarding Modal Redesign & Typography ================= */
+#onboarding-modal {
+  max-width: 480px;
+  padding: 38px 32px;
+  text-align: center;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+#onboarding-title {
+  margin-bottom: 16px;
+  color: var(--accent-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+#onboarding-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+#onboarding-desc b {
+  color: var(--text-primary);
+  font-weight: 600;
+  border-bottom: 1.5px solid var(--accent-color);
+  padding-bottom: 2px;
+}
+
+.onboarding-btn-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+#btn-onboarding-keep {
+  background: linear-gradient(135deg, var(--accent-color), #6366f1);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  flex: 2;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+#btn-onboarding-keep:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+#btn-onboarding-homepage {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  flex: 1;
+  transition: var(--transition-smooth);
+}
+
+#btn-onboarding-homepage:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+/* ================= Wallpaper Manager Modal & Grid ================= */
+#wp-manager-modal {
+  max-width: 760px;
+  width: 90%;
+  padding: 32px;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.wp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  max-height: 450px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.wp-card {
+  position: relative;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.wp-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.wp-card.active {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.wp-card-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+
+.wp-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.wp-card:hover .wp-card-img {
+  transform: scale(1.05);
+}
+
+.wp-card-active-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--accent-color);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  display: none;
+}
+
+.wp-card.active .wp-card-active-badge {
+  display: block;
+}
+
+.wp-card-actions {
+  display: flex;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.25);
+  justify-content: flex-end;
+}
+
+.wp-card-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wp-card-btn:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
 }

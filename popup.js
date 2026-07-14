@@ -19,6 +19,33 @@ document.addEventListener('DOMContentLoaded', () => {
       window.close();
     });
   }
+
+  // 新标签页接管激活引导逻辑
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(['isNewtabDisabled'], (data) => {
+      const disabled = data.isNewtabDisabled === true || data.isNewtabDisabled === 'true';
+      const banner = document.getElementById('newtab-promo-banner');
+      if (disabled && banner) {
+        const isChinese = chrome.i18n.getUILanguage().startsWith('zh');
+        const textSpan = document.getElementById('promo-text-span');
+        const btn = document.getElementById('enable-newtab-btn');
+        if (textSpan) {
+          textSpan.textContent = isChinese ? '💡 CanvasTab 新标签页接管已停用。' : '💡 CanvasTab New Tab takeover is disabled.';
+        }
+        if (btn) {
+          btn.textContent = isChinese ? '重新启用接管' : 'Enable Takeover';
+          btn.addEventListener('click', () => {
+            chrome.storage.local.set({ isNewtabDisabled: false, onboarding_completed: true }, () => {
+              chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html?mode=dashboard') });
+              alert(isChinese ? '设置成功！CanvasTab 已接管新标签页。' : 'Successfully set! CanvasTab has taken over the New Tab page.');
+              window.close();
+            });
+          });
+        }
+        banner.style.display = 'flex';
+      }
+    });
+  }
 });
 
 // 初始化应用

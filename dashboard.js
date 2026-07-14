@@ -433,7 +433,22 @@ function applyTranslations() {
   if (optFitTile) optFitTile.textContent = currentLang.startsWith('zh') ? '复制平铺' : 'Tile';
   
   const bgUploadTrigger = document.getElementById('bg-upload-trigger') || document.getElementById('drawer-bg-upload-trigger');
-  if (bgUploadTrigger) bgUploadTrigger.textContent = currentLang.startsWith('zh') ? '上传图片 (最多6张)' : 'Upload Images (Max 6)';
+  if (bgUploadTrigger) bgUploadTrigger.textContent = currentLang.startsWith('zh') ? '上传背景图' : 'Upload Wallpaper';
+
+  const wpManageBtn = document.getElementById('drawer-bg-manage-btn');
+  if (wpManageBtn) {
+    wpManageBtn.textContent = currentLang.startsWith('zh') ? '管理背景库' : 'Manage Gallery';
+  }
+  const txtWpManagerTitle = document.getElementById('txt-wp-manager-title');
+  if (txtWpManagerTitle) {
+    txtWpManagerTitle.textContent = currentLang.startsWith('zh') ? '背景壁纸库管理' : 'Wallpaper Gallery Management';
+  }
+  const txtWpManagerDesc = document.getElementById('txt-wp-manager-desc');
+  if (txtWpManagerDesc) {
+    txtWpManagerDesc.textContent = currentLang.startsWith('zh') 
+      ? '您最多可以上传 15 张自定义壁纸背景。点击卡片可直接应用为当前背景。' 
+      : 'You can upload up to 15 custom wallpapers. Click a card to set it as current background.';
+  }
 
   // 首次安装向导弹窗多语言翻译
   const onboardingTitle = document.getElementById('onboarding-title');
@@ -452,36 +467,36 @@ function applyTranslations() {
   if (onboardingDesc) {
     if (currentLang === 'zh-CN') onboardingDesc.innerHTML = '本插件已就绪。为了符合你的浏览习惯，请选择是否将本看板作为你的<b>默认新标签页</b>？';
     else if (currentLang === 'zh-TW') onboardingDesc.innerHTML = '本插件已就緒。為了符合你的瀏覽習慣，請選擇是否將本看板作為你的<b>預設新分頁</b>？';
-    else if (currentLang === 'es') onboardingDesc.innerHTML = 'La extensión está lista. Para adaptarse a tus habitudes de navegación, ¿deseas configurar CanvasTab como tu <b>página de inicio predeterminada</b>?';
-    else if (currentLang === 'ja') onboardingDesc.innerHTML = '拡張機能の準備ができました。ブラウジングの習慣に合わせて、CanvasTab を<b>デフォルトのホームページ</b>に設定しますか？';
-    else if (currentLang === 'ko') onboardingDesc.innerHTML = '확장 프로그램이 준비되었습니다. 브라우징 습관에 맞추어 CanvasTab을 <b>기본 홈페이지</b>로 설정하시겠습니까?';
-    else if (currentLang === 'fr') onboardingDesc.innerHTML = 'L\'extension est prête. Pour s\'adapter à vos habitudes de navigation, souhaitez-vous définir CanvasTab comme <b>page d\'accueil par défaut</b> ?';
-    else if (currentLang === 'de') onboardingDesc.innerHTML = 'Die Erweiterung ist bereit. Möchten Sie CanvasTab als <b>Standard-Startseite</b> festlegen, um sie an Ihre Surfgewohnheiten anzupassen?';
-    else onboardingDesc.innerHTML = 'CanvasTab is ready. To match your browsing habits, would you like to set CanvasTab as your <b>default homepage</b>?';
+    else if (currentLang === 'es') onboardingDesc.innerHTML = 'La extensión está lista. Para adaptarse a tus hábitos de navegación, ¿deseas configurar CanvasTab como tu <b>nueva pestaña predeterminada</b>?';
+    else if (currentLang === 'ja') onboardingDesc.innerHTML = '拡張機能の準備ができました。ブラウジングの習慣に合わせて、CanvasTab を<b>デフォルトの新しいタブページ</b>に設定しますか？';
+    else if (currentLang === 'ko') onboardingDesc.innerHTML = '확장 프로그램이 준비되었습니다. 브라우징 습관에 맞추어 CanvasTab을 <b>기본 새 탭 페이지</b>로 설정하시겠습니까?';
+    else if (currentLang === 'fr') onboardingDesc.innerHTML = 'L\'extension est prête. Pour s\'adapter à vos habitudes de navigation, souhaitez-vous définir CanvasTab comme <b>nouvel onglet par défaut</b> ?';
+    else if (currentLang === 'de') onboardingDesc.innerHTML = 'Die Erweiterung ist bereit. Möchten Sie CanvasTab als <b>Standard-Neuer-Tab-Seite</b> festlegen, um sie an Ihre Surfgewohnheiten anzupassen?';
+    else onboardingDesc.innerHTML = 'CanvasTab is ready. To match your browsing habits, would you like to set CanvasTab as your <b>default new tab page</b>?';
   }
 
   const btnOnboardingKeep = document.getElementById('btn-onboarding-keep');
   if (btnOnboardingKeep) {
-    if (currentLang === 'zh-CN') btnOnboardingKeep.textContent = '🏠 是的，设置为首页';
-    else if (currentLang === 'zh-TW') btnOnboardingKeep.textContent = '🏠 是的，設置為首頁';
-    else if (currentLang === 'es') btnOnboardingKeep.textContent = '🏠 Sí, establecer como página de inicio';
-    else if (currentLang === 'ja') btnOnboardingKeep.textContent = '🏠 はい、ホームページに設定する';
-    else if (currentLang === 'ko') btnOnboardingKeep.textContent = '🏠 예, 홈페이지로 설정';
-    else if (currentLang === 'fr') btnOnboardingKeep.textContent = '🏠 Oui, définir comme page d\'accueil';
-    else if (currentLang === 'de') btnOnboardingKeep.textContent = '🏠 Ja, als Startseite festlegen';
-    else btnOnboardingKeep.textContent = '🏠 Yes, set as homepage';
+    if (currentLang === 'zh-CN') btnOnboardingKeep.textContent = '✨ 是的，设置为新标签页';
+    else if (currentLang === 'zh-TW') btnOnboardingKeep.textContent = '✨ 是的，設置為新分頁';
+    else if (currentLang === 'es') btnOnboardingKeep.textContent = '✨ Sí, establecer como nueva pestaña';
+    else if (currentLang === 'ja') btnOnboardingKeep.textContent = '✨ はい、新しいタブページに設定する';
+    else if (currentLang === 'ko') btnOnboardingKeep.textContent = '✨ 예, 새 탭 페이지로 설정';
+    else if (currentLang === 'fr') btnOnboardingKeep.textContent = '✨ Oui, définir comme nouvel onglet';
+    else if (currentLang === 'de') btnOnboardingKeep.textContent = '✨ Ja, als Neuer-Tab-Seite festlegen';
+    else btnOnboardingKeep.textContent = '✨ Yes, set as new tab page';
   }
 
   const btnOnboardingHomepage = document.getElementById('btn-onboarding-homepage');
   if (btnOnboardingHomepage) {
-    if (currentLang === 'zh-CN') btnOnboardingHomepage.textContent = '🎴 不，仅作为新标签页';
-    else if (currentLang === 'zh-TW') btnOnboardingHomepage.textContent = '🎴 不，僅作為新分頁';
-    else if (currentLang === 'es') btnOnboardingHomepage.textContent = '🎴 No, solo como nueva pestaña';
-    else if (currentLang === 'ja') btnOnboardingHomepage.textContent = '🎴 いいえ、新しいタブとしてのみ使用する';
-    else if (currentLang === 'ko') btnOnboardingHomepage.textContent = '🎴 아니오, 새 탭으로만 사용';
-    else if (currentLang === 'fr') btnOnboardingHomepage.textContent = '🎴 Non, seulement comme nouvel onglet';
-    else if (currentLang === 'de') btnOnboardingHomepage.textContent = '🎴 Nein, nur als neuen Tab verwenden';
-    else btnOnboardingHomepage.textContent = '🎴 No, only as new tab';
+    if (currentLang === 'zh-CN') btnOnboardingHomepage.textContent = '否';
+    else if (currentLang === 'zh-TW') btnOnboardingHomepage.textContent = '否';
+    else if (currentLang === 'es') btnOnboardingHomepage.textContent = 'No';
+    else if (currentLang === 'ja') btnOnboardingHomepage.textContent = 'いいえ';
+    else if (currentLang === 'ko') btnOnboardingHomepage.textContent = '아니오';
+    else if (currentLang === 'fr') btnOnboardingHomepage.textContent = 'Non';
+    else if (currentLang === 'de') btnOnboardingHomepage.textContent = 'Nein';
+    else btnOnboardingHomepage.textContent = 'No';
   }
 
   // 新建文件夹按钮翻译
@@ -1813,8 +1828,8 @@ function handleBgUploads(files) {
   let processedCount = 0;
 
   pendingFiles.forEach(file => {
-    if (customBgList.length >= 6) {
-      alert(currentLang.startsWith('zh') ? "最多仅支持添加 6 张幻灯片背景哦！" : "Maximum 6 wallpapers supported!");
+    if (customBgList.length >= 15) {
+      alert(currentLang.startsWith('zh') ? "最多仅支持添加 15 张幻灯片背景哦！" : "Maximum 15 wallpapers supported!");
       return;
     }
 
@@ -1847,9 +1862,11 @@ function handleBgUploads(files) {
           customBgList.push(compressedDataUrl);
           
           processedCount++;
-          if (processedCount === pendingFiles.length || customBgList.length >= 6) {
+          if (processedCount === pendingFiles.length || customBgList.length >= 15) {
             currentBgIndex = customBgList.length - 1; 
+            wallpaperEnabled = true;
             applyBackgroundSettings();
+            syncDrawerControls();
           }
         } catch (err) {
           console.error("Canvas compression error", err);
@@ -1872,32 +1889,145 @@ function deleteWallpaper(index, e) {
   applyBackgroundSettings();
 }
 
-// 渲染缩略图
+// 渲染壁纸管理卡片
 function renderThumbnails() {
-  const grid = document.getElementById('bg-thumbs-grid');
+  const grid = document.getElementById('wp-manager-grid');
   if (!grid) return;
 
   grid.innerHTML = '';
   customBgList.forEach((bg, index) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'thumb-wrapper';
-    if (index === currentBgIndex) wrapper.classList.add('active');
+    const card = document.createElement('div');
+    card.className = 'wp-card';
+    if (index === currentBgIndex) card.classList.add('active');
     
-    wrapper.innerHTML = `
-      <img src="${bg}" class="thumb-img">
-      <button class="thumb-delete">&times;</button>
+    card.innerHTML = `
+      <div class="wp-card-preview" title="${currentLang.startsWith('zh') ? '设为背景' : 'Set as Background'}">
+        <img src="${bg}" class="wp-card-img">
+        <span class="wp-card-active-badge">${currentLang.startsWith('zh') ? '使用中' : 'Active'}</span>
+        <button class="thumb-preview" style="left: auto; right: 8px; top: 8px;" title="${currentLang.startsWith('zh') ? '预览大图' : 'Preview Image'}">🔍</button>
+      </div>
+      <div class="wp-card-actions">
+        <button class="wp-card-btn wp-card-delete-btn">${currentLang.startsWith('zh') ? '删除' : 'Delete'}</button>
+      </div>
     `;
 
-    wrapper.addEventListener('click', () => {
+    // Click on preview to select
+    card.querySelector('.wp-card-preview').addEventListener('click', (e) => {
+      if (e.target.closest('.thumb-preview')) return;
       currentBgIndex = index;
       applyBackgroundSettings();
+      renderThumbnails(); // Re-render to update active states
     });
 
-    wrapper.querySelector('.thumb-delete').addEventListener('click', (e) => {
+    // Click on zoom button to view lightbox
+    card.querySelector('.thumb-preview').addEventListener('click', (e) => {
+      e.stopPropagation();
+      showImageLightbox(bg);
+    });
+
+    // Click on delete button to delete
+    card.querySelector('.wp-card-delete-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
       deleteWallpaper(index, e);
     });
 
-    grid.appendChild(wrapper);
+    grid.appendChild(card);
+  });
+}
+
+// 弹出大图预览小窗口
+function showImageLightbox(imgSrc) {
+  let overlay = document.getElementById('lightbox-overlay');
+  if (overlay) overlay.remove();
+
+  overlay = document.createElement('div');
+  overlay.id = 'lightbox-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.background = 'rgba(0, 0, 0, 0.85)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '3000';
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.25s ease';
+  
+  const container = document.createElement('div');
+  container.style.position = 'relative';
+  container.style.maxWidth = '90vw';
+  container.style.maxHeight = '90vh';
+  container.style.display = 'flex';
+  container.style.alignItems = 'center';
+  container.style.justifyContent = 'center';
+  container.style.transform = 'scale(0.9)';
+  container.style.transition = 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+  
+  const img = document.createElement('img');
+  img.src = imgSrc;
+  img.style.maxWidth = '100%';
+  img.style.maxHeight = '90vh';
+  img.style.borderRadius = '8px';
+  img.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
+  img.style.objectFit = 'contain';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.innerHTML = '&times;';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '-20px';
+  closeBtn.style.right = '-20px';
+  closeBtn.style.width = '36px';
+  closeBtn.style.height = '36px';
+  closeBtn.style.background = 'rgba(255, 255, 255, 0.9)';
+  closeBtn.style.color = '#333333';
+  closeBtn.style.border = 'none';
+  closeBtn.style.borderRadius = '50%';
+  closeBtn.style.fontSize = '24px';
+  closeBtn.style.fontWeight = 'bold';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.display = 'flex';
+  closeBtn.style.alignItems = 'center';
+  closeBtn.style.justifyContent = 'center';
+  closeBtn.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.3)';
+  closeBtn.style.transition = 'background 0.2s, transform 0.2s';
+  closeBtn.style.zIndex = '3100';
+
+  closeBtn.addEventListener('mouseenter', () => {
+    closeBtn.style.background = '#ffffff';
+    closeBtn.style.transform = 'scale(1.1)';
+  });
+  closeBtn.addEventListener('mouseleave', () => {
+    closeBtn.style.background = 'rgba(255, 255, 255, 0.9)';
+    closeBtn.style.transform = 'scale(1)';
+  });
+
+  const closeLightbox = () => {
+    overlay.style.opacity = '0';
+    container.style.transform = 'scale(0.9)';
+    setTimeout(() => {
+      overlay.remove();
+    }, 250);
+  };
+
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeLightbox();
+  });
+
+  overlay.addEventListener('click', () => {
+    closeLightbox();
+  });
+
+  container.appendChild(img);
+  container.appendChild(closeBtn);
+  overlay.appendChild(container);
+  document.body.appendChild(overlay);
+
+  requestAnimationFrame(() => {
+    overlay.style.opacity = '1';
+    container.style.transform = 'scale(1)';
   });
 }
 
@@ -2071,6 +2201,26 @@ function setupEventListeners() {
     drawerUploadTrigger.addEventListener('click', () => drawerFileInput.click());
     drawerFileInput.addEventListener('change', event => {
       if (event.target.files.length) handleBgUploads(event.target.files);
+    });
+  }
+
+  const wpManageBtn = document.getElementById('drawer-bg-manage-btn');
+  const wpManagerOverlay = document.getElementById('wp-manager-modal-overlay');
+  const wpManagerClose = document.getElementById('wp-manager-close-btn');
+  if (wpManageBtn && wpManagerOverlay) {
+    wpManageBtn.addEventListener('click', () => {
+      wpManagerOverlay.classList.add('active');
+      renderThumbnails();
+    });
+  }
+  if (wpManagerClose && wpManagerOverlay) {
+    wpManagerClose.addEventListener('click', () => {
+      wpManagerOverlay.classList.remove('active');
+    });
+    wpManagerOverlay.addEventListener('click', (e) => {
+      if (e.target === wpManagerOverlay) {
+        wpManagerOverlay.classList.remove('active');
+      }
     });
   }
   
@@ -2734,6 +2884,16 @@ function setupControlSurface() {
   settings.addEventListener('click', openDrawer);
   if (close) close.addEventListener('click', closeDrawer);
   if (overlay) overlay.addEventListener('click', closeDrawer);
+
+  // 点击设置界面（抽屉）以外的其他区域时，自动收起设置界面
+  document.addEventListener('click', (e) => {
+    if (drawer.classList.contains('active') && !drawer.contains(e.target) && !settings.contains(e.target)) {
+      const isModalOverlay = e.target.closest('.folder-modal-overlay') || e.target.closest('#lightbox-overlay');
+      if (!isModalOverlay) {
+        closeDrawer();
+      }
+    }
+  });
 
   if (!group || group.dataset.dragBound === 'true') return;
   group.dataset.dragBound = 'true';

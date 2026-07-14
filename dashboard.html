@@ -172,14 +172,30 @@
     </div>
     <!-- 首次安装向导弹窗 -->
     <div class="folder-modal-overlay" id="onboarding-modal-overlay" style="z-index: 2000;">
-      <div class="folder-modal" id="onboarding-modal" style="max-width: 460px; padding: 30px; text-align: center;">
-        <h2 id="onboarding-title" style="margin-bottom: 12px; color: var(--accent-color); font-size: 1.35rem;">🎉 感谢安装书签视觉看板！</h2>
-        <p id="onboarding-desc" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; text-align: left;">
+      <div class="folder-modal" id="onboarding-modal">
+        <h2 id="onboarding-title">🎉 感谢安装书签视觉看板！</h2>
+        <p id="onboarding-desc">
           本插件已就绪。为了符合你的浏览习惯，请选择是否将本看板作为你的<b>默认新标签页</b>？
         </p>
-        <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-          <button class="upload-btn" id="btn-onboarding-keep" style="background: linear-gradient(135deg, var(--accent-color), #8b5cf6); color: white; font-weight: 600; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.82rem;">✨ 开启 CanvasTab 新标签页</button>
-          <button class="upload-btn" id="btn-onboarding-homepage" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); font-weight: 500; padding: 9px; border-radius: 8px; cursor: pointer; font-size: 0.82rem;">🌐 使用浏览器默认新标签页</button>
+        <div class="onboarding-btn-row">
+          <button class="upload-btn" id="btn-onboarding-keep">✨ 是的，设置为新标签页</button>
+          <button class="upload-btn" id="btn-onboarding-homepage">否</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 壁纸背景管理弹窗 -->
+    <div class="folder-modal-overlay" id="wp-manager-modal-overlay" style="z-index: 2010;">
+      <div class="folder-modal" id="wp-manager-modal">
+        <div class="modal-header" style="margin-bottom: 20px;">
+          <h3 id="txt-wp-manager-title">背景壁纸库管理</h3>
+          <button type="button" class="modal-close" id="wp-manager-close-btn">&times;</button>
+        </div>
+        <p class="section-desc" id="txt-wp-manager-desc" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: -12px; margin-bottom: 20px; line-height: 1.5; text-align: left;">
+          您最多可以上传 15 张自定义壁纸背景。点击卡片可直接应用为当前背景。
+        </p>
+        <div class="modal-body-wrapper">
+          <div class="wp-grid" id="wp-manager-grid"></div>
         </div>
       </div>
     </div>
@@ -196,7 +212,7 @@
       <div class="drawer-section"><h4 id="txt-sec-view">书签显示样式</h4><p class="section-desc" id="txt-sec-view-desc">切换书签卡片的网格排版</p><div class="drawer-opt-group" id="drawer-view-switcher"><button type="button" class="drawer-opt-btn" data-view="card">卡片</button><button type="button" class="drawer-opt-btn" data-view="list">列表</button><button type="button" class="drawer-opt-btn" data-view="icon">图标</button></div></div>
       <div class="drawer-section"><h4 id="txt-sec-theme">个性化主题</h4><p class="section-desc" id="txt-sec-theme-desc">选择系统的全局配色主题</p><div class="drawer-theme-grid" id="drawer-theme-grid"></div></div>
       <div class="drawer-section"><h4 id="txt-sec-lang">多国语言</h4><div class="drawer-select-wrapper"><select id="drawer-lang-select" class="drawer-select"></select></div></div>
-      <div class="drawer-section"><h4 id="txt-sec-wallpaper">壁纸背景设置</h4><div class="panel-row"><label id="drawer-lbl-enable-bg">启用壁纸背景</label><input type="checkbox" id="drawer-bg-enable-toggle"></div><div class="panel-row"><label id="drawer-lbl-enable-slideshow">幻灯片播放</label><input type="checkbox" id="drawer-bg-slideshow-toggle"></div><div class="panel-row"><label id="drawer-lbl-bg-fit">展示效果</label><select id="drawer-bg-fit-select" class="drawer-select"><option value="cover" id="drawer-opt-fit-cover">拉伸填充</option><option value="contain" id="drawer-opt-fit-contain">适应缩放</option><option value="repeat" id="drawer-opt-fit-tile">平铺</option></select></div><div class="panel-row"><label id="drawer-lbl-bg-opacity">壁纸清晰度</label><div class="slider-wrapper"><input type="range" id="drawer-bg-opacity-slider" min="0" max="100" value="70"><span id="drawer-bg-opacity-val">70%</span></div></div><div class="panel-row file-upload-row"><button type="button" class="upload-btn" id="drawer-bg-upload-trigger">上传图片（最多6张）</button><input type="file" id="drawer-bg-file-inputs" accept="image/*" multiple hidden></div><div class="thumbs-grid" id="drawer-bg-thumbs-grid"></div><div class="panel-row" id="drawer-homepage-status-row"><span>新标签页状态</span><span id="drawer-homepage-status-badge"><span id="drawer-homepage-status-dot"></span><span id="drawer-homepage-status-text">已由扩展接管</span></span></div><button type="button" class="upload-btn" id="drawer-btn-homepage-reset" hidden>恢复显示顶部按钮</button><button type="button" class="upload-btn" id="drawer-btn-newtab-toggle">恢复浏览器原生新标签页</button><button type="button" class="upload-btn dead-link-check-btn" id="dead-link-check-btn">死链检测</button><div class="dead-link-results" id="dead-link-results" hidden></div></div>
+      <div class="drawer-section"><h4 id="txt-sec-wallpaper">壁纸背景设置</h4><div class="panel-row"><label id="drawer-lbl-enable-bg">启用壁纸背景</label><input type="checkbox" id="drawer-bg-enable-toggle"></div><div class="panel-row"><label id="drawer-lbl-enable-slideshow">幻灯片播放</label><input type="checkbox" id="drawer-bg-slideshow-toggle"></div><div class="panel-row"><label id="drawer-lbl-bg-fit">展示效果</label><select id="drawer-bg-fit-select" class="drawer-select"><option value="cover" id="drawer-opt-fit-cover">拉伸填充</option><option value="contain" id="drawer-opt-fit-contain">适应缩放</option><option value="repeat" id="drawer-opt-fit-tile">平铺</option></select></div><div class="panel-row"><label id="drawer-lbl-bg-opacity">壁纸清晰度</label><div class="slider-wrapper"><input type="range" id="drawer-bg-opacity-slider" min="0" max="100" value="70"><span id="drawer-bg-opacity-val">70%</span></div></div><div class="panel-row file-upload-row" style="display: flex; gap: 8px; width: min(100%, 320px);"><button type="button" class="upload-btn" id="drawer-bg-upload-trigger" style="flex: 1;">上传背景图</button><button type="button" class="upload-btn" id="drawer-bg-manage-btn" style="flex: 1; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: var(--text-primary); box-shadow: none;">管理背景库</button><input type="file" id="drawer-bg-file-inputs" accept="image/*" multiple hidden></div><div class="panel-row" id="drawer-homepage-status-row"><span>新标签页状态</span><span id="drawer-homepage-status-badge"><span id="drawer-homepage-status-dot"></span><span id="drawer-homepage-status-text">已由扩展接管</span></span></div><button type="button" class="upload-btn" id="drawer-btn-homepage-reset" hidden>恢复显示顶部按钮</button><button type="button" class="upload-btn" id="drawer-btn-newtab-toggle">恢复浏览器原生新标签页</button><button type="button" class="upload-btn dead-link-check-btn" id="dead-link-check-btn">死链检测</button><div class="dead-link-results" id="dead-link-results" hidden></div></div>
     </div>
   </aside>
   <div class="floating-control-group" id="floating-control-group">

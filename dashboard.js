@@ -2672,10 +2672,10 @@ function loadSavedSettings() {
   const fitSelect = document.getElementById('bg-fit-select');
   if (fitSelect) fitSelect.value = wallpaperFit;
 
-  const opacitySlider = document.getElementById('bg-opacity-slider');
+  const opacitySlider = document.getElementById('wp-manager-opacity-slider');
   if (opacitySlider) opacitySlider.value = wallpaperOpacity;
 
-  const opacityVal = document.getElementById('bg-opacity-val');
+  const opacityVal = document.getElementById('wp-manager-opacity-value');
   if (opacityVal) opacityVal.textContent = `${wallpaperOpacity}%`;
 
   // 加载搜索引擎配置
@@ -4238,10 +4238,10 @@ function setupEventListeners() {
     wallpaperFit = event.target.value;
     applyBackgroundSettings();
   });
-  const drawerBgOpacity = document.getElementById('drawer-bg-opacity-slider');
+  const drawerBgOpacity = document.getElementById('wp-manager-opacity-slider');
   if (drawerBgOpacity) drawerBgOpacity.addEventListener('input', (event) => {
     wallpaperOpacity = Number(event.target.value);
-    const value = document.getElementById('drawer-bg-opacity-val');
+    const value = document.getElementById('wp-manager-opacity-value');
     if (value) value.textContent = `${wallpaperOpacity}%`;
     applyBackgroundSettings();
   });
@@ -4509,8 +4509,8 @@ function setupEventListeners() {
   }
 
   // 壁纸透明度滑动条
-  const bgOpacitySlider = document.getElementById('bg-opacity-slider');
-  const bgOpacityVal = document.getElementById('bg-opacity-val');
+  const bgOpacitySlider = document.getElementById('wp-manager-opacity-slider');
+  const bgOpacityVal = document.getElementById('wp-manager-opacity-value');
   if (bgOpacitySlider) {
     // 拖动过程中：仅在内存中即时改变样式，不执行耗时的 localStorage 写入，确保 60fps 丝滑渲染
     bgOpacitySlider.addEventListener('input', (e) => {
@@ -4886,8 +4886,8 @@ function syncDrawerControls() {
   const bgEnabled = document.getElementById('drawer-bg-enable-toggle');
   const bgSlideshow = document.getElementById('drawer-bg-slideshow-toggle');
   const bgFit = document.getElementById('drawer-bg-fit-select');
-  const bgOpacity = document.getElementById('drawer-bg-opacity-slider');
-  const bgOpacityVal = document.getElementById('drawer-bg-opacity-val');
+  const bgOpacity = document.getElementById('wp-manager-opacity-slider');
+  const bgOpacityVal = document.getElementById('wp-manager-opacity-value');
   if (bgEnabled) bgEnabled.checked = wallpaperEnabled;
   if (bgSlideshow) bgSlideshow.checked = slideshowEnabled;
   if (bgFit) bgFit.value = wallpaperFit;

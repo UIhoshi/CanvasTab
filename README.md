@@ -39,6 +39,27 @@
 - **Multilingual** — English, Simplified Chinese, Traditional Chinese, Japanese, Korean, Spanish, French, German
 - **100% Local & Private** — Zero data collection, everything stays in your browser
 
+## 📸 Screenshots & Gallery
+
+<table>
+  <tr>
+    <td align="center"><strong>Wallpaper Manager & Slideshow Controls</strong></td>
+    <td align="center"><strong>Auto Day/Night Theme Mode</strong></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/screenshot_1.png" alt="Wallpaper Manager" width="100%"/></td>
+    <td><img src="screenshots/screenshot_2.png" alt="Auto Day/Night Theme" width="100%"/></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Sidebar Context Menu & Folder Actions</strong></td>
+    <td align="center"><strong>Multilingual Support (30 Languages)</strong></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/screenshot_3.png" alt="Context Menu" width="100%"/></td>
+    <td><img src="screenshots/screenshot_4.png" alt="Multilingual Support" width="100%"/></td>
+  </tr>
+</table>
+
 ## 🌐 Compatibility
 
 Works on any Chromium-based browser including **Google Chrome** and **Microsoft Edge**.

@@ -34,17 +34,6 @@ function setStorageItem(key, value) {
   }
 }
 
-function removeStorageItem(key) {
-  localStorage.removeItem(key);
-  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.remove(key);
-  }
-  // 同时通过 service worker 中转写入（双保险）
-  if (key === 'isHomepageSet' && typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-    chrome.runtime.sendMessage({ action: 'setHomepageState', value: null }).catch(() => {});
-  }
-}
-
 // ================= 语言国际化系统 (i18n) =================
 const i18n = {
   "en": {
@@ -2270,6 +2259,10 @@ let slideshowMode = 'sequential';
 let slideshowIntervalSeconds = 12;
 let wallpaperManagerSaveTimer = null;
 
+const RECENT_VISITS_STORAGE_KEY = 'recentVisits';
+const MAX_RECENT_VISITS = 5;
+let recentVisits = [];
+
 const WALLPAPER_PLAYBACK_MODES = ['sequential', 'random'];
 const WALLPAPER_INTERVAL_OPTIONS = [5, 10, 12, 15, 30, 60];
 
@@ -2280,6 +2273,7 @@ let customEngines = [];
 // 弹窗状态管理
 let modalRootFolderId = null;
 let modalActiveFolderId = null;
+let contextMenuFolderId = null;
 
 // 拖拽悬停触发弹窗/导航的定时器 (Spring-loaded Folders)
 let dragHoverTimer = null;
@@ -2307,6 +2301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 第四步：初始化应用
     setupLanguage();
+    loadRecentVisits();
     initApp();
     setupEventListeners();
     loadSavedSettings();
@@ -2377,6 +2372,11 @@ function applyTranslations() {
 
   const ctxTxtAdd = document.getElementById('ctx-txt-add');
   if (ctxTxtAdd) ctxTxtAdd.textContent = t.ctxAdd;
+
+  const ctxTxtAddSibling = document.getElementById('ctx-txt-add-sibling');
+  if (ctxTxtAddSibling) {
+    ctxTxtAddSibling.textContent = currentLang.startsWith('zh') ? '新建同级文件夹' : 'Create Sibling Folder';
+  }
 
   const ctxTxtRename = document.getElementById('ctx-txt-rename');
   if (ctxTxtRename) ctxTxtRename.textContent = t.ctxRename;
@@ -2593,6 +2593,8 @@ function applyTranslations() {
     else btnOnboardingHomepage.textContent = 'No';
   }
 
+  renderRecentVisits();
+
   // 渲染新标签页接管状态 (指示器与按钮)
   checkNewtabVisibility();
 
@@ -2690,8 +2692,10 @@ function loadSavedSettings() {
   wallpaperEnabled = localStorage.getItem('wallpaperEnabled') === 'true';
   slideshowEnabled = localStorage.getItem('slideshowEnabled') === 'true';
   wallpaperFit = localStorage.getItem('wallpaperFit') || 'cover';
-  const savedWallpaperOpacity = Number(localStorage.getItem('wallpaperOpacity'));
-  wallpaperOpacity = Number.isFinite(savedWallpaperOpacity) ? Math.max(0, Math.min(100, savedWallpaperOpacity)) : 70;
+  const savedWallpaperOpacityVal = localStorage.getItem('wallpaperOpacity');
+  wallpaperOpacity = (savedWallpaperOpacityVal !== null && !isNaN(Number(savedWallpaperOpacityVal))) 
+    ? Math.max(0, Math.min(100, Number(savedWallpaperOpacityVal))) 
+    : 70;
   currentBgIndex = parseInt(localStorage.getItem('currentBgIndex') || '0', 10);
   const savedSlideshowMode = localStorage.getItem('slideshowMode');
   slideshowMode = WALLPAPER_PLAYBACK_MODES.includes(savedSlideshowMode) ? savedSlideshowMode : 'sequential';
@@ -2765,6 +2769,8 @@ function loadBookmarksTree() {
       }
     }
 
+    if (isOtherBookmarksFolder(activeFolderId)) activeFolderId = '1';
+
     renderSidebar();
     refreshMainView();
 
@@ -2815,6 +2821,57 @@ function getAllFlatBookmarks() {
   return uniqueList;
 }
 
+function isOtherBookmarksFolder(folderOrId) {
+  const folder = typeof folderOrId === 'object'
+    ? folderOrId
+    : allFolders.find(item => item.id === folderOrId);
+  if (!folder || folder.id !== '2') return false;
+
+  // Chrome 的系统目录 ID 为 2；演示数据也使用了该 ID，因此仅在真实书签 API 环境中隐藏它。
+  if (typeof chrome !== 'undefined' && chrome.bookmarks?.getTree) return true;
+  return folder.title === '其他书签' || folder.title === 'Other Bookmarks';
+}
+
+function getOtherBookmarksFolderId() {
+  return allFolders.find(isOtherBookmarksFolder)?.id || null;
+}
+
+function getOtherBookmarksFlat() {
+  const folderId = getOtherBookmarksFolderId();
+  if (!folderId) return [];
+
+  const result = [];
+  const visitedFolders = new Set();
+  const collect = currentFolderId => {
+    if (visitedFolders.has(currentFolderId)) return;
+    visitedFolders.add(currentFolderId);
+
+    result.push(...(bookmarksCache[currentFolderId] || []));
+    (foldersCache[currentFolderId] || []).forEach(child => collect(child.id));
+  };
+
+  collect(folderId);
+  return result;
+}
+
+function mergeUniqueBookmarks(...bookmarkLists) {
+  const seen = new Set();
+  return bookmarkLists.flat().filter(bookmark => {
+    const key = bookmark.id || bookmark.url;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function getDisplayBookmarksForFolder(folderId) {
+  const currentBookmarks = bookmarksCache[folderId] || [];
+  const otherBookmarksFolderId = getOtherBookmarksFolderId();
+  if (folderId !== '1' || !otherBookmarksFolderId) return currentBookmarks;
+
+  return mergeUniqueBookmarks(currentBookmarks, getOtherBookmarksFlat());
+}
+
 // 渲染树形侧边栏
 function renderSidebar() {
   const folderList = document.getElementById('folder-list');
@@ -2825,7 +2882,7 @@ function renderSidebar() {
     folder.parentId === '0' || 
     folder.parentId === 'root' || 
     !allFolders.some(f => f.id === folder.parentId)
-  );
+  ).filter(folder => !isOtherBookmarksFolder(folder));
 
   rootFolders.forEach(folder => {
     const treeNode = buildFolderTreeNode(folder);
@@ -2843,7 +2900,7 @@ function buildFolderTreeNode(folder) {
   nodeEl.className = 'folder-tree-node';
   nodeEl.id = `node-${folder.id}`;
 
-  const linkCount = (bookmarksCache[folder.id] || []).length;
+  const linkCount = getDisplayBookmarksForFolder(folder.id).length;
   const subFolders = foldersCache[folder.id] || [];
   const iconSvg = folder.id === '1' ? SVGS.star : SVGS.folder;
 
@@ -2874,6 +2931,9 @@ function buildFolderTreeNode(folder) {
         <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
       ${!isSystemFolder ? `
+      <button class="sidebar-action-btn rename-folder-btn" title="${currentLang.startsWith('zh') ? '重命名文件夹' : 'Rename Folder'}" data-id="${folder.id}">
+        <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </button>
       <button class="sidebar-action-btn delete-folder-btn" title="${currentLang.startsWith('zh') ? '删除此文件夹' : 'Delete Folder'}" data-id="${folder.id}">
         <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
@@ -3059,7 +3119,7 @@ function loadVisualRootLayer() {
   let rootFolders = [];
   let rootBookmarks = [];
 
-  rootFoldersList.forEach(folder => {
+  rootFoldersList.filter(folder => !isOtherBookmarksFolder(folder)).forEach(folder => {
     if (foldersCache[folder.id]) {
       rootFolders = rootFolders.concat(foldersCache[folder.id]);
     }
@@ -3067,6 +3127,8 @@ function loadVisualRootLayer() {
       rootBookmarks = rootBookmarks.concat(bookmarksCache[folder.id]);
     }
   });
+
+  rootBookmarks = mergeUniqueBookmarks(rootBookmarks, getOtherBookmarksFlat());
 
   const statsEl = document.getElementById('folder-stats');
   if (statsEl) {
@@ -3115,14 +3177,114 @@ function selectFolder(id, fromSidebar = false) {
 
   if (statsEl) {
     const foldersCount = (foldersCache[id] || []).length;
-    const linksCount = (bookmarksCache[id] || []).length;
+    const linksCount = getDisplayBookmarksForFolder(id).length;
     statsEl.textContent = t.folderStatsFolder.replace('{folders}', foldersCount).replace('{links}', linksCount);
   }
-  renderItems(foldersCache[id] || [], bookmarksCache[id] || [], 'cards-grid');
+  const displaySubFolders = isOtherBookmarksFolder(id) ? [] : (foldersCache[id] || []);
+  renderItems(displaySubFolders, getDisplayBookmarksForFolder(id), 'cards-grid');
   updateBackFolderButtons();
 }
 
 // 统一渲染网格列表
+function getBookmarkHostname(url) {
+  try {
+    return new URL(url).hostname;
+  } catch (err) {
+    return '';
+  }
+}
+
+function getBookmarkFaviconUrl(url, hostname = getBookmarkHostname(url)) {
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+    const faviconUrl = new URL(`chrome-extension://${chrome.runtime.id}/_favicon/`);
+    faviconUrl.searchParams.set('pageUrl', url);
+    faviconUrl.searchParams.set('size', '32');
+    return faviconUrl.toString();
+  }
+  return hostname ? `https://www.google.com/s2/favicons?domain=${hostname}&sz=32` : '';
+}
+
+function getRecentVisitsLabels() {
+  if (currentLang === 'zh-TW') return { title: '最近訪問', clear: '清除' };
+  if (currentLang.startsWith('zh')) return { title: '最近访问', clear: '清空' };
+  return { title: 'Recent visits', clear: 'Clear' };
+}
+
+function loadRecentVisits() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(RECENT_VISITS_STORAGE_KEY) || '[]');
+    recentVisits = Array.isArray(saved)
+      ? saved.filter(item => item && typeof item.url === 'string' && /^https?:\/\//i.test(item.url)).slice(0, MAX_RECENT_VISITS)
+      : [];
+  } catch (err) {
+    recentVisits = [];
+  }
+  renderRecentVisits();
+}
+
+function saveRecentVisits() {
+  setStorageItem(RECENT_VISITS_STORAGE_KEY, JSON.stringify(recentVisits));
+}
+
+function recordRecentVisit(bookmark) {
+  const url = String(bookmark?.url || '').trim();
+  if (!/^https?:\/\//i.test(url)) return;
+
+  const hostname = getBookmarkHostname(url);
+  const visit = {
+    url,
+    title: String(bookmark?.title || hostname || url).trim(),
+    hostname,
+    visitedAt: Date.now()
+  };
+
+  recentVisits = [visit, ...recentVisits.filter(item => item.url !== url)].slice(0, MAX_RECENT_VISITS);
+  saveRecentVisits();
+  renderRecentVisits();
+}
+
+function clearRecentVisits() {
+  recentVisits = [];
+  saveRecentVisits();
+  renderRecentVisits();
+}
+
+function renderRecentVisits() {
+  const section = document.getElementById('recent-visits');
+  const list = document.getElementById('recent-visits-list');
+  const title = document.getElementById('recent-visits-title');
+  const clearButton = document.getElementById('clear-recent-visits');
+  if (!section || !list) return;
+
+  const labels = getRecentVisitsLabels();
+  if (title) title.textContent = labels.title;
+  if (clearButton) clearButton.textContent = labels.clear;
+
+  section.hidden = recentVisits.length === 0;
+  list.innerHTML = '';
+  recentVisits.forEach(item => {
+    const hostname = item.hostname || getBookmarkHostname(item.url);
+    const card = document.createElement('a');
+    card.className = 'recent-visit-card';
+    card.href = item.url;
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
+    card.title = item.title;
+    card.innerHTML = `
+      <span class="recent-visit-favicon">
+        <img src="${escapeHtml(getBookmarkFaviconUrl(item.url, hostname))}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="recent-visit-fallback">${escapeHtml((item.title || '?').charAt(0).toUpperCase())}</span>
+      </span>
+      <span class="recent-visit-copy">
+        <strong>${escapeHtml(item.title || hostname || item.url)}</strong>
+        <small>${escapeHtml(hostname || item.url)}</small>
+      </span>
+    `;
+    card.addEventListener('click', () => recordRecentVisit(item));
+    list.appendChild(card);
+  });
+}
+
 function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
   const grid = document.getElementById(targetContainerId);
   if (!grid) return;
@@ -3198,6 +3360,9 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
           <svg style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
         ${!isSystemFolder ? `
+        <button class="card-action-btn rename-folder-btn" title="${currentLang.startsWith('zh') ? '重命名文件夹' : 'Rename Folder'}" data-id="${folder.id}">
+          <svg style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
         <button class="card-action-btn delete-folder-btn" title="${currentLang.startsWith('zh') ? '删除此文件夹' : 'Delete Folder'}" data-id="${folder.id}">
           <svg style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         </button>
@@ -3316,22 +3481,10 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
       if (modal) modal.style.opacity = '1';
     });
 
-    let hostname = '';
-    try {
-      hostname = new URL(bookmark.url).hostname;
-    } catch (err) {
-      hostname = bookmark.url.startsWith('javascript:') ? 'Script Link' : 'Local Link';
-    }
+    let hostname = getBookmarkHostname(bookmark.url);
+    if (!hostname) hostname = bookmark.url.startsWith('javascript:') ? 'Script Link' : 'Local Link';
 
-    let faviconUrl = '';
-    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
-      const urlObj = new URL(`chrome-extension://${chrome.runtime.id}/_favicon/`);
-      urlObj.searchParams.set('pageUrl', bookmark.url);
-      urlObj.searchParams.set('size', '32');
-      faviconUrl = urlObj.toString();
-    } else {
-      faviconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
-    }
+    const faviconUrl = getBookmarkFaviconUrl(bookmark.url, hostname);
 
     const initial = bookmark.title ? bookmark.title.charAt(0).toUpperCase() : '?';
 
@@ -3345,6 +3498,8 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
       </div>
       <div class="card-bottom">${escapeHtml(hostname)}</div>
     `;
+
+    card.addEventListener('click', () => recordRecentVisit(bookmark));
 
     grid.appendChild(card);
   });
@@ -3369,6 +3524,48 @@ function isDescendant(parentId, childId) {
     temp = allFolders.find(f => f.id === temp.parentId);
   }
   return false;
+}
+
+function getFolderById(folderId) {
+  return allFolders.find(folder => folder.id === folderId) || null;
+}
+
+function getSiblingFolderParentId(folderId) {
+  const folder = getFolderById(folderId);
+  if (!folder) return null;
+  return folder.parentId || (currentMode === 'visual' ? '1' : activeFolderId || '1');
+}
+
+function handleRenameFolder(folderId) {
+  const folder = getFolderById(folderId);
+  if (!folder) return;
+
+  const isZh = currentLang.startsWith('zh');
+  const promptMsg = isZh ? '请输入新的文件夹名称：' : 'Enter a new folder name:';
+  const folderName = prompt(promptMsg, folder.title);
+  const nextTitle = folderName?.trim();
+  if (!nextTitle || nextTitle === folder.title) return;
+
+  if (typeof chrome !== 'undefined' && chrome.bookmarks?.update) {
+    chrome.bookmarks.update(folderId, { title: nextTitle }, () => {
+      loadBookmarksTree();
+    });
+    return;
+  }
+
+  folder.title = nextTitle;
+  Object.values(foldersCache).forEach(children => {
+    children.forEach(child => {
+      if (child.id === folderId) child.title = nextTitle;
+    });
+  });
+  renderSidebar();
+  refreshMainView();
+}
+
+function handleCreateSiblingFolder(folderId) {
+  const parentId = getSiblingFolderParentId(folderId);
+  if (parentId) handleCreateSubfolder(parentId);
 }
 
 // 删除文件夹
@@ -4099,6 +4296,56 @@ function renderThumbnails() {
   });
 }
 
+// 实时更新壁纸预览，不直接修改持久化的全局变量 wallpaperOpacity，从而支持“取消/关闭”弹窗时无缝回滚
+function applyWallpaperPreview() {
+  const enableToggle = document.getElementById('wp-manager-enable-toggle');
+  const fitSelect = document.getElementById('wp-manager-fit-select');
+  const opacitySlider = document.getElementById('wp-manager-opacity-slider');
+  
+  const isPreviewEnabled = enableToggle ? enableToggle.checked : wallpaperEnabled;
+  const previewOpacity = opacitySlider ? Number(opacitySlider.value) : wallpaperOpacity;
+  const previewFit = fitSelect ? fitSelect.value : wallpaperFit;
+  
+  const hasWallpaperState = isPreviewEnabled && customBgList.length > 0;
+  
+  const wpOverlay = document.getElementById('wallpaper-overlay');
+  const wpMask = document.getElementById('wallpaper-mask');
+  
+  if (wpOverlay) {
+    if (hasWallpaperState) {
+      let bgIndex = currentBgIndex;
+      if (bgIndex >= customBgList.length) {
+        bgIndex = 0;
+      }
+      const currentBg = customBgList[bgIndex];
+      wpOverlay.style.backgroundImage = `url(${currentBg})`;
+      wpOverlay.style.opacity = 1;
+      
+      if (previewFit === 'cover') {
+        wpOverlay.style.backgroundSize = 'cover';
+        wpOverlay.style.backgroundRepeat = 'no-repeat';
+      } else if (previewFit === 'contain') {
+        wpOverlay.style.backgroundSize = 'contain';
+        wpOverlay.style.backgroundRepeat = 'no-repeat';
+      } else if (previewFit === 'repeat') {
+        wpOverlay.style.backgroundSize = 'auto';
+        wpOverlay.style.backgroundRepeat = 'repeat';
+      }
+    } else {
+      wpOverlay.style.backgroundImage = 'none';
+      wpOverlay.style.opacity = 0;
+    }
+  }
+  
+  if (wpMask) {
+    if (hasWallpaperState) {
+      wpMask.style.opacity = 0.90 - (previewOpacity / 100) * 0.90;
+    } else {
+      wpMask.style.opacity = 0;
+    }
+  }
+}
+
 // 弹出大图预览小窗口
 function showImageLightbox(imgSrc) {
   let overlay = document.getElementById('lightbox-overlay');
@@ -4298,6 +4545,53 @@ function closeFolderModal() {
   modalActiveFolderId = null;
 }
 
+function hideFolderContextMenu() {
+  const menu = document.getElementById('custom-context-menu');
+  if (menu) menu.style.display = 'none';
+  contextMenuFolderId = null;
+}
+
+function showFolderContextMenu(event, folderId) {
+  const menu = document.getElementById('custom-context-menu');
+  if (!menu) return;
+
+  contextMenuFolderId = folderId;
+  const folder = getFolderById(folderId);
+  const isSystemFolder = folder && (
+    folder.id === '0' || folder.id === '1' || folder.id === '2' || folder.id === '3' ||
+    folder.parentId === '0' || folder.parentId === 'root'
+  );
+  const siblingItem = document.getElementById('ctx-add-sibling-folder');
+  const renameItem = document.getElementById('ctx-rename-folder');
+  const deleteItem = document.getElementById('ctx-delete-folder');
+  [siblingItem, renameItem, deleteItem].forEach(item => {
+    if (item) item.style.display = isSystemFolder ? 'none' : 'flex';
+  });
+
+  menu.style.display = 'flex';
+  const left = Math.min(event.clientX, window.innerWidth - menu.offsetWidth - 8);
+  const top = Math.min(event.clientY, window.innerHeight - menu.offsetHeight - 8);
+  menu.style.left = `${Math.max(8, left)}px`;
+  menu.style.top = `${Math.max(8, top)}px`;
+}
+
+function getSidebarContextFolderId(folderId = null) {
+  if (folderId && getFolderById(folderId)) return folderId;
+  if (activeFolderId && getFolderById(activeFolderId)) return activeFolderId;
+
+  const preferredFolderId = ['1', '2', '3'].find(id => getFolderById(id));
+  if (preferredFolderId) return preferredFolderId;
+
+  return allFolders[0]?.id || null;
+}
+
+function markSidebarFolderActive(folderId) {
+  activeFolderId = folderId;
+  document.querySelectorAll('.folder-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.id === folderId);
+  });
+}
+
 // ================= 事件监听 =================
 function setupEventListeners() {
   // 控制中心：直接展开，不使用遮罩层
@@ -4351,7 +4645,14 @@ function setupEventListeners() {
   const wpManagerClose = document.getElementById('wp-manager-close-btn');
   if (wpManageBtn && wpManagerOverlay) {
     wpManageBtn.addEventListener('click', () => {
+      // 背景库是独立的全屏管理面板，打开时先收起控制中心，避免两个面板叠加。
+      closeControlDrawer();
       wpManagerOverlay.classList.add('active');
+      
+      // 隐藏悬浮胶囊设置中心，防止其悬浮在弹窗之上造成层叠冲突
+      const group = document.getElementById('floating-control-group');
+      if (group) group.style.display = 'none';
+
       syncWallpaperManagerControls();
       renderThumbnails();
     });
@@ -4378,6 +4679,9 @@ function setupEventListeners() {
         const value = document.getElementById('wp-manager-opacity-value');
         if (value) value.textContent = `${control.value}%`;
       }
+      if (['wp-manager-enable-toggle', 'wp-manager-fit-select', 'wp-manager-opacity-slider'].includes(id)) {
+        applyWallpaperPreview();
+      }
       if (id === 'wp-manager-slideshow-toggle') syncWallpaperManagerPlaybackControls();
       setWallpaperManagerDirty(true);
     });
@@ -4385,10 +4689,22 @@ function setupEventListeners() {
   if (wpManagerClose && wpManagerOverlay) {
     wpManagerClose.addEventListener('click', () => {
       wpManagerOverlay.classList.remove('active');
+      loadSavedSettings(); // 还原未保存的预览改动
+      
+      // 重新显示悬浮胶囊设置中心，并重新拉出控制中心
+      const group = document.getElementById('floating-control-group');
+      if (group) group.style.display = '';
+      openControlDrawer();
     });
     wpManagerOverlay.addEventListener('click', (e) => {
       if (e.target === wpManagerOverlay) {
         wpManagerOverlay.classList.remove('active');
+        loadSavedSettings(); // 还原未保存的预览改动
+        
+        // 重新显示悬浮胶囊设置中心，并重新拉出控制中心
+        const group = document.getElementById('floating-control-group');
+        if (group) group.style.display = '';
+        openControlDrawer();
       }
     });
   }
@@ -4409,6 +4725,7 @@ function setupEventListeners() {
     folderList.addEventListener('click', (e) => {
       const deleteBtn = e.target.closest('.delete-folder-btn');
       const addBtn = e.target.closest('.add-subfolder-btn');
+      const renameBtn = e.target.closest('.rename-folder-btn');
       if (deleteBtn) {
         e.stopPropagation();
         handleDeleteFolder(deleteBtn.dataset.id);
@@ -4419,14 +4736,63 @@ function setupEventListeners() {
         handleCreateSubfolder(addBtn.dataset.id);
         return;
       }
+      if (renameBtn) {
+        e.stopPropagation();
+        handleRenameFolder(renameBtn.dataset.id);
+        return;
+      }
+    });
+
+  }
+
+  const sidebarContextTarget = document.getElementById('sidebar');
+  if (sidebarContextTarget) {
+    sidebarContextTarget.addEventListener('contextmenu', (e) => {
+      const folderItem = e.target.closest('.folder-item');
+      const folderId = getSidebarContextFolderId(folderItem?.dataset.id || null);
+      if (!folderId) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      markSidebarFolderActive(folderId);
+      if (currentMode !== 'visual') selectFolder(folderId, true);
+      showFolderContextMenu(e, folderId);
     });
   }
+
+  const contextMenu = document.getElementById('custom-context-menu');
+  const contextMenuActions = [
+    ['ctx-add-folder', folderId => handleCreateSubfolder(folderId)],
+    ['ctx-add-sibling-folder', folderId => handleCreateSiblingFolder(folderId)],
+    ['ctx-rename-folder', folderId => handleRenameFolder(folderId)],
+    ['ctx-delete-folder', folderId => handleDeleteFolder(folderId)]
+  ];
+  contextMenuActions.forEach(([id, action]) => {
+    const item = document.getElementById(id);
+    if (item) {
+      item.addEventListener('click', () => {
+        const folderId = contextMenuFolderId;
+        hideFolderContextMenu();
+        if (folderId) action.call(null, folderId);
+      });
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!contextMenu?.contains(e.target)) hideFolderContextMenu();
+  });
+  document.addEventListener('contextmenu', (e) => {
+    if (!e.target.closest('.folder-item') && !e.target.closest('#sidebar')) hideFolderContextMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') hideFolderContextMenu();
+  });
 
   const cardsGrid = document.getElementById('cards-grid');
   if (cardsGrid) {
     cardsGrid.addEventListener('click', (e) => {
       const deleteBtn = e.target.closest('.delete-folder-btn');
       const addBtn = e.target.closest('.add-subfolder-btn');
+      const renameBtn = e.target.closest('.rename-folder-btn');
       if (deleteBtn) {
         e.preventDefault();
         e.stopPropagation();
@@ -4437,6 +4803,12 @@ function setupEventListeners() {
         e.preventDefault();
         e.stopPropagation();
         handleCreateSubfolder(addBtn.dataset.id);
+        return;
+      }
+      if (renameBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleRenameFolder(renameBtn.dataset.id);
         return;
       }
     });
@@ -4447,6 +4819,7 @@ function setupEventListeners() {
     modalGrid.addEventListener('click', (e) => {
       const deleteBtn = e.target.closest('.delete-folder-btn');
       const addBtn = e.target.closest('.add-subfolder-btn');
+      const renameBtn = e.target.closest('.rename-folder-btn');
       if (deleteBtn) {
         e.preventDefault();
         e.stopPropagation();
@@ -4457,6 +4830,12 @@ function setupEventListeners() {
         e.preventDefault();
         e.stopPropagation();
         handleCreateSubfolder(addBtn.dataset.id);
+        return;
+      }
+      if (renameBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleRenameFolder(renameBtn.dataset.id);
         return;
       }
     });
@@ -4785,6 +5164,11 @@ function setupEventListeners() {
     googleSearchInput.addEventListener('keydown', (e) => handleSearchKeydown(e, googleSearchInput));
   }
 
+  const clearRecentVisitsButton = document.getElementById('clear-recent-visits');
+  if (clearRecentVisitsButton) {
+    clearRecentVisitsButton.addEventListener('click', clearRecentVisits);
+  }
+
   // 键盘快捷键 / 自动聚焦当前显示的搜索框
   document.addEventListener('keydown', (e) => {
     if (e.key === '/' && document.activeElement !== searchInput && document.activeElement !== googleSearchInput) {
@@ -4968,6 +5352,26 @@ function syncDrawerControls() {
   syncWallpaperManagerPlaybackControls();
 }
 
+function openControlDrawer() {
+  const drawer = document.getElementById('control-drawer');
+  if (!drawer) return;
+  const sides = ['left', 'right'];
+  const side = sides.includes(localStorage.getItem('drawerSide')) ? localStorage.getItem('drawerSide') : 'right';
+  ['left', 'right', 'top', 'bottom'].forEach(item => document.body.classList.remove(`drawer-open-${item}`));
+  document.body.classList.add(`drawer-open-${side}`);
+  drawer.classList.add('active');
+}
+
+function closeControlDrawer() {
+  const drawer = document.getElementById('control-drawer');
+  if (!drawer) return;
+
+  ['left', 'right', 'top', 'bottom'].forEach(item => {
+    document.body.classList.remove(`drawer-open-${item}`);
+  });
+  drawer.classList.remove('active');
+}
+
 function setupControlSurface() {
   const body = document.body;
   const drawer = document.getElementById('control-drawer');
@@ -5003,10 +5407,7 @@ function setupControlSurface() {
     body.classList.add(`drawer-open-${side}`);
     drawer.classList.add('active');
   };
-  const closeDrawer = () => {
-    ['left', 'right', 'top', 'bottom'].forEach(item => body.classList.remove(`drawer-open-${item}`));
-    drawer.classList.remove('active');
-  };
+  const closeDrawer = closeControlDrawer;
 
   setSide(getSide());
 

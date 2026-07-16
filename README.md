@@ -16,23 +16,7 @@
 
 - **Card-style Visualization** — Browse bookmarks in card grid, list, or icon views
 - **8 Premium Themes** — Midnight Dark, Frosted Silver, Neon Aurora, Deep Ocean, Forest Green, Sunset Orange, Sakura Rose, Cyberpunk Neon
-  
-  <table>
-    <tr>
-      <td align="center"><strong>Midnight Dark (Manage Mode)</strong></td>
-      <td align="center"><strong>Frosted Silver (Manage Mode)</strong></td>
-    </tr>
-    <tr>
-      <td><img src="screenshots/dark_theme_sidebar.png" alt="Midnight Dark" width="100%"/></td>
-      <td><img src="screenshots/light_theme_sidebar.png" alt="Frosted Silver" width="100%"/></td>
-    </tr>
-  </table>
-
 - **Custom Wallpaper Canvas** — Upload up to 6 images with opacity control and slideshow mode
-  
-  <br/>
-  
-  ![Frosted Silver (Visual Mode)](screenshots/light_theme_visual.png)
 
 - **Multi-in-One Search** — Google, Bing, default browser search, and custom search engines
 - **Folder Management** — Create, delete, and drag-and-drop folders across the sidebar tree and card grid

@@ -2266,6 +2266,12 @@ let wallpaperOpacity = 70; // 默认 70% 壁纸不透明度 (10-100)
 let customBgList = []; // 存储 Base64 壁纸数组
 let currentBgIndex = 0;
 let slideshowInterval = null;
+let slideshowMode = 'sequential';
+let slideshowIntervalSeconds = 12;
+let wallpaperManagerSaveTimer = null;
+
+const WALLPAPER_PLAYBACK_MODES = ['sequential', 'random'];
+const WALLPAPER_INTERVAL_OPTIONS = [5, 10, 12, 15, 30, 60];
 
 // 搜索引擎配置
 let currentSearchEngine = 'browser';
@@ -2684,8 +2690,13 @@ function loadSavedSettings() {
   wallpaperEnabled = localStorage.getItem('wallpaperEnabled') === 'true';
   slideshowEnabled = localStorage.getItem('slideshowEnabled') === 'true';
   wallpaperFit = localStorage.getItem('wallpaperFit') || 'cover';
-  wallpaperOpacity = parseInt(localStorage.getItem('wallpaperOpacity') || '70', 10);
+  const savedWallpaperOpacity = Number(localStorage.getItem('wallpaperOpacity'));
+  wallpaperOpacity = Number.isFinite(savedWallpaperOpacity) ? Math.max(0, Math.min(100, savedWallpaperOpacity)) : 70;
   currentBgIndex = parseInt(localStorage.getItem('currentBgIndex') || '0', 10);
+  const savedSlideshowMode = localStorage.getItem('slideshowMode');
+  slideshowMode = WALLPAPER_PLAYBACK_MODES.includes(savedSlideshowMode) ? savedSlideshowMode : 'sequential';
+  const savedSlideshowInterval = Number(localStorage.getItem('slideshowIntervalSeconds'));
+  slideshowIntervalSeconds = WALLPAPER_INTERVAL_OPTIONS.includes(savedSlideshowInterval) ? savedSlideshowInterval : 12;
   
   try {
     customBgList = JSON.parse(localStorage.getItem('customBgList')) || [];
@@ -2694,20 +2705,7 @@ function loadSavedSettings() {
   }
 
   // 同步控件 UI 状态
-  const enableChk = document.getElementById('bg-enable-toggle');
-  if (enableChk) enableChk.checked = wallpaperEnabled;
-
-  const slideshowChk = document.getElementById('bg-slideshow-toggle');
-  if (slideshowChk) slideshowChk.checked = slideshowEnabled;
-
-  const fitSelect = document.getElementById('bg-fit-select');
-  if (fitSelect) fitSelect.value = wallpaperFit;
-
-  const opacitySlider = document.getElementById('wp-manager-opacity-slider');
-  if (opacitySlider) opacitySlider.value = wallpaperOpacity;
-
-  const opacityVal = document.getElementById('wp-manager-opacity-value');
-  if (opacityVal) opacityVal.textContent = `${wallpaperOpacity}%`;
+  syncWallpaperManagerControls();
 
   // 加载搜索引擎配置
   currentSearchEngine = localStorage.getItem('searchEngine') || 'bookmarks';
@@ -3580,14 +3578,87 @@ function renderThemeSelector() {
 }
 
 // ================= 壁纸与幻灯片核心业务逻辑 (应用到独立底层图层) =================
+function setWallpaperManagerDirty(isDirty) {
+  const saveBtn = document.getElementById('wp-manager-save-btn');
+  if (!saveBtn) return;
+  saveBtn.disabled = !isDirty;
+  saveBtn.classList.toggle('is-dirty', isDirty);
+}
+
+function syncWallpaperManagerPlaybackControls() {
+  const slideshowToggle = document.getElementById('wp-manager-slideshow-toggle');
+  const modeSelect = document.getElementById('wp-manager-slideshow-mode');
+  const intervalSelect = document.getElementById('wp-manager-slideshow-interval');
+  const isEnabled = slideshowToggle ? slideshowToggle.checked : slideshowEnabled;
+  if (modeSelect) modeSelect.disabled = !isEnabled;
+  if (intervalSelect) intervalSelect.disabled = !isEnabled;
+}
+
+function syncWallpaperManagerControls() {
+  const enableToggle = document.getElementById('wp-manager-enable-toggle');
+  const fitSelect = document.getElementById('wp-manager-fit-select');
+  const opacitySlider = document.getElementById('wp-manager-opacity-slider');
+  const opacityValue = document.getElementById('wp-manager-opacity-value');
+  const slideshowToggle = document.getElementById('wp-manager-slideshow-toggle');
+  const modeSelect = document.getElementById('wp-manager-slideshow-mode');
+  const intervalSelect = document.getElementById('wp-manager-slideshow-interval');
+
+  if (enableToggle) enableToggle.checked = wallpaperEnabled;
+  if (fitSelect) fitSelect.value = wallpaperFit;
+  if (opacitySlider) opacitySlider.value = wallpaperOpacity;
+  if (opacityValue) opacityValue.textContent = `${wallpaperOpacity}%`;
+  if (slideshowToggle) slideshowToggle.checked = slideshowEnabled;
+  if (modeSelect) modeSelect.value = slideshowMode;
+  if (intervalSelect) intervalSelect.value = String(slideshowIntervalSeconds);
+
+  syncWallpaperManagerPlaybackControls();
+  setWallpaperManagerDirty(false);
+}
+
+function showWallpaperManagerSaveStatus(message) {
+  const status = document.getElementById('wp-manager-save-status');
+  if (!status) return;
+  if (wallpaperManagerSaveTimer) clearTimeout(wallpaperManagerSaveTimer);
+  status.textContent = message;
+  status.classList.add('is-visible');
+  wallpaperManagerSaveTimer = setTimeout(() => {
+    status.classList.remove('is-visible');
+  }, 2200);
+}
+
+function saveWallpaperManagerSettings() {
+  const enableToggle = document.getElementById('wp-manager-enable-toggle');
+  const fitSelect = document.getElementById('wp-manager-fit-select');
+  const opacitySlider = document.getElementById('wp-manager-opacity-slider');
+  const slideshowToggle = document.getElementById('wp-manager-slideshow-toggle');
+  const modeSelect = document.getElementById('wp-manager-slideshow-mode');
+  const intervalSelect = document.getElementById('wp-manager-slideshow-interval');
+
+  wallpaperEnabled = Boolean(enableToggle?.checked);
+  wallpaperFit = ['cover', 'contain', 'repeat'].includes(fitSelect?.value) ? fitSelect.value : 'cover';
+  const selectedOpacity = Number(opacitySlider?.value);
+  wallpaperOpacity = Number.isFinite(selectedOpacity) ? Math.max(0, Math.min(100, selectedOpacity)) : 70;
+  slideshowEnabled = Boolean(slideshowToggle?.checked);
+  slideshowMode = WALLPAPER_PLAYBACK_MODES.includes(modeSelect?.value) ? modeSelect.value : 'sequential';
+  const selectedInterval = Number(intervalSelect?.value);
+  slideshowIntervalSeconds = WALLPAPER_INTERVAL_OPTIONS.includes(selectedInterval) ? selectedInterval : 12;
+
+  applyBackgroundSettings();
+  syncDrawerControls();
+  setWallpaperManagerDirty(false);
+  showWallpaperManagerSaveStatus(currentLang.startsWith('zh') ? '设置已保存' : 'Settings saved');
+}
+
 function applyBackgroundSettings() {
   // 1. 保存壁纸设置
-  localStorage.setItem('wallpaperEnabled', wallpaperEnabled);
-  localStorage.setItem('slideshowEnabled', slideshowEnabled);
-  localStorage.setItem('wallpaperFit', wallpaperFit);
-  localStorage.setItem('wallpaperOpacity', wallpaperOpacity);
-  localStorage.setItem('currentBgIndex', currentBgIndex);
-  localStorage.setItem('customBgList', JSON.stringify(customBgList));
+  setStorageItem('wallpaperEnabled', wallpaperEnabled);
+  setStorageItem('slideshowEnabled', slideshowEnabled);
+  setStorageItem('wallpaperFit', wallpaperFit);
+  setStorageItem('wallpaperOpacity', wallpaperOpacity);
+  setStorageItem('currentBgIndex', currentBgIndex);
+  setStorageItem('customBgList', JSON.stringify(customBgList));
+  setStorageItem('slideshowMode', slideshowMode);
+  setStorageItem('slideshowIntervalSeconds', slideshowIntervalSeconds);
 
   // 2. 状态映射到 body，便于切换磨砂模糊等效果
   const hasWallpaperState = wallpaperEnabled && customBgList.length > 0;
@@ -3635,7 +3706,7 @@ function applyBackgroundSettings() {
   // 4. 重载自动幻灯定时器
   clearInterval(slideshowInterval);
   if (hasWallpaperState && slideshowEnabled && customBgList.length > 1) {
-    slideshowInterval = setInterval(nextSlide, 12000); // 12秒切图
+    slideshowInterval = setInterval(nextSlide, slideshowIntervalSeconds * 1000);
   }
 
   // 5. 更新缩略图网络
@@ -3890,8 +3961,13 @@ function triggerWebSearch(query) {
 // 幻灯下一张
 function nextSlide() {
   if (customBgList.length <= 1) return;
-  currentBgIndex = (currentBgIndex + 1) % customBgList.length;
-  localStorage.setItem('currentBgIndex', currentBgIndex);
+  if (slideshowMode === 'random') {
+    const candidates = customBgList.map((_, index) => index).filter(index => index !== currentBgIndex);
+    currentBgIndex = candidates[Math.floor(Math.random() * candidates.length)];
+  } else {
+    currentBgIndex = (currentBgIndex + 1) % customBgList.length;
+  }
+  setStorageItem('currentBgIndex', currentBgIndex);
   
   const currentBg = customBgList[currentBgIndex];
   const wpOverlay = document.getElementById('wallpaper-overlay');
@@ -4261,28 +4337,6 @@ function setupEventListeners() {
     syncDrawerControls();
   });
 
-  const drawerBgEnable = document.getElementById('drawer-bg-enable-toggle');
-  if (drawerBgEnable) drawerBgEnable.addEventListener('change', (event) => {
-    wallpaperEnabled = event.target.checked;
-    applyBackgroundSettings();
-  });
-  const drawerBgSlideshow = document.getElementById('drawer-bg-slideshow-toggle');
-  if (drawerBgSlideshow) drawerBgSlideshow.addEventListener('change', (event) => {
-    slideshowEnabled = event.target.checked;
-    applyBackgroundSettings();
-  });
-  const drawerBgFit = document.getElementById('drawer-bg-fit-select');
-  if (drawerBgFit) drawerBgFit.addEventListener('change', (event) => {
-    wallpaperFit = event.target.value;
-    applyBackgroundSettings();
-  });
-  const drawerBgOpacity = document.getElementById('wp-manager-opacity-slider');
-  if (drawerBgOpacity) drawerBgOpacity.addEventListener('input', (event) => {
-    wallpaperOpacity = Number(event.target.value);
-    const value = document.getElementById('wp-manager-opacity-value');
-    if (value) value.textContent = `${wallpaperOpacity}%`;
-    applyBackgroundSettings();
-  });
   const drawerUploadTrigger = document.getElementById('drawer-bg-upload-trigger');
   const drawerFileInput = document.getElementById('drawer-bg-file-inputs');
   if (drawerUploadTrigger && drawerFileInput) {
@@ -4298,9 +4352,36 @@ function setupEventListeners() {
   if (wpManageBtn && wpManagerOverlay) {
     wpManageBtn.addEventListener('click', () => {
       wpManagerOverlay.classList.add('active');
+      syncWallpaperManagerControls();
       renderThumbnails();
     });
   }
+
+  const wpManagerSaveBtn = document.getElementById('wp-manager-save-btn');
+  if (wpManagerSaveBtn) {
+    wpManagerSaveBtn.addEventListener('click', saveWallpaperManagerSettings);
+  }
+  const wallpaperManagerControlIds = [
+    'wp-manager-enable-toggle',
+    'wp-manager-fit-select',
+    'wp-manager-opacity-slider',
+    'wp-manager-slideshow-toggle',
+    'wp-manager-slideshow-mode',
+    'wp-manager-slideshow-interval'
+  ];
+  wallpaperManagerControlIds.forEach((id) => {
+    const control = document.getElementById(id);
+    if (!control) return;
+    const eventName = control.type === 'range' ? 'input' : 'change';
+    control.addEventListener(eventName, () => {
+      if (id === 'wp-manager-opacity-slider') {
+        const value = document.getElementById('wp-manager-opacity-value');
+        if (value) value.textContent = `${control.value}%`;
+      }
+      if (id === 'wp-manager-slideshow-toggle') syncWallpaperManagerPlaybackControls();
+      setWallpaperManagerDirty(true);
+    });
+  });
   if (wpManagerClose && wpManagerOverlay) {
     wpManagerClose.addEventListener('click', () => {
       wpManagerOverlay.classList.remove('active');
@@ -4518,57 +4599,6 @@ function setupEventListeners() {
         bgToggle.classList.remove('active');
         bgPanel.classList.remove('active');
       }
-    });
-  }
-
-  // 6. 壁纸面板内部控件绑定
-  const bgEnableToggle = document.getElementById('bg-enable-toggle');
-  if (bgEnableToggle) {
-    bgEnableToggle.addEventListener('change', (e) => {
-      wallpaperEnabled = e.target.checked;
-      applyBackgroundSettings();
-    });
-  }
-
-  const bgSlideshowToggle = document.getElementById('bg-slideshow-toggle');
-  if (bgSlideshowToggle) {
-    bgSlideshowToggle.addEventListener('change', (e) => {
-      slideshowEnabled = e.target.checked;
-      applyBackgroundSettings();
-    });
-  }
-
-  const bgFitSelect = document.getElementById('bg-fit-select');
-  if (bgFitSelect) {
-    bgFitSelect.addEventListener('change', (e) => {
-      wallpaperFit = e.target.value;
-      applyBackgroundSettings();
-    });
-  }
-
-  // 壁纸透明度滑动条
-  const bgOpacitySlider = document.getElementById('wp-manager-opacity-slider');
-  const bgOpacityVal = document.getElementById('wp-manager-opacity-value');
-  if (bgOpacitySlider) {
-    // 拖动过程中：仅在内存中即时改变样式，不执行耗时的 localStorage 写入，确保 60fps 丝滑渲染
-    bgOpacitySlider.addEventListener('input', (e) => {
-      wallpaperOpacity = parseInt(e.target.value, 10);
-      if (bgOpacityVal) {
-        bgOpacityVal.textContent = `${wallpaperOpacity}%`;
-      }
-
-      // 即时反映遮罩不透明度，无重绘延迟
-      if (wallpaperEnabled && customBgList.length > 0) {
-        const maskOpacity = 0.90 - (wallpaperOpacity / 100) * 0.90;
-        const wpMask = document.getElementById('wallpaper-mask');
-        if (wpMask) wpMask.style.opacity = maskOpacity;
-      }
-    });
-
-    // 拖动结束释放鼠标时：才向 localStorage 同步写入持久化数据，完全规避磁盘 I/O 带来的画面掉帧
-    bgOpacitySlider.addEventListener('change', (e) => {
-      wallpaperOpacity = parseInt(e.target.value, 10);
-      localStorage.setItem('wallpaperOpacity', wallpaperOpacity);
     });
   }
 
@@ -4921,16 +4951,21 @@ function syncDrawerControls() {
     });
   }
 
-  const bgEnabled = document.getElementById('drawer-bg-enable-toggle');
-  const bgSlideshow = document.getElementById('drawer-bg-slideshow-toggle');
-  const bgFit = document.getElementById('drawer-bg-fit-select');
+  const bgEnabled = document.getElementById('wp-manager-enable-toggle');
+  const bgSlideshow = document.getElementById('wp-manager-slideshow-toggle');
+  const bgFit = document.getElementById('wp-manager-fit-select');
   const bgOpacity = document.getElementById('wp-manager-opacity-slider');
   const bgOpacityVal = document.getElementById('wp-manager-opacity-value');
+  const bgMode = document.getElementById('wp-manager-slideshow-mode');
+  const bgInterval = document.getElementById('wp-manager-slideshow-interval');
   if (bgEnabled) bgEnabled.checked = wallpaperEnabled;
   if (bgSlideshow) bgSlideshow.checked = slideshowEnabled;
   if (bgFit) bgFit.value = wallpaperFit;
   if (bgOpacity) bgOpacity.value = wallpaperOpacity;
   if (bgOpacityVal) bgOpacityVal.textContent = `${wallpaperOpacity}%`;
+  if (bgMode) bgMode.value = slideshowMode;
+  if (bgInterval) bgInterval.value = String(slideshowIntervalSeconds);
+  syncWallpaperManagerPlaybackControls();
 }
 
 function setupControlSurface() {

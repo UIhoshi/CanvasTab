@@ -112,7 +112,8 @@ const i18n = {
     "theme_forest": "Forest Green",
     "theme_sunset": "Sunset Orange",
     "theme_sakura": "Sakura Rose",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Auto (Day/Night)"
   },
   "zh-CN": {
     "ctxAdd": "新建子文件夹",
@@ -179,7 +180,8 @@ const i18n = {
     "theme_forest": "森野绿意",
     "theme_sunset": "落日余晖",
     "theme_sakura": "樱色浪漫",
-    "theme_cyberpunk": "赛博朋克"
+    "theme_cyberpunk": "赛博朋克",
+    "theme_auto": "日夜自动"
   },
   "zh-TW": {
     "ctxAdd": "新建子資料夾",
@@ -246,7 +248,8 @@ const i18n = {
     "theme_forest": "森野綠意",
     "theme_sunset": "落日餘暉",
     "theme_sakura": "櫻色浪漫",
-    "theme_cyberpunk": "賽博朋克"
+    "theme_cyberpunk": "賽博朋克",
+    "theme_auto": "日夜自動"
   },
   "es": {
     "ctxAdd": "Crear subcarpeta",
@@ -313,7 +316,8 @@ const i18n = {
     "theme_forest": "Bosque Verde",
     "theme_sunset": "Naranja Atardecer",
     "theme_sakura": "Rosa de Sakura",
-    "theme_cyberpunk": "Neón Cyberpunk"
+    "theme_cyberpunk": "Neón Cyberpunk",
+    "theme_auto": "Auto (Día/Noche)"
   },
   "ja": {
     "ctxAdd": "新規サブフォルダ",
@@ -380,7 +384,8 @@ const i18n = {
     "theme_forest": "フォレストグリーン",
     "theme_sunset": "サンセットオレンジ",
     "theme_sakura": "サクラローズ",
-    "theme_cyberpunk": "サイバーパンクネオン"
+    "theme_cyberpunk": "サイバーパンクネオン",
+    "theme_auto": "自動 (昼/夜)"
   },
   "ko": {
     "ctxAdd": "새 하위 폴더 생성",
@@ -447,7 +452,8 @@ const i18n = {
     "theme_forest": "포레스트 그린",
     "theme_sunset": "선셋 오렌지",
     "theme_sakura": "사쿠라 로즈",
-    "theme_cyberpunk": "사이버펑크 네온"
+    "theme_cyberpunk": "사이버펑크 네온",
+    "theme_auto": "자동 (주간/야간)"
   },
   "fr": {
     "ctxAdd": "Créer un sous-dossier",
@@ -514,7 +520,8 @@ const i18n = {
     "theme_forest": "Forêt Verte",
     "theme_sunset": "Orange Couchant",
     "theme_sakura": "Rose Sakura",
-    "theme_cyberpunk": "Néon Cyberpunk"
+    "theme_cyberpunk": "Néon Cyberpunk",
+    "theme_auto": "Auto (Jour/Nuit)"
   },
   "de": {
     "ctxAdd": "Unterordner erstellen",
@@ -581,7 +588,8 @@ const i18n = {
     "theme_forest": "Waldgrün",
     "theme_sunset": "Sonnenuntergang Orange",
     "theme_sakura": "Kirschblütenrosa",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Auto (Tag/Nacht)"
   },
   "it": {
     "ctxAdd": "Nuova sottocartella",
@@ -648,7 +656,8 @@ const i18n = {
     "theme_forest": "Verde Foresta",
     "theme_sunset": "Arancione Tramonto",
     "theme_sakura": "Rosa Sakura",
-    "theme_cyberpunk": "Neon Cyberpunk"
+    "theme_cyberpunk": "Neon Cyberpunk",
+    "theme_auto": "Auto (Giorno/Notte)"
   },
   "ru": {
     "ctxAdd": "Создать подпапку",
@@ -715,7 +724,8 @@ const i18n = {
     "theme_forest": "Лесная зелень",
     "theme_sunset": "Закатный оранжевый",
     "theme_sakura": "Розовая сакура",
-    "theme_cyberpunk": "Киберпанк неон"
+    "theme_cyberpunk": "Киберпанк неон",
+    "theme_auto": "Авто (День/Ночь)"
   },
   "pt": {
     "ctxAdd": "Criar subpasta",
@@ -782,7 +792,8 @@ const i18n = {
     "theme_forest": "Verde Floresta",
     "theme_sunset": "Laranja Pôr do Sol",
     "theme_sakura": "Rosa de Sakura",
-    "theme_cyberpunk": "Neon Cyberpunk"
+    "theme_cyberpunk": "Neon Cyberpunk",
+    "theme_auto": "Auto (Dia/Noite)"
   },
   "nl": {
     "ctxAdd": "Nieuwe submap",
@@ -849,7 +860,8 @@ const i18n = {
     "theme_forest": "Bosgroen",
     "theme_sunset": "Zonsondergang Oranje",
     "theme_sakura": "Kersenbloesem Roze",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Auto (Dag/Nacht)"
   },
   "pl": {
     "ctxAdd": "Nowy podfolder",
@@ -916,7 +928,8 @@ const i18n = {
     "theme_forest": "Leśna Zieleń",
     "theme_sunset": "Pomarańczowy Zachód",
     "theme_sakura": "Różowa Sakura",
-    "theme_cyberpunk": "Cyberpunkowy Neon"
+    "theme_cyberpunk": "Cyberpunkowy Neon",
+    "theme_auto": "Auto (Dzień/Noc)"
   },
   "tr": {
     "ctxAdd": "Alt Klasör Oluştur",
@@ -983,7 +996,8 @@ const i18n = {
     "theme_forest": "Orman Yeşili",
     "theme_sunset": "Gün Batımı Turuncusu",
     "theme_sakura": "Kiraz Çiçeği Pembesi",
-    "theme_cyberpunk": "Siberpunk Neon"
+    "theme_cyberpunk": "Siberpunk Neon",
+    "theme_auto": "Otomatik (Gündüz/Gece)"
   },
   "ar": {
     "ctxAdd": "إنشاء مجلد فرعي",
@@ -1050,7 +1064,8 @@ const i18n = {
     "theme_forest": "غابة خضراء",
     "theme_sunset": "برتقالي الغروب",
     "theme_sakura": "وردي الساكورا",
-    "theme_cyberpunk": "نيون سايبربانك"
+    "theme_cyberpunk": "نيون سايبربانك",
+    "theme_auto": "تلقائي (نهار/ليل)"
   },
   "hi": {
     "ctxAdd": "उप-फ़ोल्डर बनाएं",
@@ -1117,7 +1132,8 @@ const i18n = {
     "theme_forest": "वन हरा",
     "theme_sunset": "सूर्यास्त नारंगी",
     "theme_sakura": "सकुरा गुलाबी",
-    "theme_cyberpunk": "साइबरपंक नियॉन"
+    "theme_cyberpunk": "साइबरपंक नियॉन",
+    "theme_auto": "ऑटो (दिन/रात)"
   },
   "th": {
     "ctxAdd": "สร้างโฟลเดอร์ย่อย",
@@ -1184,7 +1200,8 @@ const i18n = {
     "theme_forest": "เขียวป่าไม้",
     "theme_sunset": "ส้มพระอาทิตย์ตก",
     "theme_sakura": "ชมพูซากุระ",
-    "theme_cyberpunk": "ไซเบอร์พังก์นีออน"
+    "theme_cyberpunk": "ไซเบอร์พังก์นีออน",
+    "theme_auto": "อัตโนมัติ (กลางวัน/กลางคืน)"
   },
   "vi": {
     "ctxAdd": "Tạo thư mục con",
@@ -1251,7 +1268,8 @@ const i18n = {
     "theme_forest": "Xanh Rừng",
     "theme_sunset": "Cam Hoàng Hôn",
     "theme_sakura": "Hồng Anh Đào",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Tự động (Ngày/Đêm)"
   },
   "id": {
     "ctxAdd": "Buat Subfolder",
@@ -1318,7 +1336,8 @@ const i18n = {
     "theme_forest": "Hijau Hutan",
     "theme_sunset": "Jingga Senja",
     "theme_sakura": "Merah Muda Sakura",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Otomatis (Siang/Malam)"
   },
   "ms": {
     "ctxAdd": "Cipta Subfolder",
@@ -1385,7 +1404,8 @@ const i18n = {
     "theme_forest": "Hijau Hutan",
     "theme_sunset": "Oren Senja",
     "theme_sakura": "Merah Jambu Sakura",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Automatik (Siang/Malam)"
   },
   "sv": {
     "ctxAdd": "Skapa undermapp",
@@ -1452,7 +1472,8 @@ const i18n = {
     "theme_forest": "Skogsgrön",
     "theme_sunset": "Solnedgångsbrand",
     "theme_sakura": "Körsbärsrosa",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Auto (Dag/Natt)"
   },
   "no": {
     "ctxAdd": "Opprett undermappe",
@@ -1519,7 +1540,8 @@ const i18n = {
     "theme_forest": "Skogsgrønn",
     "theme_sunset": "Solnedgangsoransje",
     "theme_sakura": "Kirsebærrosa",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Auto (Dag/Natt)"
   },
   "da": {
     "ctxAdd": "Opret undermappe",
@@ -1586,7 +1608,8 @@ const i18n = {
     "theme_forest": "Skovgrøn",
     "theme_sunset": "Solnedgangsorange",
     "theme_sakura": "Kirsebærrosa",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Auto (Dag/Nat)"
   },
   "fi": {
     "ctxAdd": "Luo alikansio",
@@ -1653,7 +1676,8 @@ const i18n = {
     "theme_forest": "Metsänvihreä",
     "theme_sunset": "Auringonlasku Oranssi",
     "theme_sakura": "Kirsikankukkarosa",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Automaattinen (Päivä/Yö)"
   },
   "cs": {
     "ctxAdd": "Vytvořit podsložku",
@@ -1720,7 +1744,8 @@ const i18n = {
     "theme_forest": "Lesní Zeleň",
     "theme_sunset": "Zapadající Oranžová",
     "theme_sakura": "Třešňová Růžová",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Auto (Den/Noc)"
   },
   "el": {
     "ctxAdd": "Δημιουργία υποφακέλου",
@@ -1787,7 +1812,8 @@ const i18n = {
     "theme_forest": "Πράσινο Δάσος",
     "theme_sunset": "Πορτοκαλί Ηλιοβασίλεμα",
     "theme_sakura": "Ροζ Σακούρα",
-    "theme_cyberpunk": "Cyberpunk Νέον"
+    "theme_cyberpunk": "Cyberpunk Νέον",
+    "theme_auto": "Αυτόματο (Ημέρα/Νύχτα)"
   },
   "he": {
     "ctxAdd": "צור תת-תיקייה",
@@ -1854,7 +1880,8 @@ const i18n = {
     "theme_forest": "ירוק יער",
     "theme_sunset": "כתום שקיעה",
     "theme_sakura": "ורוד סאקורה",
-    "theme_cyberpunk": "סייברפאנק ניאון"
+    "theme_cyberpunk": "סייברפאנק ניאון",
+    "theme_auto": "אוטומטי (יום/לילה)"
   },
   "hu": {
     "ctxAdd": "Új almappa létrehozása",
@@ -1921,7 +1948,8 @@ const i18n = {
     "theme_forest": "Erdőzöld",
     "theme_sunset": "Naplemente Narancs",
     "theme_sakura": "Cseresznyevirág Rózsaszín",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Auto (Nappal/Éjjel)"
   },
   "ro": {
     "ctxAdd": "Creează subdosar",
@@ -1988,7 +2016,8 @@ const i18n = {
     "theme_forest": "Verde Pădure",
     "theme_sunset": "Portocaliu Apus",
     "theme_sakura": "Roz Sakura",
-    "theme_cyberpunk": "Cyberpunk Neon"
+    "theme_cyberpunk": "Cyberpunk Neon",
+    "theme_auto": "Auto (Zi/Noapte)"
   },
   "uk": {
     "ctxAdd": "Створити підпапку",
@@ -2055,7 +2084,8 @@ const i18n = {
     "theme_forest": "Лісова зелень",
     "theme_sunset": "Західний помаранчевий",
     "theme_sakura": "Рожева сакура",
-    "theme_cyberpunk": "Кіберпанк неон"
+    "theme_cyberpunk": "Кіберпанк неон",
+    "theme_auto": "Авто (День/Ніч)"
   }
 };
 
@@ -2084,6 +2114,7 @@ const SVGS = {
 };
 
 const THEMES_LIST = [
+  { id: 'auto', name: 'Auto (Day/Night)', nameZh: '日夜自动', color: 'linear-gradient(135deg, #ffffff 50%, #06070a 50%)' },
   { id: 'dark', name: 'Midnight Dark', nameZh: '极夜暗黑', color: '#06070a' },
   { id: 'light', name: 'Light Glass', nameZh: '晨曦明亮', color: '#ffffff' },
   { id: 'aurora', name: 'Neon Aurora', nameZh: '极光流彩', color: '#ec4899' },
@@ -2646,7 +2677,7 @@ function loadSavedSettings() {
   const savedMainMode = localStorage.getItem('mainMode') || 'manage';
   setMainMode(savedMainMode);
 
-  const savedTheme = localStorage.getItem('theme') || 'dark';
+  const savedTheme = localStorage.getItem('theme') || 'auto';
   setTheme(savedTheme);
 
   // 加载独立壁纸参数
@@ -3454,7 +3485,14 @@ function setTheme(newTheme) {
 
   // 【性能调优】：临时挂载禁用 transition 的类，消除百余张卡片背景/阴影/边框渐变动画造成的严重卡顿
   document.body.classList.add('disable-transitions');
-  document.body.setAttribute('data-theme', newTheme);
+  
+  let appliedTheme = newTheme;
+  if (newTheme === 'auto') {
+    const hour = new Date().getHours();
+    appliedTheme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
+  }
+  
+  document.body.setAttribute('data-theme', appliedTheme);
   localStorage.setItem('theme', newTheme);
 
   // 强制触发重绘 (reflow) 使其立刻应用新变量而不生成 CSS 过渡
@@ -3525,7 +3563,7 @@ function renderThemeSelector() {
     // 主题原点指示色
     const dot = document.createElement('span');
     dot.className = 'theme-dot';
-    dot.style.backgroundColor = t.color;
+    dot.style.background = t.color;
     
     const textSpan = document.createElement('span');
     const langPack = i18n[currentLang] || i18n.en;

@@ -104,7 +104,15 @@ const i18n = {
     "newtabInactiveText": "Enable New Tab",
     "newtabInactiveTitle": "Enable CanvasTab as your New Tab page",
     "newtabStatusActive": "Taken over by CanvasTab",
-    "newtabStatusInactive": "System Default New Tab"
+    "newtabStatusInactive": "System Default New Tab",
+    "theme_dark": "Midnight Dark",
+    "theme_light": "Light Glass",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Deep Ocean",
+    "theme_forest": "Forest Green",
+    "theme_sunset": "Sunset Orange",
+    "theme_sakura": "Sakura Rose",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "zh-CN": {
     "ctxAdd": "新建子文件夹",
@@ -163,7 +171,15 @@ const i18n = {
     "newtabInactiveText": "开启新标签页",
     "newtabInactiveTitle": "开启 CanvasTab 接管浏览器新标签页",
     "newtabStatusActive": "已由 CanvasTab 接管",
-    "newtabStatusInactive": "系统默认新标签页"
+    "newtabStatusInactive": "系统默认新标签页",
+    "theme_dark": "极夜暗黑",
+    "theme_light": "晨曦明亮",
+    "theme_aurora": "极光流彩",
+    "theme_ocean": "深海幽蓝",
+    "theme_forest": "森野绿意",
+    "theme_sunset": "落日余晖",
+    "theme_sakura": "樱色浪漫",
+    "theme_cyberpunk": "赛博朋克"
   },
   "zh-TW": {
     "ctxAdd": "新建子資料夾",
@@ -222,7 +238,15 @@ const i18n = {
     "newtabInactiveText": "開啟新分頁",
     "newtabInactiveTitle": "開啟 CanvasTab 接管瀏覽器新分頁",
     "newtabStatusActive": "已由 CanvasTab 接管",
-    "newtabStatusInactive": "系統預設新分頁"
+    "newtabStatusInactive": "系統預設新分頁",
+    "theme_dark": "極夜暗黑",
+    "theme_light": "晨曦明亮",
+    "theme_aurora": "極光流彩",
+    "theme_ocean": "深海幽藍",
+    "theme_forest": "森野綠意",
+    "theme_sunset": "落日餘暉",
+    "theme_sakura": "櫻色浪漫",
+    "theme_cyberpunk": "賽博朋克"
   },
   "es": {
     "ctxAdd": "Crear subcarpeta",
@@ -281,7 +305,15 @@ const i18n = {
     "newtabInactiveText": "Habilitar nueva pestaña",
     "newtabInactiveTitle": "Habilitar CanvasTab como su página de nueva pestaña",
     "newtabStatusActive": "Controlado por CanvasTab",
-    "newtabStatusInactive": "Nueva pestaña predeterminada"
+    "newtabStatusInactive": "Nueva pestaña predeterminada",
+    "theme_dark": "Oscuro de Medianoche",
+    "theme_light": "Vidrio Claro",
+    "theme_aurora": "Aurora de Neón",
+    "theme_ocean": "Océano Profundo",
+    "theme_forest": "Bosque Verde",
+    "theme_sunset": "Naranja Atardecer",
+    "theme_sakura": "Rosa de Sakura",
+    "theme_cyberpunk": "Neón Cyberpunk"
   },
   "ja": {
     "ctxAdd": "新規サブフォルダ",
@@ -340,7 +372,15 @@ const i18n = {
     "newtabInactiveText": "新しいタブを有効にする",
     "newtabInactiveTitle": "CanvasTab を新しいタブページとして有効にする",
     "newtabStatusActive": "CanvasTab が接管中",
-    "newtabStatusInactive": "システムデフォルトの新しいタブ"
+    "newtabStatusInactive": "システムデフォルトの新しいタブ",
+    "theme_dark": "ミッドナイトダーク",
+    "theme_light": "ライトグラス",
+    "theme_aurora": "ネオンオーロラ",
+    "theme_ocean": "ディープオーシャン",
+    "theme_forest": "フォレストグリーン",
+    "theme_sunset": "サンセットオレンジ",
+    "theme_sakura": "サクラローズ",
+    "theme_cyberpunk": "サイバーパンクネオン"
   },
   "ko": {
     "ctxAdd": "새 하위 폴더 생성",
@@ -399,7 +439,15 @@ const i18n = {
     "newtabInactiveText": "새 탭 활성화",
     "newtabInactiveTitle": "CanvasTab을 새 탭 페이지로 설정",
     "newtabStatusActive": "CanvasTab이 제어 중",
-    "newtabStatusInactive": "시스템 기본 새 탭"
+    "newtabStatusInactive": "시스템 기본 새 탭",
+    "theme_dark": "미드나잇 다크",
+    "theme_light": "라이트 글래스",
+    "theme_aurora": "네온 오로라",
+    "theme_ocean": "딥 오션",
+    "theme_forest": "포레스트 그린",
+    "theme_sunset": "선셋 오렌지",
+    "theme_sakura": "사쿠라 로즈",
+    "theme_cyberpunk": "사이버펑크 네온"
   },
   "fr": {
     "ctxAdd": "Créer un sous-dossier",
@@ -458,7 +506,15 @@ const i18n = {
     "newtabInactiveText": "Activer nouvel onglet",
     "newtabInactiveTitle": "Activer CanvasTab comme page de nouvel onglet",
     "newtabStatusActive": "Pris en charge par CanvasTab",
-    "newtabStatusInactive": "Nouvel onglet par défaut du système"
+    "newtabStatusInactive": "Nouvel onglet par défaut du système",
+    "theme_dark": "Sombre de Minuit",
+    "theme_light": "Verre Clair",
+    "theme_aurora": "Aurore Néon",
+    "theme_ocean": "Océan Profond",
+    "theme_forest": "Forêt Verte",
+    "theme_sunset": "Orange Couchant",
+    "theme_sakura": "Rose Sakura",
+    "theme_cyberpunk": "Néon Cyberpunk"
   },
   "de": {
     "ctxAdd": "Unterordner erstellen",
@@ -517,7 +573,15 @@ const i18n = {
     "newtabInactiveText": "Neuer Tab aktivieren",
     "newtabInactiveTitle": "CanvasTab als Neuer-Tab-Seite aktivieren",
     "newtabStatusActive": "Von CanvasTab übernommen",
-    "newtabStatusInactive": "Systemstandard-Neuer-Tab"
+    "newtabStatusInactive": "Systemstandard-Neuer-Tab",
+    "theme_dark": "Mitternachts Dunkelheit",
+    "theme_light": "Helles Glas",
+    "theme_aurora": "Neon-Aurora",
+    "theme_ocean": "Tiefsee",
+    "theme_forest": "Waldgrün",
+    "theme_sunset": "Sonnenuntergang Orange",
+    "theme_sakura": "Kirschblütenrosa",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "it": {
     "ctxAdd": "Nuova sottocartella",
@@ -576,7 +640,15 @@ const i18n = {
     "newtabInactiveText": "Attiva Nuova Scheda",
     "newtabInactiveTitle": "Imposta CanvasTab come pagina Nuova Scheda",
     "newtabStatusActive": "Gestito da CanvasTab",
-    "newtabStatusInactive": "Nuova Scheda predefinita di sistema"
+    "newtabStatusInactive": "Nuova Scheda predefinita di sistema",
+    "theme_dark": "Buio di Mezzanotte",
+    "theme_light": "Vetro Chiaro",
+    "theme_aurora": "Aurora al Neon",
+    "theme_ocean": "Oceano Profondo",
+    "theme_forest": "Verde Foresta",
+    "theme_sunset": "Arancione Tramonto",
+    "theme_sakura": "Rosa Sakura",
+    "theme_cyberpunk": "Neon Cyberpunk"
   },
   "ru": {
     "ctxAdd": "Создать подпапку",
@@ -635,7 +707,15 @@ const i18n = {
     "newtabInactiveText": "Активировать новую вкладку",
     "newtabInactiveTitle": "Использовать CanvasTab как новую вкладку",
     "newtabStatusActive": "Управляется CanvasTab",
-    "newtabStatusInactive": "Системная новая вкладка по умолчанию"
+    "newtabStatusInactive": "Системная новая вкладка по умолчанию",
+    "theme_dark": "Полуночная тьма",
+    "theme_light": "Светлое стекло",
+    "theme_aurora": "Неоновая аврора",
+    "theme_ocean": "Глубокий океан",
+    "theme_forest": "Лесная зелень",
+    "theme_sunset": "Закатный оранжевый",
+    "theme_sakura": "Розовая сакура",
+    "theme_cyberpunk": "Киберпанк неон"
   },
   "pt": {
     "ctxAdd": "Criar subpasta",
@@ -694,7 +774,15 @@ const i18n = {
     "newtabInactiveText": "Ativar Nova Guia",
     "newtabInactiveTitle": "Definir CanvasTab como página Nova Guia",
     "newtabStatusActive": "Controlado por CanvasTab",
-    "newtabStatusInactive": "Nova Guia padrão do sistema"
+    "newtabStatusInactive": "Nova Guia padrão do sistema",
+    "theme_dark": "Escuro da Meia-Noite",
+    "theme_light": "Vidro Claro",
+    "theme_aurora": "Aurora de Neon",
+    "theme_ocean": "Oceano Profundo",
+    "theme_forest": "Verde Floresta",
+    "theme_sunset": "Laranja Pôr do Sol",
+    "theme_sakura": "Rosa de Sakura",
+    "theme_cyberpunk": "Neon Cyberpunk"
   },
   "nl": {
     "ctxAdd": "Nieuwe submap",
@@ -753,7 +841,15 @@ const i18n = {
     "newtabInactiveText": "Nieuwe Tab activeren",
     "newtabInactiveTitle": "Stel CanvasTab in als Nieuwe Tab-pagina",
     "newtabStatusActive": "Beheerd door CanvasTab",
-    "newtabStatusInactive": "Standaard systeem Nieuwe Tab"
+    "newtabStatusInactive": "Standaard systeem Nieuwe Tab",
+    "theme_dark": "Middernacht Donker",
+    "theme_light": "Licht Glas",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Diepe Oceaan",
+    "theme_forest": "Bosgroen",
+    "theme_sunset": "Zonsondergang Oranje",
+    "theme_sakura": "Kersenbloesem Roze",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "pl": {
     "ctxAdd": "Nowy podfolder",
@@ -812,7 +908,15 @@ const i18n = {
     "newtabInactiveText": "Włącz nową kartę",
     "newtabInactiveTitle": "Ustaw CanvasTab jako stronę nowej karty",
     "newtabStatusActive": "Zarządzane przez CanvasTab",
-    "newtabStatusInactive": "Domyślna nowa karta systemowa"
+    "newtabStatusInactive": "Domyślna nowa karta systemowa",
+    "theme_dark": "Północna Ciemność",
+    "theme_light": "Jasne Szkło",
+    "theme_aurora": "Neonowa Aurora",
+    "theme_ocean": "Głęboki Ocean",
+    "theme_forest": "Leśna Zieleń",
+    "theme_sunset": "Pomarańczowy Zachód",
+    "theme_sakura": "Różowa Sakura",
+    "theme_cyberpunk": "Cyberpunkowy Neon"
   },
   "tr": {
     "ctxAdd": "Alt Klasör Oluştur",
@@ -871,7 +975,15 @@ const i18n = {
     "newtabInactiveText": "Yeni Sekmeyi Etkinleştir",
     "newtabInactiveTitle": "CanvasTab'ı yeni sekme sayfası olarak ayarlayın",
     "newtabStatusActive": "CanvasTab tarafından yönetiliyor",
-    "newtabStatusInactive": "Sistem Varsayılan Yeni Sekmesi"
+    "newtabStatusInactive": "Sistem Varsayılan Yeni Sekmesi",
+    "theme_dark": "Gece Yarısı Karanlığı",
+    "theme_light": "Açık Cam",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Derin Okyanus",
+    "theme_forest": "Orman Yeşili",
+    "theme_sunset": "Gün Batımı Turuncusu",
+    "theme_sakura": "Kiraz Çiçeği Pembesi",
+    "theme_cyberpunk": "Siberpunk Neon"
   },
   "ar": {
     "ctxAdd": "إنشاء مجلد فرعي",
@@ -930,7 +1042,15 @@ const i18n = {
     "newtabInactiveText": "تفعيل علامة التبويب الجديدة",
     "newtabInactiveTitle": "تعيين CanvasTab كصفحة تبويب جديدة افتراضية",
     "newtabStatusActive": "تدار بواسطة CanvasTab",
-    "newtabStatusInactive": "علامة التبويب الجديدة الافتراضية للنظام"
+    "newtabStatusInactive": "علامة التبويب الجديدة الافتراضية للنظام",
+    "theme_dark": "ظلام منتصف الليل",
+    "theme_light": "زجاج مضيء",
+    "theme_aurora": "شفق النيون",
+    "theme_ocean": "المحيط العميق",
+    "theme_forest": "غابة خضراء",
+    "theme_sunset": "برتقالي الغروب",
+    "theme_sakura": "وردي الساكورا",
+    "theme_cyberpunk": "نيون سايبربانك"
   },
   "hi": {
     "ctxAdd": "उप-फ़ोल्डर बनाएं",
@@ -989,7 +1109,15 @@ const i18n = {
     "newtabInactiveText": "नया टैब सक्षम करें",
     "newtabInactiveTitle": "CanvasTab को अपने नए टैब पृष्ठ के रूप में सेट करें",
     "newtabStatusActive": "CanvasTab द्वारा नियंत्रित",
-    "newtabStatusInactive": "सिस्टम डिफ़ॉल्ट नया टैब"
+    "newtabStatusInactive": "सिस्टम डिफ़ॉल्ट नया टैब",
+    "theme_dark": "आधी रात का अंधेरा",
+    "theme_light": "हल्का कांच",
+    "theme_aurora": "नियॉन अरोरा",
+    "theme_ocean": "गहरा महासागर",
+    "theme_forest": "वन हरा",
+    "theme_sunset": "सूर्यास्त नारंगी",
+    "theme_sakura": "सकुरा गुलाबी",
+    "theme_cyberpunk": "साइबरपंक नियॉन"
   },
   "th": {
     "ctxAdd": "สร้างโฟลเดอร์ย่อย",
@@ -1048,7 +1176,15 @@ const i18n = {
     "newtabInactiveText": "เปิดใช้งานแท็บใหม่",
     "newtabInactiveTitle": "ตั้งค่า CanvasTab เป็นหน้าแท็บใหม่ของคุณ",
     "newtabStatusActive": "ควบคุมโดย CanvasTab",
-    "newtabStatusInactive": "แท็บใหม่เริ่มต้นของระบบ"
+    "newtabStatusInactive": "แท็บใหม่เริ่มต้นของระบบ",
+    "theme_dark": "มืดมิดเที่ยงคืน",
+    "theme_light": "กระจกใส",
+    "theme_aurora": "แสงเหนือเนออน",
+    "theme_ocean": "มหาสมุทรลึก",
+    "theme_forest": "เขียวป่าไม้",
+    "theme_sunset": "ส้มพระอาทิตย์ตก",
+    "theme_sakura": "ชมพูซากุระ",
+    "theme_cyberpunk": "ไซเบอร์พังก์นีออน"
   },
   "vi": {
     "ctxAdd": "Tạo thư mục con",
@@ -1107,7 +1243,15 @@ const i18n = {
     "newtabInactiveText": "Kích hoạt Tab Mới",
     "newtabInactiveTitle": "Đặt CanvasTab làm trang Tab Mới của bạn",
     "newtabStatusActive": "Được quản lý bởi CanvasTab",
-    "newtabStatusInactive": "Tab Mới mặc định của hệ thống"
+    "newtabStatusInactive": "Tab Mới mặc định của hệ thống",
+    "theme_dark": "Tối Đêm",
+    "theme_light": "Kính Sáng",
+    "theme_aurora": "Cực Quang Neon",
+    "theme_ocean": "Đại Dương Sâu",
+    "theme_forest": "Xanh Rừng",
+    "theme_sunset": "Cam Hoàng Hôn",
+    "theme_sakura": "Hồng Anh Đào",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "id": {
     "ctxAdd": "Buat Subfolder",
@@ -1166,7 +1310,15 @@ const i18n = {
     "newtabInactiveText": "Aktifkan Tab Baru",
     "newtabInactiveTitle": "Atur CanvasTab sebagai halaman Tab Baru Anda",
     "newtabStatusActive": "Dikelola oleh CanvasTab",
-    "newtabStatusInactive": "Tab Baru Bawaan Sistem"
+    "newtabStatusInactive": "Tab Baru Bawaan Sistem",
+    "theme_dark": "Gelap Tengah Malam",
+    "theme_light": "Kaca Terang",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Samudra Dalam",
+    "theme_forest": "Hijau Hutan",
+    "theme_sunset": "Jingga Senja",
+    "theme_sakura": "Merah Muda Sakura",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "ms": {
     "ctxAdd": "Cipta Subfolder",
@@ -1225,7 +1377,15 @@ const i18n = {
     "newtabInactiveText": "Aktifkan Tab Baru",
     "newtabInactiveTitle": "Tetapkan CanvasTab sebagai halaman Tab Baru anda",
     "newtabStatusActive": "Diuruskan oleh CanvasTab",
-    "newtabStatusInactive": "Tab Baru Lalai Sistem"
+    "newtabStatusInactive": "Tab Baru Lalai Sistem",
+    "theme_dark": "Gelap Tengah Malam",
+    "theme_light": "Kaca Terang",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Lautan Dalam",
+    "theme_forest": "Hijau Hutan",
+    "theme_sunset": "Oren Senja",
+    "theme_sakura": "Merah Jambu Sakura",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "sv": {
     "ctxAdd": "Skapa undermapp",
@@ -1284,7 +1444,15 @@ const i18n = {
     "newtabInactiveText": "Aktivera Ny Flik",
     "newtabInactiveTitle": "Ställ in CanvasTab som din nya fliksida",
     "newtabStatusActive": "Hanteras av CanvasTab",
-    "newtabStatusInactive": "Systemets standard ny flik"
+    "newtabStatusInactive": "Systemets standard ny flik",
+    "theme_dark": "Midnattsmörker",
+    "theme_light": "Ljust Glas",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Djupt Hav",
+    "theme_forest": "Skogsgrön",
+    "theme_sunset": "Solnedgångsbrand",
+    "theme_sakura": "Körsbärsrosa",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "no": {
     "ctxAdd": "Opprett undermappe",
@@ -1343,7 +1511,15 @@ const i18n = {
     "newtabInactiveText": "Aktiver Ny Fane",
     "newtabInactiveTitle": "Sett CanvasTab som din nye faneside",
     "newtabStatusActive": "Administreres av CanvasTab",
-    "newtabStatusInactive": "Systemets standard ny fane"
+    "newtabStatusInactive": "Systemets standard ny fane",
+    "theme_dark": "Midnattsmørke",
+    "theme_light": "Lyst Glass",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Dypt Hav",
+    "theme_forest": "Skogsgrønn",
+    "theme_sunset": "Solnedgangsoransje",
+    "theme_sakura": "Kirsebærrosa",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "da": {
     "ctxAdd": "Opret undermappe",
@@ -1402,7 +1578,15 @@ const i18n = {
     "newtabInactiveText": "Aktivér Ny Fane",
     "newtabInactiveTitle": "Indstil CanvasTab som din nye faneside",
     "newtabStatusActive": "Administreres af CanvasTab",
-    "newtabStatusInactive": "Systemets standard ny fane"
+    "newtabStatusInactive": "Systemets standard ny fane",
+    "theme_dark": "Midnatssort",
+    "theme_light": "Lyst Glas",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Dybt Hav",
+    "theme_forest": "Skovgrøn",
+    "theme_sunset": "Solnedgangsorange",
+    "theme_sakura": "Kirsebærrosa",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "fi": {
     "ctxAdd": "Luo alikansio",
@@ -1461,7 +1645,15 @@ const i18n = {
     "newtabInactiveText": "Ota uusi välilehti käyttöön",
     "newtabInactiveTitle": "Aseta CanvasTab uuden välilehden sivuksi",
     "newtabStatusActive": "CanvasTabin hallinnassa",
-    "newtabStatusInactive": "Järjestelmän oletus uusi välilehti"
+    "newtabStatusInactive": "Järjestelmän oletus uusi välilehti",
+    "theme_dark": "Keskiyön Pimeys",
+    "theme_light": "Kirkas Lasi",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Syvä Meri",
+    "theme_forest": "Metsänvihreä",
+    "theme_sunset": "Auringonlasku Oranssi",
+    "theme_sakura": "Kirsikankukkarosa",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "cs": {
     "ctxAdd": "Vytvořit podsložku",
@@ -1520,7 +1712,15 @@ const i18n = {
     "newtabInactiveText": "Aktivovat Novou kartu",
     "newtabInactiveTitle": "Nastavit CanvasTab jako vaši stránku nové karty",
     "newtabStatusActive": "Spravováno CanvasTabem",
-    "newtabStatusInactive": "Výchozí nová karta systému"
+    "newtabStatusInactive": "Výchozí nová karta systému",
+    "theme_dark": "Půlnoční Tma",
+    "theme_light": "Světlé Sklo",
+    "theme_aurora": "Neonová Aurora",
+    "theme_ocean": "Hluboký Oceán",
+    "theme_forest": "Lesní Zeleň",
+    "theme_sunset": "Zapadající Oranžová",
+    "theme_sakura": "Třešňová Růžová",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "el": {
     "ctxAdd": "Δημιουργία υποφακέλου",
@@ -1579,7 +1779,15 @@ const i18n = {
     "newtabInactiveText": "Ενεργοποίηση Νέας Καρτέλας",
     "newtabInactiveTitle": "Ορίστε το CanvasTab ως σελίδα νέας καρτέλας",
     "newtabStatusActive": "Διαχειρίζεται από το CanvasTab",
-    "newtabStatusInactive": "Προεπιλεγμένη νέα καρτέλα συστήματος"
+    "newtabStatusInactive": "Προεπιλεγμένη νέα καρτέλα συστήματος",
+    "theme_dark": "Σκοτάδι Μεσάνυχτων",
+    "theme_light": "Γυαλί Φωτός",
+    "theme_aurora": "Αυγή Νέον",
+    "theme_ocean": "Βαθύς Ωκεανός",
+    "theme_forest": "Πράσινο Δάσος",
+    "theme_sunset": "Πορτοκαλί Ηλιοβασίλεμα",
+    "theme_sakura": "Ροζ Σακούρα",
+    "theme_cyberpunk": "Cyberpunk Νέον"
   },
   "he": {
     "ctxAdd": "צור תת-תיקייה",
@@ -1638,7 +1846,15 @@ const i18n = {
     "newtabInactiveText": "הפעל כרטיסייה חדשה",
     "newtabInactiveTitle": "הגדר את CanvasTab כדף הכרטיסייה החדשה שלך",
     "newtabStatusActive": "מנוהל על ידי CanvasTab",
-    "newtabStatusInactive": "כרטיסיית ברירת מחדל של המערכת"
+    "newtabStatusInactive": "כרטיסיית ברירת מחדל של המערכת",
+    "theme_dark": "חושך חצות",
+    "theme_light": "זכוכית בהירה",
+    "theme_aurora": "אורורה ניאון",
+    "theme_ocean": "אוקיינוס עמוק",
+    "theme_forest": "ירוק יער",
+    "theme_sunset": "כתום שקיעה",
+    "theme_sakura": "ורוד סאקורה",
+    "theme_cyberpunk": "סייברפאנק ניאון"
   },
   "hu": {
     "ctxAdd": "Új almappa létrehozása",
@@ -1697,7 +1913,15 @@ const i18n = {
     "newtabInactiveText": "Új lap engedélyezése",
     "newtabInactiveTitle": "Állítsa be a CanvasTab-ot új lapként",
     "newtabStatusActive": "A CanvasTab által felügyelt",
-    "newtabStatusInactive": "A rendszer alapértelmezett új lapja"
+    "newtabStatusInactive": "A rendszer alapértelmezett új lapja",
+    "theme_dark": "Éjféli Sötétség",
+    "theme_light": "Világos Üveg",
+    "theme_aurora": "Neon Aurora",
+    "theme_ocean": "Mély Óceán",
+    "theme_forest": "Erdőzöld",
+    "theme_sunset": "Naplemente Narancs",
+    "theme_sakura": "Cseresznyevirág Rózsaszín",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "ro": {
     "ctxAdd": "Creează subdosar",
@@ -1756,7 +1980,15 @@ const i18n = {
     "newtabInactiveText": "Activează Tab Nou",
     "newtabInactiveTitle": "Setați CanvasTab ca pagină de tab nou",
     "newtabStatusActive": "Administrat de CanvasTab",
-    "newtabStatusInactive": "Tab-ul nou implicit al sistemului"
+    "newtabStatusInactive": "Tab-ul nou implicit al sistemului",
+    "theme_dark": "Întuneric de Miez de Nopte",
+    "theme_light": "Sticlă Luminoasă",
+    "theme_aurora": "Aurora de Neon",
+    "theme_ocean": "Ocean Profund",
+    "theme_forest": "Verde Pădure",
+    "theme_sunset": "Portocaliu Apus",
+    "theme_sakura": "Roz Sakura",
+    "theme_cyberpunk": "Cyberpunk Neon"
   },
   "uk": {
     "ctxAdd": "Створити підпапку",
@@ -1815,7 +2047,15 @@ const i18n = {
     "newtabInactiveText": "Активувати нову вкладку",
     "newtabInactiveTitle": "Використовувати CanvasTab як нову вкладку",
     "newtabStatusActive": "Керується CanvasTab",
-    "newtabStatusInactive": "Системна нова вкладка за замовчуванням"
+    "newtabStatusInactive": "Системна нова вкладка за замовчуванням",
+    "theme_dark": "Опівнічна темрява",
+    "theme_light": "Світле скло",
+    "theme_aurora": "Неонова аврора",
+    "theme_ocean": "Глибокий океан",
+    "theme_forest": "Лісова зелень",
+    "theme_sunset": "Західний помаранчевий",
+    "theme_sakura": "Рожева сакура",
+    "theme_cyberpunk": "Кіберпанк неон"
   }
 };
 
@@ -3288,7 +3528,8 @@ function renderThemeSelector() {
     dot.style.backgroundColor = t.color;
     
     const textSpan = document.createElement('span');
-    textSpan.textContent = currentLang.startsWith('zh') ? t.nameZh : t.name;
+    const langPack = i18n[currentLang] || i18n.en;
+    textSpan.textContent = langPack['theme_' + t.id] || t.name;
 
     item.appendChild(dot);
     item.appendChild(textSpan);
@@ -4614,9 +4855,16 @@ function syncDrawerControls() {
     THEMES_LIST.forEach(item => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'drawer-opt-btn';
+      btn.className = 'theme-dot-btn'; // 使用 CSS 定义的主题按钮类名
       btn.dataset.theme = item.id;
-      btn.innerHTML = `<span class="theme-dot" style="background:${item.color}"></span>${currentLang.startsWith('zh') ? item.nameZh : item.name}`;
+      
+      const langPack = i18n[currentLang] || i18n.en;
+      const localizedName = langPack['theme_' + item.id] || item.name;
+      
+      btn.innerHTML = `
+        <span class="theme-color-dot" style="background:${item.color}"></span>
+        <span class="theme-dot-name">${localizedName}</span>
+      `;
       btn.classList.toggle('active', item.id === theme);
       btn.addEventListener('click', () => setTheme(item.id));
       themeGrid.appendChild(btn);

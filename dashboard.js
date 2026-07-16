@@ -1977,8 +1977,6 @@ const LANGUAGES_LIST = [
   }
 ];
 
-];
-
 let currentLang = 'en';
 let allFolders = [];
 let activeFolderId = null;
@@ -2052,17 +2050,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 自动识别语言
 function setupLanguage() {
+  const savedLang = localStorage.getItem('language');
   const browserLang = navigator.language || navigator.userLanguage;
+  const targetLang = savedLang || browserLang;
   currentLang = 'en';
 
-  if (browserLang) {
+  if (targetLang) {
     const langKeys = Object.keys(i18n);
-    if (langKeys.includes(browserLang)) {
-      currentLang = browserLang;
+    if (langKeys.includes(targetLang)) {
+      currentLang = targetLang;
     } else {
-      const prefix = browserLang.split('-')[0];
+      const prefix = targetLang.split('-')[0];
       if (prefix === 'zh') {
-        if (browserLang.toLowerCase().includes('tw') || browserLang.toLowerCase().includes('hk')) {
+        if (targetLang.toLowerCase().includes('tw') || targetLang.toLowerCase().includes('hk')) {
           currentLang = 'zh-TW';
         } else {
           currentLang = 'zh-CN';

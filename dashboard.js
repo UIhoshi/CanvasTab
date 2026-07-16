@@ -8,6 +8,17 @@
   }
 })();
 
+// HTML 字符转义辅助函数，防止 XSS 注入漏洞
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // ================= 状态持久化底层存储辅助函数 =================
 function setStorageItem(key, value) {
   localStorage.setItem(key, value);
@@ -36,173 +47,1775 @@ function removeStorageItem(key) {
 
 // ================= 语言国际化系统 (i18n) =================
 const i18n = {
-  'en': {
-    appName: '📌 CanvasTab Bookmarks',
-    manageMode: '🗃️ Manage',
-    visualMode: '🎨 Visual',
-    viewCard: '🎴 Card',
-    viewList: '📝 List',
-    viewIcon: '📱 Icon',
-    searchPlaceholder: 'Search bookmarks, links or folders...',
-    loadingFolders: 'Loading folders...',
-    versionTag: 'v1.7 | Wallpaper Slideshow',
-    allBookmarks: 'All Bookmarks',
-    folderStatsAll: 'Total of {count} bookmark links collected',
-    folderStatsFolder: 'Contains {folders} folders, {links} links',
-    folderStatsVisual: 'Visual Mode | {folders} folders, {links} links',
-    emptyState: 'No subfolders or bookmark links found here~',
-    modalFolderTitle: 'Folder Content',
-    folderCardCount: '{count} items',
-    statsSearch: 'Search | Found {folders} folders, {links} links',
-    tooltipBack: 'Back to parent',
-    tooltipClose: 'Close modal'
+  "en": {
+    "ctxAdd": "Create Subfolder",
+    "ctxRename": "Rename Folder",
+    "ctxDelete": "Delete Folder",
+    "appName": "📌 CanvasTab Bookmarks",
+    "manageMode": "🗃️ Manage",
+    "visualMode": "🎨 Visual",
+    "viewCard": "🎴 Card",
+    "viewList": "📝 List",
+    "viewIcon": "📱 Icon",
+    "searchPlaceholder": "Search bookmarks, links or folders...",
+    "loadingFolders": "Loading folders...",
+    "versionTag": "v1.7 | Wallpaper Slideshow",
+    "allBookmarks": "All Bookmarks",
+    "folderStatsAll": "Total of {count} bookmark links collected",
+    "folderStatsFolder": "Contains {folders} folders, {links} links",
+    "folderStatsVisual": "Visual Mode | {folders} folders, {links} links",
+    "emptyState": "No subfolders or bookmark links found here~",
+    "modalFolderTitle": "Folder Content",
+    "folderCardCount": "{count} items",
+    "statsSearch": "Search | Found {folders} folders, {links} links",
+    "tooltipBack": "Back to parent",
+    "tooltipClose": "Close modal",
+    "drawerTitle": "Control Center",
+    "secMode": "Dashboard Mode",
+    "secModeDesc": "Switch between simplified manager and borderless visual dashboard",
+    "secLayout": "Search Bar Layout",
+    "secLayoutDesc": "Adjust search box position and dashboard visibility",
+    "layoutGoogleVisual": "Search + Dashboard",
+    "layoutGoogleCollapse": "Search + Drawer",
+    "layoutPureVisual": "Classic Bookmark Bar",
+    "secView": "Bookmark Style",
+    "secViewDesc": "Switch bookmark card grid layout",
+    "secTheme": "Personalized Theme",
+    "secThemeDesc": "Select global system color theme",
+    "secLang": "Language",
+    "secWallpaper": "Wallpaper Background Settings",
+    "wallpaperDrawerDesc": "Toggles, display modes, clarity, and slideshow settings are managed in the gallery.",
+    "btnUploadBg": "Upload Wallpaper",
+    "btnManageBg": "Manage Gallery",
+    "newtabStatusLabel": "New Tab State",
+    "btnHomepageReset": "Restore Header Button",
+    "btnNewtabToggle": "Restore Default New Tab",
+    "btnDeadLink": "Dead Link Checker",
+    "btnCreateFolder": "New Folder",
+    "brandLogoSubtitle": "Browser Bookmark Canvas",
+    "googleVoiceTitle": "Voice Search",
+    "googleLensTitle": "Search by Image",
+    "googleAiModeText": "AI Mode",
+    "googleAiModeTitle": "Toggle display mode",
+    "btnNewtabToggleEnable": "Enable CanvasTab New Tab",
+    "newtabActiveNormal": "New Tab Enabled",
+    "newtabActiveHover": "Disable",
+    "newtabActiveTitle": "Click to restore system default New Tab page",
+    "newtabInactiveText": "Enable New Tab",
+    "newtabInactiveTitle": "Enable CanvasTab as your New Tab page",
+    "newtabStatusActive": "Taken over by CanvasTab",
+    "newtabStatusInactive": "System Default New Tab"
   },
-  'zh-CN': {
-    appName: '📌 CanvasTab 浏览器书签画布',
-    manageMode: '🗃️ 极简管理',
-    visualMode: '🎨 无界视觉',
-    viewCard: '🎴 卡片',
-    viewList: '📝 列表',
-    viewIcon: '📱 图标',
-    searchPlaceholder: '搜索书签、链接或关键词...',
-    loadingFolders: '加载文件夹中...',
-    versionTag: 'v1.7 | 幻灯壁纸版',
-    allBookmarks: '所有书签',
-    folderStatsAll: '共收录了 {count} 个网页链接',
-    folderStatsFolder: '包含 {folders} 个子目录，{links} 个网页链接',
-    folderStatsVisual: '看板视角 | 共有 {folders} 个主要文件夹，{links} 个直属链接',
-    emptyState: '这里没有找到任何子文件夹或书签链接~',
-    modalFolderTitle: '文件夹内容',
-    folderCardCount: '{count} 个对象',
-    statsSearch: '搜索结果：找到 {folders} 个文件夹，{links} 个网页',
-    tooltipBack: '返回上一级',
-    tooltipClose: '关闭弹窗'
+  "zh-CN": {
+    "ctxAdd": "新建子文件夹",
+    "ctxRename": "重命名文件夹",
+    "ctxDelete": "删除此文件夹",
+    "appName": "📌 CanvasTab 浏览器书签画布",
+    "manageMode": "🗃️ 极简管理",
+    "visualMode": "🎨 无界视觉",
+    "viewCard": "🎴 卡片",
+    "viewList": "📝 列表",
+    "viewIcon": "📱 图标",
+    "searchPlaceholder": "搜索书签、链接或关键词...",
+    "loadingFolders": "加载文件夹中...",
+    "versionTag": "v1.7 | 幻灯壁纸版",
+    "allBookmarks": "所有书签",
+    "folderStatsAll": "共收录了 {count} 个网页链接",
+    "folderStatsFolder": "包含 {folders} 个子目录，{links} 个网页链接",
+    "folderStatsVisual": "看板视角 | 共有 {folders} 个主要文件夹，{links} 个直属链接",
+    "emptyState": "这里没有找到任何子文件夹或书签链接~",
+    "modalFolderTitle": "文件夹内容",
+    "folderCardCount": "{count} 个对象",
+    "statsSearch": "搜索视图 | 找到 {folders} 个文件夹，{links} 个网页链接",
+    "tooltipBack": "返回上一级",
+    "tooltipClose": "关闭弹窗",
+    "drawerTitle": "控制中心",
+    "secMode": "看板工作模式",
+    "secModeDesc": "切换极简管理与无界视觉模式",
+    "secLayout": "搜索框排版",
+    "secLayoutDesc": "调整搜索栏在看板中的位置与展开状态",
+    "layoutGoogleVisual": "搜索框 + 书签看板",
+    "layoutGoogleCollapse": "搜索框 + 抽屉式侧栏",
+    "layoutPureVisual": "经典书签栏导航",
+    "secView": "书签展示风格",
+    "secViewDesc": "切换书签网格的排版视图",
+    "secTheme": "个性化主题配色",
+    "secThemeDesc": "选择系统的全局配色主题",
+    "secLang": "多国语言",
+    "secWallpaper": "壁纸背景设置",
+    "wallpaperDrawerDesc": "壁纸开关、展示模式、清晰度和播放设置统一在背景库管理。",
+    "btnUploadBg": "上传背景图",
+    "btnManageBg": "管理背景库",
+    "newtabStatusLabel": "新标签页状态",
+    "btnHomepageReset": "恢复显示顶部按钮",
+    "btnNewtabToggle": "恢复浏览器原生新标签页",
+    "btnDeadLink": "死链检测",
+    "btnCreateFolder": "新建文件夹",
+    "brandLogoSubtitle": "浏览器书签画布",
+    "googleVoiceTitle": "语音搜索",
+    "googleLensTitle": "图像搜索",
+    "googleAiModeText": "AI 模式",
+    "googleAiModeTitle": "切换展示模式",
+    "btnNewtabToggleEnable": "开启 CanvasTab 新标签页",
+    "newtabActiveNormal": "新标签页已开启",
+    "newtabActiveHover": "取消接管",
+    "newtabActiveTitle": "点击恢复使用浏览器默认新标签页",
+    "newtabInactiveText": "开启新标签页",
+    "newtabInactiveTitle": "开启 CanvasTab 接管浏览器新标签页",
+    "newtabStatusActive": "已由 CanvasTab 接管",
+    "newtabStatusInactive": "系统默认新标签页"
   },
-  'zh-TW': {
-    appName: '📌 CanvasTab 瀏覽器書籤畫布',
-    manageMode: '🗃️ 極簡管理',
-    visualMode: '🎨 無界視覺',
-    viewCard: '🎴 卡片',
-    viewList: '📝 列表',
-    viewIcon: '📱 圖標',
-    searchPlaceholder: '搜尋書籤、連結或關鍵字...',
-    loadingFolders: '載入資料夾中...',
-    versionTag: 'v1.7 | 幻燈壁紙版',
-    allBookmarks: '所有書籤',
-    folderStatsAll: '共收錄了 {count} 個網頁連結',
-    folderStatsFolder: '包含 {folders} 個子目錄，{links} 個網頁連結',
-    folderStatsVisual: '看板視角 | 共有 {folders} 個主要資料夾，{links} 個直屬連結',
-    emptyState: '這裡沒有找到任何子資料夾或書籤連結~',
-    modalFolderTitle: '資料夾內容',
-    folderCardCount: '{count} 個對象',
-    statsSearch: '搜尋結果：找到 {folders} 個資料夾，{links} 個網頁',
-    tooltipBack: '返回上一級',
-    tooltipClose: '關閉彈窗'
+  "zh-TW": {
+    "ctxAdd": "新建子資料夾",
+    "ctxRename": "重新命名資料夾",
+    "ctxDelete": "刪除此資料夾",
+    "appName": "📌 CanvasTab 瀏覽器書籤畫布",
+    "manageMode": "🗃️ 極簡管理",
+    "visualMode": "🎨 無界視覺",
+    "viewCard": "🎴 卡片",
+    "viewList": "📝 列表",
+    "viewIcon": "📱 圖標",
+    "searchPlaceholder": "搜尋書籤、連結或關鍵詞...",
+    "loadingFolders": "載入資料夾中...",
+    "versionTag": "v1.7 | 幻燈壁紙版",
+    "allBookmarks": "所有書籤",
+    "folderStatsAll": "共收錄了 {count} 個網頁連結",
+    "folderStatsFolder": "包含 {folders} 個子目錄，{links} 個網頁連結",
+    "folderStatsVisual": "看板視角 | 共有 {folders} 個主要資料夾，{links} 個直屬連結",
+    "emptyState": "這裡沒有找到任何子資料夾或書籤連結~",
+    "modalFolderTitle": "資料夾內容",
+    "folderCardCount": "{count} 個對象",
+    "statsSearch": "搜尋視圖 | 找到 {folders} 個資料夾，{links} 個網頁連結",
+    "tooltipBack": "返回上一級",
+    "tooltipClose": "關閉彈窗",
+    "drawerTitle": "控制中心",
+    "secMode": "看板工作模式",
+    "secModeDesc": "切換極簡管理與無界視覺模式",
+    "secLayout": "搜尋框排版",
+    "secLayoutDesc": "調整搜尋欄在看板中的位置與展開狀態",
+    "layoutGoogleVisual": "搜尋框 + 書籤看板",
+    "layoutGoogleCollapse": "搜尋框 + 抽屜式側欄",
+    "layoutPureVisual": "經典書籤欄導航",
+    "secView": "書籤展示風格",
+    "secViewDesc": "切換書籤網格的排版視圖",
+    "secTheme": "個性化主題配色",
+    "secThemeDesc": "選擇系統的全局配色主題",
+    "secLang": "多國語言",
+    "secWallpaper": "壁紙背景設置",
+    "wallpaperDrawerDesc": "壁紙開關、展示模式、清晰度和播放設置統一在背景庫管理。",
+    "btnUploadBg": "上傳背景圖",
+    "btnManageBg": "管理背景庫",
+    "newtabStatusLabel": "新分頁狀態",
+    "btnHomepageReset": "恢復顯示頂部按鈕",
+    "btnNewtabToggle": "恢復瀏覽器原生新分頁",
+    "btnDeadLink": "死鏈檢測",
+    "btnCreateFolder": "新建資料夾",
+    "brandLogoSubtitle": "瀏覽器書籤畫布",
+    "googleVoiceTitle": "語音搜尋",
+    "googleLensTitle": "圖像搜尋",
+    "googleAiModeText": "AI 模式",
+    "googleAiModeTitle": "切換展示模式",
+    "btnNewtabToggleEnable": "開啟 CanvasTab 新分頁",
+    "newtabActiveNormal": "新分頁已開啟",
+    "newtabActiveHover": "取消接管",
+    "newtabActiveTitle": "點擊恢復使用瀏覽器預設新分頁",
+    "newtabInactiveText": "開啟新分頁",
+    "newtabInactiveTitle": "開啟 CanvasTab 接管瀏覽器新分頁",
+    "newtabStatusActive": "已由 CanvasTab 接管",
+    "newtabStatusInactive": "系統預設新分頁"
   },
-  'es': {
-    appName: '📌 Marcadores Visuales',
-    manageMode: '🗃️ Gestión',
-    visualMode: '🎨 Visual',
-    viewCard: '🎴 Tarjetas',
-    viewList: '📝 Lista',
-    viewIcon: '📱 Iconos',
-    searchPlaceholder: 'Buscar marcadores, enlaces o carpetas...',
-    loadingFolders: 'Cargando carpetas...',
-    versionTag: 'v1.7 | Modo Diapositivas',
-    allBookmarks: 'Todos los marcadores',
-    folderStatsAll: 'Total de {count} enlaces recopilados',
-    folderStatsFolder: 'Contiene {folders} carpetas, {links} enlaces',
-    folderStatsVisual: 'Modo Visual | {folders} carpetas, {links} enlaces',
-    emptyState: 'No se encontraron carpetas o enlaces aquí~',
-    modalFolderTitle: 'Contenido de carpeta',
-    folderCardCount: '{count} elementos',
-    statsSearch: 'Búsqueda | {folders} carpetas, {links} enlaces encontrados',
-    tooltipBack: 'Volver',
-    tooltipClose: 'Cerrar'
+  "es": {
+    "ctxAdd": "Crear subcarpeta",
+    "ctxRename": "Renombrar carpeta",
+    "ctxDelete": "Eliminar carpeta",
+    "appName": "📌 Marcadores Visuales",
+    "manageMode": "🗃️ Gestión",
+    "visualMode": "🎨 Visual",
+    "viewCard": "🎴 Tarjetas",
+    "viewList": "📝 Lista",
+    "viewIcon": "📱 Iconos",
+    "searchPlaceholder": "Buscar marcadores, enlaces o carpetas...",
+    "loadingFolders": "Cargando carpetas...",
+    "versionTag": "v1.7 | Presentación de fondo",
+    "allBookmarks": "Todos los marcadores",
+    "folderStatsAll": "Total de {count} enlaces recopilados",
+    "folderStatsFolder": "Contiene {folders} carpetas, {links} enlaces",
+    "folderStatsVisual": "Vista Visual | {folders} carpetas, {links} enlaces",
+    "emptyState": "No se encontraron subcarpetas o marcadores aquí~",
+    "modalFolderTitle": "Contenido de la carpeta",
+    "folderCardCount": "{count} elementos",
+    "statsSearch": "Búsqueda | Encontrado {folders} carpetas, {links} enlaces",
+    "tooltipBack": "Volver al padre",
+    "tooltipClose": "Cerrar ventana",
+    "drawerTitle": "Centro de control",
+    "secMode": "Modo del panel",
+    "secModeDesc": "Cambiar entre administrador simplificado y visual sin bordes",
+    "secLayout": "Posición de búsqueda",
+    "secLayoutDesc": "Ajustar la posición de la barra de búsqueda y visibilidad del panel",
+    "layoutGoogleVisual": "Búsqueda + Panel",
+    "layoutGoogleCollapse": "Búsqueda + Cajón",
+    "layoutPureVisual": "Barra clásica de marcadores",
+    "secView": "Estilo de marcadores",
+    "secViewDesc": "Cambiar la disposición de la cuadrícula de marcadores",
+    "secTheme": "Tema personalizado",
+    "secThemeDesc": "Seleccionar el color de tema global del sistema",
+    "secLang": "Idioma",
+    "secWallpaper": "Ajustes del fondo de pantalla",
+    "wallpaperDrawerDesc": "Toggles, modos, claridad y presentación se gestionan en la galería.",
+    "btnUploadBg": "Subir fondo de pantalla",
+    "btnManageBg": "Gestionar galería",
+    "newtabStatusLabel": "Estado de Nueva Pestaña",
+    "btnHomepageReset": "Restaurar Botón Superior",
+    "btnNewtabToggle": "Restaurar Nueva Pestaña Predeterminada",
+    "btnDeadLink": "Verificador de enlaces rotos",
+    "btnCreateFolder": "Nueva carpeta",
+    "brandLogoSubtitle": "Lienzo de marcadores del navegador",
+    "googleVoiceTitle": "Búsqueda por voz",
+    "googleLensTitle": "Búsqueda por imagen",
+    "googleAiModeText": "Modo IA",
+    "googleAiModeTitle": "Alternar modo de pantalla",
+    "btnNewtabToggleEnable": "Habilitar CanvasTab Nueva Pestaña",
+    "newtabActiveNormal": "Nueva pestaña activada",
+    "newtabActiveHover": "Desactivar",
+    "newtabActiveTitle": "Haga clic para restaurar la página de nueva pestaña predeterminada",
+    "newtabInactiveText": "Habilitar nueva pestaña",
+    "newtabInactiveTitle": "Habilitar CanvasTab como su página de nueva pestaña",
+    "newtabStatusActive": "Controlado por CanvasTab",
+    "newtabStatusInactive": "Nueva pestaña predeterminada"
   },
-  'ja': {
-    appName: '📌 ブックマーク看板',
-    manageMode: '🗃️ 管理モード',
-    visualMode: '🎨 ビジュアル',
-    viewCard: '🎴 カード',
-    viewList: '📝 リスト',
-    viewIcon: '📱 アイコン',
-    searchPlaceholder: 'ブックマーク、リンク、フォルダを検索...',
-    loadingFolders: 'フォルダを読み込み中...',
-    versionTag: 'v1.7 | スライドショー',
-    allBookmarks: 'すべてのブックマーク',
-    folderStatsAll: '合計 {count} 個のリンクが登録されています',
-    folderStatsFolder: '{folders} 個のフォルダ、{links} 個のリンクが含まれています',
-    folderStatsVisual: 'ビジュアル表示 | 主要フォルダ {folders} 個、直属リンク {links} 個',
-    emptyState: 'サブフォルダまたはブックマークが見つかりませんでした~',
-    modalFolderTitle: 'フォルダの内容',
-    folderCardCount: '{count} 個の項目',
-    statsSearch: '検索結果 | フォルダ {folders} 個、リンク {links} 個が見つかりました',
-    tooltipBack: '戻る',
-    tooltipClose: '閉じる'
+  "ja": {
+    "ctxAdd": "新規サブフォルダ",
+    "ctxRename": "フォルダ名の変更",
+    "ctxDelete": "フォルダの削除",
+    "appName": "📌 ビジュアルブックマーク",
+    "manageMode": "🗃️ 管理モード",
+    "visualMode": "🎨 ビジュアル",
+    "viewCard": "🎴 カード",
+    "viewList": "📝 リスト",
+    "viewIcon": "📱 アイコン",
+    "searchPlaceholder": "ブックマーク、リンク、フォルダを検索...",
+    "loadingFolders": "フォルダを読み込み中...",
+    "versionTag": "v1.7 | スライドショー背景",
+    "allBookmarks": "すべてのブックマーク",
+    "folderStatsAll": "合計 {count} 個のリンクが登録されています",
+    "folderStatsFolder": "内訳: {folders} フォルダ、{links} リンク",
+    "folderStatsVisual": "ビジュアル表示 | {folders} 主要フォルダ、{links} リンク",
+    "emptyState": "サブフォルダまたはブックマークが見つかりません~",
+    "modalFolderTitle": "フォルダのコンテンツ",
+    "folderCardCount": "{count} 個の項目",
+    "statsSearch": "検索結果 | {folders} フォルダ、{links} リンクを発見",
+    "tooltipBack": "親フォルダへ戻る",
+    "tooltipClose": "閉じる",
+    "drawerTitle": "コントロールセンター",
+    "secMode": "ダッシュボードモード",
+    "secModeDesc": "シンプルな管理画面と境界線のないビジュアルボードを切り替え",
+    "secLayout": "検索バーの配置",
+    "secLayoutDesc": "検索ボックスの位置とボードの表示/非表示を調整",
+    "layoutGoogleVisual": "検索 + ボード",
+    "layoutGoogleCollapse": "検索 + 引き出し",
+    "layoutPureVisual": "クラシックブックマークバー",
+    "secView": "表示スタイル",
+    "secViewDesc": "ブックマークカードのレイアウトを切り替え",
+    "secTheme": "テーマカラー",
+    "secThemeDesc": "システムの全体テーマカラーを選択",
+    "secLang": "言語設定",
+    "secWallpaper": "壁紙背景の設定",
+    "wallpaperDrawerDesc": "壁紙の有効化、表示モード、透過率、自動切り替えはギャラリーで設定します。",
+    "btnUploadBg": "壁紙をアップロード",
+    "btnManageBg": "ギャラリーの管理",
+    "newtabStatusLabel": "新しいタブの状態",
+    "btnHomepageReset": "ヘッダーボタンを復元",
+    "btnNewtabToggle": "デフォルトの新しいタブに戻す",
+    "btnDeadLink": "リンク切れチェッカー",
+    "btnCreateFolder": "新規フォルダ",
+    "brandLogoSubtitle": "ブラウザブックマークキャンバス",
+    "googleVoiceTitle": "音声検索",
+    "googleLensTitle": "画像で検索",
+    "googleAiModeText": "AIモード",
+    "googleAiModeTitle": "表示モードを切り替える",
+    "btnNewtabToggleEnable": "CanvasTab 新しいタブを有効にする",
+    "newtabActiveNormal": "新しいタブが有効",
+    "newtabActiveHover": "無効化",
+    "newtabActiveTitle": "クリックしてデフォルトの新しいタブページに戻す",
+    "newtabInactiveText": "新しいタブを有効にする",
+    "newtabInactiveTitle": "CanvasTab を新しいタブページとして有効にする",
+    "newtabStatusActive": "CanvasTab が接管中",
+    "newtabStatusInactive": "システムデフォルトの新しいタブ"
   },
-  'ko': {
-    appName: '📌 북마크 대시보드',
-    manageMode: '🗃️ 간편 관리',
-    visualMode: '🎨 비주얼',
-    viewCard: '🎴 카드',
-    viewList: '📝 목록',
-    viewIcon: '📱 아이콘',
-    searchPlaceholder: '북마크, 링크 또는 폴더 검색...',
-    loadingFolders: '폴더 로딩 중...',
-    versionTag: 'v1.7 | 슬라이드 쇼',
-    allBookmarks: '모든 북마크',
-    folderStatsAll: '총 {count}개의 북마크 링크 수집됨',
-    folderStatsFolder: '폴더 {folders}개, 링크 {links}개 포함',
-    folderStatsVisual: '비주얼 모드 | 폴더 {folders}개, 링크 {links}개',
-    emptyState: '하위 폴더 또는 북마크 링크를 찾을 수 없습니다~',
-    modalFolderTitle: '폴더 내용',
-    folderCardCount: '{count}개 항목',
-    statsSearch: '검색 결과 | 폴더 {folders}개, 링크 {links}개 발견됨',
-    tooltipBack: '뒤로 가기',
-    tooltipClose: '닫기'
+  "ko": {
+    "ctxAdd": "새 하위 폴더 생성",
+    "ctxRename": "폴더 이름 바꾸기",
+    "ctxDelete": "폴더 삭제",
+    "appName": "📌 비주얼 북마크",
+    "manageMode": "🗃️ 관리 모드",
+    "visualMode": "🎨 비주얼",
+    "viewCard": "🎴 카드",
+    "viewList": "📝 목록",
+    "viewIcon": "📱 아이콘",
+    "searchPlaceholder": "북마크, 링크 또는 폴더 검색...",
+    "loadingFolders": "폴더 로드 중...",
+    "versionTag": "v1.7 | 슬라이드쇼 배경",
+    "allBookmarks": "모든 북마크",
+    "folderStatsAll": "총 {count}개의 북마크 링크 수집됨",
+    "folderStatsFolder": "{folders}개 폴더, {links}개 링크 포함",
+    "folderStatsVisual": "비주얼 모드 | {folders}개 폴더, {links}개 링크",
+    "emptyState": "하위 폴더나 북마크 링크가 없습니다~",
+    "modalFolderTitle": "폴더 내용",
+    "folderCardCount": "{count}개 항목",
+    "statsSearch": "검색 | {folders}개 폴더, {links}개 링크 발견",
+    "tooltipBack": "이전으로",
+    "tooltipClose": "닫기",
+    "drawerTitle": "제어 센터",
+    "secMode": "대시보드 모드",
+    "secModeDesc": "간편 관리 모드와 테두리 없는 비주얼 대시보드 간 전환",
+    "secLayout": "검색바 레이아웃",
+    "secLayoutDesc": "검색창 위치 및 대시보드 표시 상태 설정",
+    "layoutGoogleVisual": "검색 + 대시보드",
+    "layoutGoogleCollapse": "검색 + 슬라이드바",
+    "layoutPureVisual": "클래식 북마크바",
+    "secView": "북마크 스타일",
+    "secViewDesc": "북마크 카드 그리드 레이아웃 전환",
+    "secTheme": "개인화 테마",
+    "secThemeDesc": "시스템 글로벌 색상 테마 선택",
+    "secLang": "언어",
+    "secWallpaper": "배경 화면 설정",
+    "wallpaperDrawerDesc": "배경 활성화, 표시 모드, 투명도 및 슬라이드쇼 설정은 갤러리에서 관리됩니다.",
+    "btnUploadBg": "배경 업로드",
+    "btnManageBg": "갤러리 관리",
+    "newtabStatusLabel": "새 탭 페이지 상태",
+    "btnHomepageReset": "헤더 버튼 복원",
+    "btnNewtabToggle": "기본 새 탭으로 복구",
+    "btnDeadLink": "데드 링크 체크",
+    "btnCreateFolder": "새 폴더",
+    "brandLogoSubtitle": "브라우저 북마크 캔버스",
+    "googleVoiceTitle": "음성 검색",
+    "googleLensTitle": "이미지 검색",
+    "googleAiModeText": "AI 모드",
+    "googleAiModeTitle": "화면 모드 전환",
+    "btnNewtabToggleEnable": "CanvasTab 새 탭 활성화",
+    "newtabActiveNormal": "새 탭 활성화됨",
+    "newtabActiveHover": "비활성화",
+    "newtabActiveTitle": "클릭하여 기본 새 탭 페이지로 복원",
+    "newtabInactiveText": "새 탭 활성화",
+    "newtabInactiveTitle": "CanvasTab을 새 탭 페이지로 설정",
+    "newtabStatusActive": "CanvasTab이 제어 중",
+    "newtabStatusInactive": "시스템 기본 새 탭"
   },
-  'fr': {
-    appName: '📌 Signets Visuels',
-    manageMode: '🗃️ Gestion',
-    visualMode: '🎨 Visuel',
-    viewCard: '🎴 Cartes',
-    viewList: '📝 Liste',
-    viewIcon: '📱 Icônes',
-    searchPlaceholder: 'Rechercher des favoris, liens ou dossiers...',
-    loadingFolders: 'Chargement des dossiers...',
-    versionTag: 'v1.7 | Diaporama',
-    allBookmarks: 'Tous les signets',
-    folderStatsAll: 'Total de {count} liens collectés',
-    folderStatsFolder: 'Contiene {folders} dossiers, {links} liens',
-    folderStatsVisual: 'Mode Visuel | {folders} dossiers, {links} liens',
-    emptyState: 'Aucun sous-dossier ou signet trouvé ici~',
-    modalFolderTitle: 'Contenu du dossier',
-    folderCardCount: '{count} éléments',
-    statsSearch: 'Recherche | {folders} dossiers, {links} liens trouvés',
-    tooltipBack: 'Retour',
-    tooltipClose: 'Fermer'
+  "fr": {
+    "ctxAdd": "Créer un sous-dossier",
+    "ctxRename": "Renommer le dossier",
+    "ctxDelete": "Supprimer le dossier",
+    "appName": "📌 Signets Visuels",
+    "manageMode": "🗃️ Gestion",
+    "visualMode": "🎨 Visuel",
+    "viewCard": "🎴 Cartes",
+    "viewList": "📝 Liste",
+    "viewIcon": "📱 Icônes",
+    "searchPlaceholder": "Rechercher des favoris, liens ou dossiers...",
+    "loadingFolders": "Chargement des dossiers...",
+    "versionTag": "v1.7 | Diaporama",
+    "allBookmarks": "Tous les signets",
+    "folderStatsAll": "Total de {count} liens collectés",
+    "folderStatsFolder": "Contient {folders} dossiers, {links} liens",
+    "folderStatsVisual": "Mode Visuel | {folders} dossiers, {links} liens",
+    "emptyState": "Aucun sous-dossier ou signet trouvé ici~",
+    "modalFolderTitle": "Contenu du dossier",
+    "folderCardCount": "{count} éléments",
+    "statsSearch": "Recherche | {folders} dossiers, {links} liens trouvés",
+    "tooltipBack": "Retour",
+    "tooltipClose": "Fermer",
+    "drawerTitle": "Centre de Contrôle",
+    "secMode": "Mode de Tableau de Bord",
+    "secModeDesc": "Basculez entre gestionnaire simplifié et visuel sans bordure",
+    "secLayout": "Disposition de Recherche",
+    "secLayoutDesc": "Ajuster la position de recherche et la visibilité du panneau",
+    "layoutGoogleVisual": "Recherche + Panneau",
+    "layoutGoogleCollapse": "Recherche + Tiroir",
+    "layoutPureVisual": "Barre de Favoris Classique",
+    "secView": "Style de Favoris",
+    "secViewDesc": "Changer la disposition de la grille des favoris",
+    "secTheme": "Thème Personnalisé",
+    "secThemeDesc": "Sélectionner le thème de couleur global du système",
+    "secLang": "Langue",
+    "secWallpaper": "Paramètres de Fond d'Écran",
+    "wallpaperDrawerDesc": "L'affichage, les modes, la clarté et le diaporama se gèrent dans la galerie.",
+    "btnUploadBg": "Téléverser Fond",
+    "btnManageBg": "Gérer la Galerie",
+    "newtabStatusLabel": "État du Nouvel Onglet",
+    "btnHomepageReset": "Restaurer le Bouton d'En-tête",
+    "btnNewtabToggle": "Restaurer le Nouvel Onglet par Diaporama",
+    "btnDeadLink": "Vérificateur de Liens Morts",
+    "btnCreateFolder": "Nouveau Dossier",
+    "brandLogoSubtitle": "Canevas de Favoris de Navigateur",
+    "googleVoiceTitle": "Recherche vocale",
+    "googleLensTitle": "Recherche par image",
+    "googleAiModeText": "Mode IA",
+    "googleAiModeTitle": "Basculer le mode d'affichage",
+    "btnNewtabToggleEnable": "Activer CanvasTab Nouvel Onglet",
+    "newtabActiveNormal": "Nouvel onglet activé",
+    "newtabActiveHover": "Désactiver",
+    "newtabActiveTitle": "Cliquez pour restaurer la page de nouvel onglet par défaut",
+    "newtabInactiveText": "Activer nouvel onglet",
+    "newtabInactiveTitle": "Activer CanvasTab comme page de nouvel onglet",
+    "newtabStatusActive": "Pris en charge par CanvasTab",
+    "newtabStatusInactive": "Nouvel onglet par défaut du système"
   },
-  'de': {
-    appName: '📌 Visuelle Lesezeichen',
-    manageMode: '🗃️ Verwaltung',
-    visualMode: '🎨 Visuell',
-    viewCard: '🎴 Karten',
-    viewList: '📝 Liste',
-    viewIcon: '📱 Icons',
-    searchPlaceholder: 'Lesezeichen, Links oder Ordner suchen...',
-    loadingFolders: 'Ordner werden geladen...',
-    versionTag: 'v1.7 | Diashow',
-    allBookmarks: 'Alle Lesezeichen',
-    folderStatsAll: 'Insgesamt {count} Links gesammelt',
-    folderStatsFolder: 'Enthält {folders} Ordner, {links} Links',
-    folderStatsVisual: 'Visueller Modus | {folders} Ordner, {links} Links',
-    emptyState: 'Keine Unterordner oder Lesezeichen-Links gefunden~',
-    modalFolderTitle: 'Ordnerinhalt',
-    folderCardCount: '{count} Elemente',
-    statsSearch: 'Suche | {folders} Ordner, {links} Links gefunden',
-    tooltipBack: 'Zurück',
-    tooltipClose: 'Schließen'
+  "de": {
+    "ctxAdd": "Unterordner erstellen",
+    "ctxRename": "Ordner umbenennen",
+    "ctxDelete": "Ordner löschen",
+    "appName": "📌 Visuelle Lesezeichen",
+    "manageMode": "🗃️ Verwaltung",
+    "visualMode": "🎨 Visuell",
+    "viewCard": "🎴 Karten",
+    "viewList": "📝 Liste",
+    "viewIcon": "📱 Symbole",
+    "searchPlaceholder": "Lesezeichen, Links oder Ordner suchen...",
+    "loadingFolders": "Ordner werden geladen...",
+    "versionTag": "v1.7 | Hintergrund-Diashow",
+    "allBookmarks": "Alle Lesezeichen",
+    "folderStatsAll": "Insgesamt {count} Links gesammelt",
+    "folderStatsFolder": "Enthält {folders} Ordner, {links} Links",
+    "folderStatsVisual": "Visuelle Ansicht | {folders} Ordner, {links} Links",
+    "emptyState": "Keine Unterordner oder Lesezeichen-Links gefunden~",
+    "modalFolderTitle": "Ordnerinhalt",
+    "folderCardCount": "{count} Elemente",
+    "statsSearch": "Suche | {folders} Ordner, {links} Links gefunden",
+    "tooltipBack": "Zurück",
+    "tooltipClose": "Schließen",
+    "drawerTitle": "Kontrollzentrum",
+    "secMode": "Dashboard-Modus",
+    "secModeDesc": "Zwischen vereinfachtem Verwalter und randlosem visuellen Board wechseln",
+    "secLayout": "Suchleisten-Layout",
+    "secLayoutDesc": "Suchfeldposition und Sichtbarkeit des Dashboards anpassen",
+    "layoutGoogleVisual": "Suche + Board",
+    "layoutGoogleCollapse": "Suche + Schublade",
+    "layoutPureVisual": "Klassische Lesezeichenleiste",
+    "secView": "Lesezeichen-Stil",
+    "secViewDesc": "Layout der Lesezeichenkarten wechseln",
+    "secTheme": "Personalisiertes Thema",
+    "secThemeDesc": "Wählen Sie das globale Systemfarbthema",
+    "secLang": "Sprache",
+    "secWallpaper": "Hintergrundbildeinstellungen",
+    "wallpaperDrawerDesc": "Anzeige, Modi, Klarheit und Diashow-Einstellungen werden in der Galerie verwaltet.",
+    "btnUploadBg": "Hintergrund Hochladen",
+    "btnManageBg": "Galerie Verwalten",
+    "newtabStatusLabel": "Neuer-Tab-Status",
+    "btnHomepageReset": "Kopfzeilenschaltfläche Wiederherstellen",
+    "btnNewtabToggle": "Standard-Neuer-Tab Wiederherstellen",
+    "btnDeadLink": "Tote Links Prüfen",
+    "btnCreateFolder": "Neuer Ordner",
+    "brandLogoSubtitle": "Browser-Lesezeichen-Leinwand",
+    "googleVoiceTitle": "Sprachsuche",
+    "googleLensTitle": "Bildersuche",
+    "googleAiModeText": "KI-Modus",
+    "googleAiModeTitle": "Anzeigemodus wechseln",
+    "btnNewtabToggleEnable": "CanvasTab Neuer Tab Aktivieren",
+    "newtabActiveNormal": "Neuer Tab aktiviert",
+    "newtabActiveHover": "Deaktivieren",
+    "newtabActiveTitle": "Klicken Sie hier, um die Standard-Neuer-Tab-Seite wiederherzustellen",
+    "newtabInactiveText": "Neuer Tab aktivieren",
+    "newtabInactiveTitle": "CanvasTab als Neuer-Tab-Seite aktivieren",
+    "newtabStatusActive": "Von CanvasTab übernommen",
+    "newtabStatusInactive": "Systemstandard-Neuer-Tab"
+  },
+  "it": {
+    "ctxAdd": "Nuova sottocartella",
+    "ctxRename": "Rinomina cartella",
+    "ctxDelete": "Elimina cartella",
+    "appName": "📌 CanvasTab Segnalibri",
+    "manageMode": "🗃️ Gestisci",
+    "visualMode": "🎨 Visuale",
+    "viewCard": "🎴 Schede",
+    "viewList": "📝 Lista",
+    "viewIcon": "📱 Icone",
+    "searchPlaceholder": "Cerca segnalibri, link o cartelle...",
+    "loadingFolders": "Caricamento cartelle...",
+    "versionTag": "v1.7 | Presentazione sfondo",
+    "allBookmarks": "Tutti i segnalibri",
+    "folderStatsAll": "Totale di {count} collegamenti raccolti",
+    "folderStatsFolder": "Contiene {folders} cartelle, {links} link",
+    "folderStatsVisual": "Vista Visuale | {folders} cartelle, {links} link",
+    "emptyState": "Nessuna sottocartella o link trovato qui~",
+    "modalFolderTitle": "Contenuto della cartella",
+    "folderCardCount": "{count} elementi",
+    "statsSearch": "Ricerca | Trovate {folders} cartelle, {links} link",
+    "tooltipBack": "Torna su",
+    "tooltipClose": "Chiudi",
+    "drawerTitle": "Centro di controllo",
+    "secMode": "Modalità Dashboard",
+    "secModeDesc": "Passa dal gestore semplificato alla dashboard visuale senza bordi",
+    "secLayout": "Layout barra di ricerca",
+    "secLayoutDesc": "Regola la posizione della barra di ricerca e la visibilità della dashboard",
+    "layoutGoogleVisual": "Ricerca + Dashboard",
+    "layoutGoogleCollapse": "Ricerca + Pannello",
+    "layoutPureVisual": "Barra dei segnalibri classica",
+    "secView": "Stile segnalibro",
+    "secViewDesc": "Cambia il layout della griglia dei segnalibri",
+    "secTheme": "Tema personalizzato",
+    "secThemeDesc": "Seleziona il tema colore globale del sistema",
+    "secLang": "Lingua",
+    "secWallpaper": "Impostazioni dello sfondo",
+    "wallpaperDrawerDesc": "Interruttori, modalità, trasparenza e riproduzione automatica si gestiscono nella galleria.",
+    "btnUploadBg": "Carica sfondo",
+    "btnManageBg": "Gestisci galleria",
+    "newtabStatusLabel": "Stato Nuova Scheda",
+    "btnHomepageReset": "Ripristina pulsante intestazione",
+    "btnNewtabToggle": "Ripristina Nuova Scheda predefinita",
+    "btnDeadLink": "Verifica link interrotti",
+    "btnCreateFolder": "Nuova cartella",
+    "brandLogoSubtitle": "Tela dei segnalibri del browser",
+    "googleVoiceTitle": "Ricerca vocale",
+    "googleLensTitle": "Cerca tramite immagine",
+    "googleAiModeText": "Modalità IA",
+    "googleAiModeTitle": "Cambia modalità di visualizzazione",
+    "btnNewtabToggleEnable": "Attiva CanvasTab Nuova Scheda",
+    "newtabActiveNormal": "Nuova Scheda attivata",
+    "newtabActiveHover": "Disattiva",
+    "newtabActiveTitle": "Clicca per ripristinare la pagina Nuova Scheda di sistema",
+    "newtabInactiveText": "Attiva Nuova Scheda",
+    "newtabInactiveTitle": "Imposta CanvasTab come pagina Nuova Scheda",
+    "newtabStatusActive": "Gestito da CanvasTab",
+    "newtabStatusInactive": "Nuova Scheda predefinita di sistema"
+  },
+  "ru": {
+    "ctxAdd": "Создать подпапку",
+    "ctxRename": "Переименовать папку",
+    "ctxDelete": "Удалить эту папку",
+    "appName": "📌 Визуальные закладки CanvasTab",
+    "manageMode": "🗃️ Управление",
+    "visualMode": "🎨 Визуал",
+    "viewCard": "🎴 Карточки",
+    "viewList": "📝 Список",
+    "viewIcon": "📱 Значки",
+    "searchPlaceholder": "Поиск закладок, ссылок или папок...",
+    "loadingFolders": "Загрузка папок...",
+    "versionTag": "v1.7 | Слайд-шоу обоев",
+    "allBookmarks": "Все закладки",
+    "folderStatsAll": "Всего собрано {count} ссылок",
+    "folderStatsFolder": "Содержит {folders} папок, {links} ссылок",
+    "folderStatsVisual": "Визуальный режим | {folders} папок, {links} ссылок",
+    "emptyState": "Здесь нет подпапок или закладок~",
+    "modalFolderTitle": "Содержимое папки",
+    "folderCardCount": "{count} элементов",
+    "statsSearch": "Поиск | Найдено {folders} папок, {links} ссылок",
+    "tooltipBack": "Назад к родителю",
+    "tooltipClose": "Закрыть окно",
+    "drawerTitle": "Центр управления",
+    "secMode": "Режим панели",
+    "secModeDesc": "Переключение между упрощенным менеджером и безрамочной панелью",
+    "secLayout": "Макет панели поиска",
+    "secLayoutDesc": "Настройка положения строки поиска и отображения панели",
+    "layoutGoogleVisual": "Поиск + Панель",
+    "layoutGoogleCollapse": "Поиск + Выдвижной список",
+    "layoutPureVisual": "Классическая панель закладок",
+    "secView": "Стиль закладок",
+    "secViewDesc": "Переключение сетки карточек закладок",
+    "secTheme": "Персональная тема",
+    "secThemeDesc": "Выбор глобальной цветовой схемы системы",
+    "secLang": "Язык",
+    "secWallpaper": "Настройки фоновых обоев",
+    "wallpaperDrawerDesc": "Включение, режимы показа, четкость и слайд-шоу настраиваются в галерее.",
+    "btnUploadBg": "Загрузить обои",
+    "btnManageBg": "Управление галереей",
+    "newtabStatusLabel": "Состояние новой вкладки",
+    "btnHomepageReset": "Восстановить кнопку в шапке",
+    "btnNewtabToggle": "Восстановить стандартную новую вкладку",
+    "btnDeadLink": "Проверка битых ссылок",
+    "btnCreateFolder": "Создать папку",
+    "brandLogoSubtitle": "Холст закладок браузера",
+    "googleVoiceTitle": "Голосовой поиск",
+    "googleLensTitle": "Поиск по картинке",
+    "googleAiModeText": "Режим ИИ",
+    "googleAiModeTitle": "Смена режима отображения",
+    "btnNewtabToggleEnable": "Включить CanvasTab на новой вкладке",
+    "newtabActiveNormal": "Новая вкладка активирована",
+    "newtabActiveHover": "Отключить",
+    "newtabActiveTitle": "Нажмите для возврата к стандартной новой вкладке",
+    "newtabInactiveText": "Активировать новую вкладку",
+    "newtabInactiveTitle": "Использовать CanvasTab как новую вкладку",
+    "newtabStatusActive": "Управляется CanvasTab",
+    "newtabStatusInactive": "Системная новая вкладка по умолчанию"
+  },
+  "pt": {
+    "ctxAdd": "Criar subpasta",
+    "ctxRename": "Renomear pasta",
+    "ctxDelete": "Excluir pasta",
+    "appName": "📌 CanvasTab Favoritos",
+    "manageMode": "🗃️ Gerenciar",
+    "visualMode": "🎨 Visual",
+    "viewCard": "🎴 Cartões",
+    "viewList": "📝 Lista",
+    "viewIcon": "📱 Ícones",
+    "searchPlaceholder": "Pesquisar favoritos, links ou pastas...",
+    "loadingFolders": "Carregando pastas...",
+    "versionTag": "v1.7 | Slideshow de fundo",
+    "allBookmarks": "Todos os favoritos",
+    "folderStatsAll": "Total de {count} links coletados",
+    "folderStatsFolder": "Contém {folders} pastas, {links} links",
+    "folderStatsVisual": "Modo Visual | {folders} pastas, {links} links",
+    "emptyState": "Nenhuma subpasta ou link encontrado aqui~",
+    "modalFolderTitle": "Conteúdo da pasta",
+    "folderCardCount": "{count} itens",
+    "statsSearch": "Busca | Encontrado {folders} pastas, {links} links",
+    "tooltipBack": "Voltar ao topo",
+    "tooltipClose": "Fechar",
+    "drawerTitle": "Centro de Controle",
+    "secMode": "Modo Dashboard",
+    "secModeDesc": "Alternar entre gerenciador simplificado e painel visual sem bordas",
+    "secLayout": "Layout da barra de pesquisa",
+    "secLayoutDesc": "Ajustar posição da barra de pesquisa e visibilidade do painel",
+    "layoutGoogleVisual": "Pesquisa + Painel",
+    "layoutGoogleCollapse": "Pesquisa + Gaveta",
+    "layoutPureVisual": "Barra de favoritos clássica",
+    "secView": "Estilo de favorito",
+    "secViewDesc": "Alternar visualização em grade dos favoritos",
+    "secTheme": "Tema personalizado",
+    "secThemeDesc": "Selecionar o tema de cores global do sistema",
+    "secLang": "Idioma",
+    "secWallpaper": "Configurações de papel de parede",
+    "wallpaperDrawerDesc": "Chaveamento, exibição, opacidade e slideshow são controlados na galeria.",
+    "btnUploadBg": "Enviar papel de parede",
+    "btnManageBg": "Gerenciar galeria",
+    "newtabStatusLabel": "Estado da Nova Guia",
+    "btnHomepageReset": "Restaurar botão superior",
+    "btnNewtabToggle": "Restaurar Nova Guia padrão",
+    "btnDeadLink": "Verificador de links quebrados",
+    "btnCreateFolder": "Nova pasta",
+    "brandLogoSubtitle": "Tela de favoritos do navegador",
+    "googleVoiceTitle": "Pesquisa por voz",
+    "googleLensTitle": "Pesquisar por imagem",
+    "googleAiModeText": "Modo IA",
+    "googleAiModeTitle": "Alternar modo de exibição",
+    "btnNewtabToggleEnable": "Ativar CanvasTab Nova Guia",
+    "newtabActiveNormal": "Nova Guia ativada",
+    "newtabActiveHover": "Desativar",
+    "newtabActiveTitle": "Clique para restaurar a página Nova Guia de fábrica",
+    "newtabInactiveText": "Ativar Nova Guia",
+    "newtabInactiveTitle": "Definir CanvasTab como página Nova Guia",
+    "newtabStatusActive": "Controlado por CanvasTab",
+    "newtabStatusInactive": "Nova Guia padrão do sistema"
+  },
+  "nl": {
+    "ctxAdd": "Nieuwe submap",
+    "ctxRename": "Hernoem map",
+    "ctxDelete": "Verwijder map",
+    "appName": "📌 CanvasTab Bladwijzers",
+    "manageMode": "🗃️ Beheer",
+    "visualMode": "🎨 Visueel",
+    "viewCard": "🎴 Kaarten",
+    "viewList": "📝 Lijst",
+    "viewIcon": "📱 Pictogrammen",
+    "searchPlaceholder": "Zoek bladwijzers, links of mappen...",
+    "loadingFolders": "Mappen laden...",
+    "versionTag": "v1.7 | Diavoorstelling achtergrond",
+    "allBookmarks": "Alle bladwijzers",
+    "folderStatsAll": "Totaal {count} links verzameld",
+    "folderStatsFolder": "Bevat {folders} mappen, {links} links",
+    "folderStatsVisual": "Visuele modus | {folders} mappen, {links} links",
+    "emptyState": "Geen submappen of links gevonden~",
+    "modalFolderTitle": "Mapinhoud",
+    "folderCardCount": "{count} items",
+    "statsSearch": "Zoeken | {folders} mappen, {links} links gevonden",
+    "tooltipBack": "Terug naar boven",
+    "tooltipClose": "Sluiten",
+    "drawerTitle": "Controlecentrum",
+    "secMode": "Dashboard-modus",
+    "secModeDesc": "Schakelen tussen vereenvoudigd beheer en randloos visueel dashboard",
+    "secLayout": "Zoekbalk-indeling",
+    "secLayoutDesc": "Pas de zoekbalkpositie en dashboardzichtbaarheid aan",
+    "layoutGoogleVisual": "Zoeken + Dashboard",
+    "layoutGoogleCollapse": "Zoeken + Zijpaneel",
+    "layoutPureVisual": "Klassieke bladwijzerbalk",
+    "secView": "Bladwijzerstijl",
+    "secViewDesc": "Schakel lay-out van bladwijzerkaarten om",
+    "secTheme": "Gepersonaliseerd thema",
+    "secThemeDesc": "Selecteer het globale kleurthema van het systeem",
+    "secLang": "Taal",
+    "secWallpaper": "Achtergrondinstellingen",
+    "wallpaperDrawerDesc": "Aan/uit, modi, helderheid en slideshow instellingen worden in de galerij beheerd.",
+    "btnUploadBg": "Achtergrond uploaden",
+    "btnManageBg": "Galerie beheren",
+    "newtabStatusLabel": "Nieuwe Tab status",
+    "btnHomepageReset": "Kopknop herstellen",
+    "btnNewtabToggle": "Standaard Nieuwe Tab herstellen",
+    "btnDeadLink": "Dode link checker",
+    "btnCreateFolder": "Nieuwe map",
+    "brandLogoSubtitle": "Browser bladwijzer canvas",
+    "googleVoiceTitle": "Spraakgestuurd zoeken",
+    "googleLensTitle": "Zoeken met afbeelding",
+    "googleAiModeText": "AI-modus",
+    "googleAiModeTitle": "Weergavemodus wisselen",
+    "btnNewtabToggleEnable": "CanvasTab Nieuwe Tab activeren",
+    "newtabActiveNormal": "Nieuwe Tab geactiveerd",
+    "newtabActiveHover": "Uitschakelen",
+    "newtabActiveTitle": "Klik om de standaard Nieuwe Tab-pagina te herstellen",
+    "newtabInactiveText": "Nieuwe Tab activeren",
+    "newtabInactiveTitle": "Stel CanvasTab in als Nieuwe Tab-pagina",
+    "newtabStatusActive": "Beheerd door CanvasTab",
+    "newtabStatusInactive": "Standaard systeem Nieuwe Tab"
+  },
+  "pl": {
+    "ctxAdd": "Nowy podfolder",
+    "ctxRename": "Zmień nazwę",
+    "ctxDelete": "Usuń folder",
+    "appName": "📌 Zakładki Wizualne CanvasTab",
+    "manageMode": "🗃️ Menedżer",
+    "visualMode": "🎨 Wizualny",
+    "viewCard": "🎴 Karty",
+    "viewList": "📝 Lista",
+    "viewIcon": "📱 Ikony",
+    "searchPlaceholder": "Szukaj zakładek, linków lub folderów...",
+    "loadingFolders": "Ładowanie folderów...",
+    "versionTag": "v1.7 | Pokaz slajdów tapet",
+    "allBookmarks": "Wszystkie zakładki",
+    "folderStatsAll": "Łącznie zebrano {count} linków",
+    "folderStatsFolder": "Zawiera {folders} folderów, {links} linków",
+    "folderStatsVisual": "Widok Wizualny | {folders} folderów, {links} linków",
+    "emptyState": "Brak podfolderów lub linków zakładek~",
+    "modalFolderTitle": "Zawartość folderu",
+    "folderCardCount": "{count} elementów",
+    "statsSearch": "Wyszukiwanie | Znaleziono {folders} folderów, {links} linków",
+    "tooltipBack": "W górę",
+    "tooltipClose": "Zamknij",
+    "drawerTitle": "Centrum sterowania",
+    "secMode": "Tryb pulpitu",
+    "secModeDesc": "Przełączaj między uproszczonym menedżerem a wizualnym pulpitem bez ramek",
+    "secLayout": "Układ paska wyszukiwania",
+    "secLayoutDesc": "Dostosuj pozycję paska wyszukiwania i widoczność pulpitu",
+    "layoutGoogleVisual": "Wyszukiwanie + Pulpit",
+    "layoutGoogleCollapse": "Wyszukiwanie + Szuflada",
+    "layoutPureVisual": "Klasyczny pasek zakładek",
+    "secView": "Styl zakładek",
+    "secViewDesc": "Zmień układ siatki kart zakładek",
+    "secTheme": "Personalizacja motywu",
+    "secThemeDesc": "Wybierz globalny motyw kolorystyczny systemu",
+    "secLang": "Język",
+    "secWallpaper": "Ustawienia tapety tła",
+    "wallpaperDrawerDesc": "Włączanie, tryby wyświetlania, przezroczystość i pokaz slajdów są zarządzane w galerii.",
+    "btnUploadBg": "Prześlij tapetę",
+    "btnManageBg": "Zarządzaj galerią",
+    "newtabStatusLabel": "Status nowej karty",
+    "btnHomepageReset": "Przywróć przycisk nagłówka",
+    "btnNewtabToggle": "Przywróć domyślną nową kartę",
+    "btnDeadLink": "Sprawdzanie martwych linków",
+    "btnCreateFolder": "Nowy folder",
+    "brandLogoSubtitle": "Płótno zakładek przeglądarki",
+    "googleVoiceTitle": "Wyszukiwanie głosowe",
+    "googleLensTitle": "Szukaj za pomocą obrazu",
+    "googleAiModeText": "Tryb AI",
+    "googleAiModeTitle": "Przełącz tryb wyświetlania",
+    "btnNewtabToggleEnable": "Włącz CanvasTab na nowej karcie",
+    "newtabActiveNormal": "Nowa karta włączona",
+    "newtabActiveHover": "Wyłącz",
+    "newtabActiveTitle": "Kliknij, aby przywrócić domyślną nową kartę systemową",
+    "newtabInactiveText": "Włącz nową kartę",
+    "newtabInactiveTitle": "Ustaw CanvasTab jako stronę nowej karty",
+    "newtabStatusActive": "Zarządzane przez CanvasTab",
+    "newtabStatusInactive": "Domyślna nowa karta systemowa"
+  },
+  "tr": {
+    "ctxAdd": "Alt Klasör Oluştur",
+    "ctxRename": "Klasörü Yeniden Adlandır",
+    "ctxDelete": "Klasörü Sil",
+    "appName": "📌 CanvasTab Yer İmleri",
+    "manageMode": "🗃️ Yönetim",
+    "visualMode": "🎨 Görsel",
+    "viewCard": "🎴 Kart",
+    "viewList": "📝 Liste",
+    "viewIcon": "📱 Simge",
+    "searchPlaceholder": "Yer imlerini, bağlantıları veya klasörleri ara...",
+    "loadingFolders": "Klasörler yükleniyor...",
+    "versionTag": "v1.7 | Duvar Kağıdı Slayt Gösterisi",
+    "allBookmarks": "Tüm Yer İmleri",
+    "folderStatsAll": "Toplam {count} bağlantı toplandı",
+    "folderStatsFolder": "{folders} klasör, {links} bağlantı içeriyor",
+    "folderStatsVisual": "Görsel Görünüm | {folders} klasör, {links} bağlantı",
+    "emptyState": "Burada alt klasör veya bağlantı bulunamadı~",
+    "modalFolderTitle": "Klasör İçeriği",
+    "folderCardCount": "{count} öge",
+    "statsSearch": "Arama | {folders} klasör, {links} bağlantı bulundu",
+    "tooltipBack": "Üst dizine dön",
+    "tooltipClose": "Kapat",
+    "drawerTitle": "Kontrol Merkezi",
+    "secMode": "Kontrol Paneli Modu",
+    "secModeDesc": "Basit yönetim ile sınırsız görsel panel arasında geçiş yapın",
+    "secLayout": "Arama Çubuğu Düzeni",
+    "secLayoutDesc": "Arama kutusu konumunu ve panel görünürlüğünü ayarlayın",
+    "layoutGoogleVisual": "Arama + Panel",
+    "layoutGoogleCollapse": "Arama + Yan Bölme",
+    "layoutPureVisual": "Klasik Yer İmleri Çubuğu",
+    "secView": "Yer İmleri Stili",
+    "secViewDesc": "Yer imi kartları ızgara düzenini değiştirin",
+    "secTheme": "Kişiselleştirilmiş Tema",
+    "secThemeDesc": "Sistem genel renk temasını seçin",
+    "secLang": "Dil",
+    "secWallpaper": "Duvar Kağıdı Arka Plan Ayarları",
+    "wallpaperDrawerDesc": "Açma/kapatma, gösterim modları, şeffaflık ve slayt ayarları galeriden yönetilir.",
+    "btnUploadBg": "Duvar Kağıdı Yükle",
+    "btnManageBg": "Galeriyi Yönet",
+    "newtabStatusLabel": "Yeni Sekme Durumu",
+    "btnHomepageReset": "Üst Başlık Butonunu Geri Yükle",
+    "btnNewtabToggle": "Varsayılan Yeni Sekmeyi Geri Yükle",
+    "btnDeadLink": "Kırık Bağlantı Tarayıcı",
+    "btnCreateFolder": "Yeni Klasör",
+    "brandLogoSubtitle": "Tarayıcı Yer İmleri Tuvali",
+    "googleVoiceTitle": "Sesli Arama",
+    "googleLensTitle": "Görselle Ara",
+    "googleAiModeText": "AI Modu",
+    "googleAiModeTitle": "Gösterim modunu değiştir",
+    "btnNewtabToggleEnable": "CanvasTab Yeni Sekmesini Etkinleştir",
+    "newtabActiveNormal": "Yeni Sekme Etkinleştirildi",
+    "newtabActiveHover": "Devre Dışı Bırak",
+    "newtabActiveTitle": "Varsayılan tarayıcı yeni sekmesini geri yüklemek için tıklayın",
+    "newtabInactiveText": "Yeni Sekmeyi Etkinleştir",
+    "newtabInactiveTitle": "CanvasTab'ı yeni sekme sayfası olarak ayarlayın",
+    "newtabStatusActive": "CanvasTab tarafından yönetiliyor",
+    "newtabStatusInactive": "Sistem Varsayılan Yeni Sekmesi"
+  },
+  "ar": {
+    "ctxAdd": "إنشاء مجلد فرعي",
+    "ctxRename": "إعادة تسمية المجلد",
+    "ctxDelete": "حذف هذا المجلد",
+    "appName": "📌 لوحة إشارات CanvasTab",
+    "manageMode": "🗃️ إدارة",
+    "visualMode": "🎨 مرئي",
+    "viewCard": "🎴 بطاقات",
+    "viewList": "📝 قائمة",
+    "viewIcon": "📱 أيقونات",
+    "searchPlaceholder": "البحث عن الإشارات المرجعية، الروابط أو المجلدات...",
+    "loadingFolders": "جاري تحميل المجلدات...",
+    "versionTag": "v1.7 | عرض خلفيات متسلسل",
+    "allBookmarks": "جميع الإشارات المرجعية",
+    "folderStatsAll": "تم جمع إجمالي {count} من الروابط",
+    "folderStatsFolder": "يحتوي على {folders} مجلدات، {links} روابط",
+    "folderStatsVisual": "الوضع المرئي | {folders} مجلدات، {links} روابط",
+    "emptyState": "لم يتم العثور على مجلدات فرعية أو روابط هنا~",
+    "modalFolderTitle": "محتوى المجلد",
+    "folderCardCount": "{count} عناصر",
+    "statsSearch": "البحث | تم العثور على {folders} مجلدات، {links} روابط",
+    "tooltipBack": "العودة للمجلد الأعلى",
+    "tooltipClose": "إغلاق",
+    "drawerTitle": "مركز التحكم",
+    "secMode": "وضع اللوحة",
+    "secModeDesc": "التبديل بين المدير المبسط ولوحة التحكم المرئية بدون حدود",
+    "secLayout": "مخطط شريط البحث",
+    "secLayoutDesc": "ضبط موضع صندوق البحث وظهور اللوحة",
+    "layoutGoogleVisual": "البحث + اللوحة",
+    "layoutGoogleCollapse": "البحث + الدرج",
+    "layoutPureVisual": "شريط الإشارات الكلاسيكي",
+    "secView": "نمط الإشارات المرجعية",
+    "secViewDesc": "تبديل تخطيط شبكة بطاقات الإشارات",
+    "secTheme": "سمة مخصصة",
+    "secThemeDesc": "اختر سمة الألوان العامة للنظام",
+    "secLang": "اللغة",
+    "secWallpaper": "إعدادات خلفية الشاشة",
+    "wallpaperDrawerDesc": "تتم إدارة مفاتيح التبديل، وأوضاع العرض، والوضوح، وإعدادات العرض المتسلسل في المعرض.",
+    "btnUploadBg": "رفع خلفية",
+    "btnManageBg": "إدارة المعرض",
+    "newtabStatusLabel": "حالة علامة التبويب الجديدة",
+    "btnHomepageReset": "استعادة زر الترويسة",
+    "btnNewtabToggle": "استعادة علامة التبويب الافتراضية",
+    "btnDeadLink": "فاحص الروابط المعطلة",
+    "btnCreateFolder": "مجلد جديد",
+    "brandLogoSubtitle": "لوحة إشارات المتصفح المرجعية",
+    "googleVoiceTitle": "البحث الصوتي",
+    "googleLensTitle": "بحث عبر الصورة",
+    "googleAiModeText": "وضع الذكاء الاصطناعي",
+    "googleAiModeTitle": "تبديل وضع العرض",
+    "btnNewtabToggleEnable": "تفعيل CanvasTab كعلامة تبويب جديدة",
+    "newtabActiveNormal": "تم تفعيل علامة التبويب الجديدة",
+    "newtabActiveHover": "تعطيل",
+    "newtabActiveTitle": "انقر لاستعادة علامة التبويب الافتراضية للنظام",
+    "newtabInactiveText": "تفعيل علامة التبويب الجديدة",
+    "newtabInactiveTitle": "تعيين CanvasTab كصفحة تبويب جديدة افتراضية",
+    "newtabStatusActive": "تدار بواسطة CanvasTab",
+    "newtabStatusInactive": "علامة التبويب الجديدة الافتراضية للنظام"
+  },
+  "hi": {
+    "ctxAdd": "उप-फ़ोल्डर बनाएं",
+    "ctxRename": "फ़ोल्डर का नाम बदलें",
+    "ctxDelete": "फ़ोल्डर हटाएँ",
+    "appName": "📌 CanvasTab बुकमार्क",
+    "manageMode": "🗃️ प्रबंधन",
+    "visualMode": "🎨 दृश्य",
+    "viewCard": "🎴 कार्ड",
+    "viewList": "📝 सूची",
+    "viewIcon": "📱 चिह्न",
+    "searchPlaceholder": "बुकमार्क, लिंक या फ़ोल्डर खोजें...",
+    "loadingFolders": "फ़ोल्डर लोड हो रहे हैं...",
+    "versionTag": "v1.7 | वॉलपेपर स्लाइड शो",
+    "allBookmarks": "सभी बुकमार्क",
+    "folderStatsAll": "कुल {count} लिंक एकत्रित किए गए",
+    "folderStatsFolder": "इसमें {folders} फ़ोल्डर, {links} लिंक शामिल हैं",
+    "folderStatsVisual": "दृश्य मोड | {folders} फ़ोल्डर, {links} लिंक",
+    "emptyState": "यहाँ कोई उप-फ़ोल्डर या बुकमार्क लिंक नहीं मिले~",
+    "modalFolderTitle": "फ़ोल्डर की सामग्री",
+    "folderCardCount": "{count} आइटम",
+    "statsSearch": "खोज | {folders} फ़ोल्डर, {links} लिंक मिले",
+    "tooltipBack": "मुख्य फ़ोल्डर पर जाएं",
+    "tooltipClose": "बंद करें",
+    "drawerTitle": "नियंत्रण केंद्र",
+    "secMode": "डैशबोर्ड मोड",
+    "secModeDesc": "सरल प्रबंधक और बिना बॉर्डर वाले दृश्य डैशबोर्ड के बीच स्विच करें",
+    "secLayout": "खोज पट्टी लेआउट",
+    "secLayoutDesc": "खोज बॉक्स की स्थिति और डैशबोर्ड की दृश्यता समायोजित करें",
+    "layoutGoogleVisual": "खोज + डैशबोर्ड",
+    "layoutGoogleCollapse": "खोज + दराज",
+    "layoutPureVisual": "क्लासिक बुकमार्क बार",
+    "secView": "बुकमार्क शैली",
+    "secViewDesc": "बुकमार्क कार्ड ग्रिड लेआउट स्विच करें",
+    "secTheme": "व्यक्तिगत थीम",
+    "secThemeDesc": "वैश्विक सिस्टम रंग थीम चुनें",
+    "secLang": "भाषा",
+    "secWallpaper": "वॉलपेपर पृष्ठभूमि सेटिंग्स",
+    "wallpaperDrawerDesc": "स्विच, डिस्प्ले मोड, स्पष्टता और स्लाइड शो सेटिंग्स गैलरी में प्रबंधित की जाती हैं।",
+    "btnUploadBg": "वॉलपेपर अपलोड करें",
+    "btnManageBg": "गैलरी प्रबंधित करें",
+    "newtabStatusLabel": "नया टैब स्थिति",
+    "btnHomepageReset": "हेडर बटन पुनर्स्थापित करें",
+    "btnNewtabToggle": "डिफ़ॉल्ट नया टैब पुनर्स्थापित करें",
+    "btnDeadLink": "टूटे लिंक की जाँच",
+    "btnCreateFolder": "नया फ़ोल्डर",
+    "brandLogoSubtitle": "ब्राउज़र बुकमार्क कैनवास",
+    "googleVoiceTitle": "आवाज खोज",
+    "googleLensTitle": "छवि द्वारा खोजें",
+    "googleAiModeText": "एआई मोड",
+    "googleAiModeTitle": "प्रदर्शन मोड टॉगल करें",
+    "btnNewtabToggleEnable": "CanvasTab नया टैब सक्षम करें",
+    "newtabActiveNormal": "नया टैब सक्षम किया गया",
+    "newtabActiveHover": "अक्षम करें",
+    "newtabActiveTitle": "सिस्टम डिफ़ॉल्ट नया टैब पृष्ठ पुनर्स्थापित करने के लिए क्लिक करें",
+    "newtabInactiveText": "नया टैब सक्षम करें",
+    "newtabInactiveTitle": "CanvasTab को अपने नए टैब पृष्ठ के रूप में सेट करें",
+    "newtabStatusActive": "CanvasTab द्वारा नियंत्रित",
+    "newtabStatusInactive": "सिस्टम डिफ़ॉल्ट नया टैब"
+  },
+  "th": {
+    "ctxAdd": "สร้างโฟลเดอร์ย่อย",
+    "ctxRename": "เปลี่ยนชื่อโฟลเดอร์",
+    "ctxDelete": "ลบโฟลเดอร์นี้",
+    "appName": "📌 บุ๊กมาร์ก CanvasTab",
+    "manageMode": "🗃️ การจัดการ",
+    "visualMode": "🎨 มุมมองภาพ",
+    "viewCard": "🎴 การ์ด",
+    "viewList": "📝 รายการ",
+    "viewIcon": "📱 ไอคอน",
+    "searchPlaceholder": "ค้นหาบุ๊กมาร์ก ลิงก์ หรือโฟลเดอร์...",
+    "loadingFolders": "กำลังโหลดโฟลเดอร์...",
+    "versionTag": "v1.7 | สไลด์โชว์พื้นหลัง",
+    "allBookmarks": "บุ๊กมาร์กทั้งหมด",
+    "folderStatsAll": "รวบรวมลิงก์ทั้งหมด {count} รายการ",
+    "folderStatsFolder": "มี {folders} โฟลเดอร์, {links} ลิงก์",
+    "folderStatsVisual": "โหมดภาพ | มี {folders} โฟลเดอร์, {links} ลิงก์",
+    "emptyState": "ไม่พบโฟลเดอร์ย่อยหรือลิงก์บุ๊กมาร์กที่นี่~",
+    "modalFolderTitle": "เนื้อหาโฟลเดอร์",
+    "folderCardCount": "{count} รายการ",
+    "statsSearch": "ค้นหา | พบ {folders} โฟลเดอร์, {links} ลิงก์",
+    "tooltipBack": "กลับไปยังเมนูก่อนหน้า",
+    "tooltipClose": "ปิด",
+    "drawerTitle": "ศูนย์ควบคุม",
+    "secMode": "โหมดแดชบอร์ด",
+    "secModeDesc": "สลับระหว่างโหมดจัดการอย่างง่ายและแดชบอร์ดภาพแบบไร้ขอบ",
+    "secLayout": "เค้าโครงแถบค้นหา",
+    "secLayoutDesc": "ปรับตำแหน่งของช่องค้นหาและการแสดงผลของแดชบอร์ด",
+    "layoutGoogleVisual": "ค้นหา + แดชบอร์ด",
+    "layoutGoogleCollapse": "ค้นหา + แผงสไลด์",
+    "layoutPureVisual": "แถบบุ๊กมาร์กแบบคลาสสิก",
+    "secView": "รูปแบบบุ๊กมาร์ก",
+    "secViewDesc": "สลับเค้าโครงตารางของการ์ดบุ๊กมาร์ก",
+    "secTheme": "ธีมที่ปรับแต่งเอง",
+    "secThemeDesc": "เลือกธีมสีหลักของระบบ",
+    "secLang": "ภาษา",
+    "secWallpaper": "ตั้งค่าพื้นหลังวอลเปเปอร์",
+    "wallpaperDrawerDesc": "สวิตช์เปิดปิด, โหมดแสดงผล, ความโปร่งใส และการเล่นอัตโนมัติจะจัดการในแกลเลอรี",
+    "btnUploadBg": "อัปโหลดวอลเปเปอร์",
+    "btnManageBg": "จัดการแกลเลอรี",
+    "newtabStatusLabel": "สถานะแท็บใหม่",
+    "btnHomepageReset": "คืนค่าปุ่มส่วนหัว",
+    "btnNewtabToggle": "คืนค่าแท็บใหม่เริ่มต้น",
+    "btnDeadLink": "ตรวจสอบลิงก์เสีย",
+    "btnCreateFolder": "โฟลเดอร์ใหม่",
+    "brandLogoSubtitle": "ผืนผ้าใบสะสมบุ๊กมาร์กเบราว์เซอร์",
+    "googleVoiceTitle": "ค้นหาด้วยเสียง",
+    "googleLensTitle": "ค้นหาด้วยภาพ",
+    "googleAiModeText": "โหมด AI",
+    "googleAiModeTitle": "สลับโหมดการแสดงผล",
+    "btnNewtabToggleEnable": "เปิดใช้งาน CanvasTab แท็บใหม่",
+    "newtabActiveNormal": "เปิดใช้งานแท็บใหม่แล้ว",
+    "newtabActiveHover": "ปิดใช้งาน",
+    "newtabActiveTitle": "คลิกเพื่อกลับไปใช้แท็บใหม่เริ่มต้นของเบราว์เซอร์",
+    "newtabInactiveText": "เปิดใช้งานแท็บใหม่",
+    "newtabInactiveTitle": "ตั้งค่า CanvasTab เป็นหน้าแท็บใหม่ของคุณ",
+    "newtabStatusActive": "ควบคุมโดย CanvasTab",
+    "newtabStatusInactive": "แท็บใหม่เริ่มต้นของระบบ"
+  },
+  "vi": {
+    "ctxAdd": "Tạo thư mục con",
+    "ctxRename": "Đổi tên thư mục",
+    "ctxDelete": "Xóa thư mục này",
+    "appName": "📌 Dấu trang CanvasTab",
+    "manageMode": "🗃️ Quản lý",
+    "visualMode": "🎨 Trực quan",
+    "viewCard": "🎴 Thẻ",
+    "viewList": "📝 Danh sách",
+    "viewIcon": "📱 Biểu tượng",
+    "searchPlaceholder": "Tìm kiếm dấu trang, liên kết hoặc thư mục...",
+    "loadingFolders": "Đang tải thư mục...",
+    "versionTag": "v1.7 | Trình chiếu hình nền",
+    "allBookmarks": "Tất cả dấu trang",
+    "folderStatsAll": "Tổng cộng thu thập {count} liên kết",
+    "folderStatsFolder": "Chứa {folders} thư mục, {links} liên kết",
+    "folderStatsVisual": "Chế độ Trực quan | {folders} thư mục, {links} liên kết",
+    "emptyState": "Không tìm thấy thư mục con hoặc liên kết dấu trang ở đây~",
+    "modalFolderTitle": "Nội dung thư mục",
+    "folderCardCount": "{count} mục",
+    "statsSearch": "Tìm kiếm | Tìm thấy {folders} thư mục, {links} liên kết",
+    "tooltipBack": "Trở lại danh mục cha",
+    "tooltipClose": "Đóng",
+    "drawerTitle": "Trung tâm điều khiển",
+    "secMode": "Chế độ Dashboard",
+    "secModeDesc": "Chuyển đổi giữa quản lý đơn giản và dashboard trực quan không viền",
+    "secLayout": "Bố cục thanh tìm kiếm",
+    "secLayoutDesc": "Điều chỉnh vị trí hộp tìm kiếm và hiển thị dashboard",
+    "layoutGoogleVisual": "Tìm kiếm + Dashboard",
+    "layoutGoogleCollapse": "Tìm kiếm + Ngăn kéo",
+    "layoutPureVisual": "Thanh dấu trang cổ điển",
+    "secView": "Kiểu dấu trang",
+    "secViewDesc": "Chuyển đổi bố cục lưới thẻ dấu trang",
+    "secTheme": "Chủ đề cá nhân hóa",
+    "secThemeDesc": "Chọn chủ đề màu hệ thống toàn cục",
+    "secLang": "Ngôn ngữ",
+    "secWallpaper": "Cài đặt hình nền",
+    "wallpaperDrawerDesc": "Bật/tắt, chế độ hiển thị, độ trong suốt và trình chiếu được quản lý trong thư viện.",
+    "btnUploadBg": "Tải lên hình nền",
+    "btnManageBg": "Quản lý thư viện",
+    "newtabStatusLabel": "Trạng thái Tab Mới",
+    "btnHomepageReset": "Khôi phục nút tiêu đề",
+    "btnNewtabToggle": "Khôi phục Tab Mới mặc định",
+    "btnDeadLink": "Kiểm tra liên kết chết",
+    "btnCreateFolder": "Thư mục mới",
+    "brandLogoSubtitle": "Khung vẽ dấu trang trình duyệt",
+    "googleVoiceTitle": "Tìm kiếm bằng giọng nói",
+    "googleLensTitle": "Tìm kiếm bằng hình ảnh",
+    "googleAiModeText": "Chế độ AI",
+    "googleAiModeTitle": "Chuyển đổi chế độ hiển thị",
+    "btnNewtabToggleEnable": "Kích hoạt CanvasTab Tab Mới",
+    "newtabActiveNormal": "Đã kích hoạt Tab Mới",
+    "newtabActiveHover": "Tắt kích hoạt",
+    "newtabActiveTitle": "Nhấp để khôi phục trang Tab Mới mặc định của hệ thống",
+    "newtabInactiveText": "Kích hoạt Tab Mới",
+    "newtabInactiveTitle": "Đặt CanvasTab làm trang Tab Mới của bạn",
+    "newtabStatusActive": "Được quản lý bởi CanvasTab",
+    "newtabStatusInactive": "Tab Mới mặc định của hệ thống"
+  },
+  "id": {
+    "ctxAdd": "Buat Subfolder",
+    "ctxRename": "Ubah Nama Folder",
+    "ctxDelete": "Hapus Folder Ini",
+    "appName": "📌 Markah CanvasTab",
+    "manageMode": "🗃️ Pengelola",
+    "visualMode": "🎨 Visual",
+    "viewCard": "🎴 Kartu",
+    "viewList": "📝 Daftar",
+    "viewIcon": "📱 Ikon",
+    "searchPlaceholder": "Cari markah, tautan, atau folder...",
+    "loadingFolders": "Memuat folder...",
+    "versionTag": "v1.7 | Slideshow Latar Belakang",
+    "allBookmarks": "Semua Markah",
+    "folderStatsAll": "Total {count} tautan terkumpul",
+    "folderStatsFolder": "Berisi {folders} folder, {links} tautan",
+    "folderStatsVisual": "Mode Visual | {folders} folder, {links} tautan",
+    "emptyState": "Tidak ada subfolder atau markah ditemukan di sini~",
+    "modalFolderTitle": "Isi Folder",
+    "folderCardCount": "{count} item",
+    "statsSearch": "Cari | Menemukan {folders} folder, {links} tautan",
+    "tooltipBack": "Kembali ke folder induk",
+    "tooltipClose": "Tutup",
+    "drawerTitle": "Pusat Kontrol",
+    "secMode": "Mode Dashboard",
+    "secModeDesc": "Beralih antara pengelola sederhana dan dashboard visual tanpa bingkai",
+    "secLayout": "Tata Letak Bilah Pencarian",
+    "secLayoutDesc": "Sesuaikan posisi kotak pencarian dan visibilitas dashboard",
+    "layoutGoogleVisual": "Pencarian + Dashboard",
+    "layoutGoogleCollapse": "Pencarian + Laci",
+    "layoutPureVisual": "Bilah Markah Klasik",
+    "secView": "Gaya Markah",
+    "secViewDesc": "Ubah tata letak kisi kartu markah",
+    "secTheme": "Tema Personalisasi",
+    "secThemeDesc": "Pilih tema warna sistem global",
+    "secLang": "Bahasa",
+    "secWallpaper": "Pengaturan Latar Belakang",
+    "wallpaperDrawerDesc": "Sakelar, mode tampilan, opasitas, dan tayangan salintia dikelola di galeri.",
+    "btnUploadBg": "Unggah Wallpaper",
+    "btnManageBg": "Kelola Galeri",
+    "newtabStatusLabel": "Status Tab Baru",
+    "btnHomepageReset": "Pulihkan Tombol Header",
+    "btnNewtabToggle": "Pulihkan Tab Baru Bawaan",
+    "btnDeadLink": "Pemeriksa Tautan Rusak",
+    "btnCreateFolder": "Folder Baru",
+    "brandLogoSubtitle": "Kanvas Markah Peramban",
+    "googleVoiceTitle": "Pencarian Suara",
+    "googleLensTitle": "Cari dengan Gambar",
+    "googleAiModeText": "Mode AI",
+    "googleAiModeTitle": "Alihkan mode tampilan",
+    "btnNewtabToggleEnable": "Aktifkan CanvasTab Tab Baru",
+    "newtabActiveNormal": "Tab Baru Diaktifkan",
+    "newtabActiveHover": "Nonaktifkan",
+    "newtabActiveTitle": "Klik untuk memulihkan halaman Tab Baru bawaan sistem",
+    "newtabInactiveText": "Aktifkan Tab Baru",
+    "newtabInactiveTitle": "Atur CanvasTab sebagai halaman Tab Baru Anda",
+    "newtabStatusActive": "Dikelola oleh CanvasTab",
+    "newtabStatusInactive": "Tab Baru Bawaan Sistem"
+  },
+  "ms": {
+    "ctxAdd": "Cipta Subfolder",
+    "ctxRename": "Namakan Semula Folder",
+    "ctxDelete": "Padam Folder Ini",
+    "appName": "📌 Penanda Buku CanvasTab",
+    "manageMode": "🗃️ Pengurus",
+    "visualMode": "🎨 Visual",
+    "viewCard": "🎴 Kad",
+    "viewList": "📝 Senarai",
+    "viewIcon": "📱 Ikon",
+    "searchPlaceholder": "Cari penanda buku, pautan, atau folder...",
+    "loadingFolders": "Memuatkan folder...",
+    "versionTag": "v1.7 | Tayangan Slaid Latar Belakang",
+    "allBookmarks": "Semua Penanda Buku",
+    "folderStatsAll": "Jumlah {count} pautan dikumpulkan",
+    "folderStatsFolder": "Mengandungi {folders} folder, {links} pautan",
+    "folderStatsVisual": "Mod Visual | {folders} folder, {links} pautan",
+    "emptyState": "Tiada subfolder atau pautan penanda buku ditemui~",
+    "modalFolderTitle": "Kandungan Folder",
+    "folderCardCount": "{count} item",
+    "statsSearch": "Carian | Menemui {folders} folder, {links} pautan",
+    "tooltipBack": "Kembali ke folder induk",
+    "tooltipClose": "Tutup",
+    "drawerTitle": "Pusat Kawalan",
+    "secMode": "Mod Papan Pemuka",
+    "secModeDesc": "Bertukar antara pengurus ringkas dan papan pemuka visual tanpa bingkai",
+    "secLayout": "Reka Letak Bilah Carian",
+    "secLayoutDesc": "Laraskan kedudukan kotak carian dan kebolehlihatan papan pemuka",
+    "layoutGoogleVisual": "Carian + Papan Pemuka",
+    "layoutGoogleCollapse": "Carian + Laci",
+    "layoutPureVisual": "Bilah Penanda Buku Klasik",
+    "secView": "Gaya Penanda Buku",
+    "secViewDesc": "Tukar susun atur grid kad penanda buku",
+    "secTheme": "Tema Peribadi",
+    "secThemeDesc": "Pilih tema warna sistem global",
+    "secLang": "Bahasa",
+    "secWallpaper": "Tetapan Kertas Dinding",
+    "wallpaperDrawerDesc": "Suis, mod paparan, opasiti, dan tayangan slaid diuruskan dalam galeri.",
+    "btnUploadBg": "Muat Naik Kertas Dinding",
+    "btnManageBg": "Urus Galeri",
+    "newtabStatusLabel": "Status Tab Baru",
+    "btnHomepageReset": "Pulihkan Butang Pengepala",
+    "btnNewtabToggle": "Pulihkan Tab Baru Lalai",
+    "btnDeadLink": "Pemeriksa Pautan Rosak",
+    "btnCreateFolder": "Folder Baru",
+    "brandLogoSubtitle": "Kanvas Penanda Buku Pelayar",
+    "googleVoiceTitle": "Carian Suara",
+    "googleLensTitle": "Cari dengan Imej",
+    "googleAiModeText": "Mod AI",
+    "googleAiModeTitle": "Tukar mod paparan",
+    "btnNewtabToggleEnable": "Aktifkan CanvasTab Tab Baru",
+    "newtabActiveNormal": "Tab Baru Diaktifkan",
+    "newtabActiveHover": "Nyahaktifkan",
+    "newtabActiveTitle": "Klik untuk memulihkan halaman Tab Baru lalai sistem",
+    "newtabInactiveText": "Aktifkan Tab Baru",
+    "newtabInactiveTitle": "Tetapkan CanvasTab sebagai halaman Tab Baru anda",
+    "newtabStatusActive": "Diuruskan oleh CanvasTab",
+    "newtabStatusInactive": "Tab Baru Lalai Sistem"
+  },
+  "sv": {
+    "ctxAdd": "Skapa undermapp",
+    "ctxRename": "Byt namn på mapp",
+    "ctxDelete": "Ta bort mappen",
+    "appName": "📌 CanvasTab Bokmärken",
+    "manageMode": "🗃️ Hantera",
+    "visualMode": "🎨 Visuell",
+    "viewCard": "🎴 Kort",
+    "viewList": "📝 Lista",
+    "viewIcon": "📱 Ikoner",
+    "searchPlaceholder": "Sök efter bokmärken, länkar eller mappar...",
+    "loadingFolders": "Laddar mappar...",
+    "versionTag": "v1.7 | Bakgrundsbilder bildspel",
+    "allBookmarks": "Alla bokmärken",
+    "folderStatsAll": "Totalt {count} bokmärkeslänkar samlade",
+    "folderStatsFolder": "Innehåller {folders} mappar, {links} länkar",
+    "folderStatsVisual": "Visuellt läge | {folders} mappar, {links} länkar",
+    "emptyState": "Inga undermappar eller bokmärken hittades här~",
+    "modalFolderTitle": "Mappinnehåll",
+    "folderCardCount": "{count} objekt",
+    "statsSearch": "Sök | Hittade {folders} mappar, {links} länkar",
+    "tooltipBack": "Tillbaka till överordnad",
+    "tooltipClose": "Stäng fönster",
+    "drawerTitle": "Kontrollcenter",
+    "secMode": "Puls-läge",
+    "secModeDesc": "Växla mellan förenklad hanterare och gränslös visuell instrumentpanel",
+    "secLayout": "Sökfältslayout",
+    "secLayoutDesc": "Justera sökboxens position och instrumentpanelens synlighet",
+    "layoutGoogleVisual": "Sök + Instrumentpanel",
+    "layoutGoogleCollapse": "Sök + Låda",
+    "layoutPureVisual": "Klassiskt bokmärkesfält",
+    "secView": "Bokmärkesstil",
+    "secViewDesc": "Växla rutnätslayout för bokmärkeskort",
+    "secTheme": "Personligt tema",
+    "secThemeDesc": "Välj globalt systemfärgtema",
+    "secLang": "Språk",
+    "secWallpaper": "Inställningar för bakgrundsbild",
+    "wallpaperDrawerDesc": "På/av, visningslägen, opacitet och bildspelsinställningar hanteras i galleriet.",
+    "btnUploadBg": "Ladda upp bakgrundsbild",
+    "btnManageBg": "Hantera galleri",
+    "newtabStatusLabel": "Ny flik-status",
+    "btnHomepageReset": "Återställ rubrikknapp",
+    "btnNewtabToggle": "Återställ standard ny flik",
+    "btnDeadLink": "Kontrollera brutna länkar",
+    "btnCreateFolder": "Ny mapp",
+    "brandLogoSubtitle": "Browser bokmärkesduk",
+    "googleVoiceTitle": "Röstsökning",
+    "googleLensTitle": "Sök med bild",
+    "googleAiModeText": "AI-läge",
+    "googleAiModeTitle": "Växla visningsläge",
+    "btnNewtabToggleEnable": "Aktivera CanvasTab Ny Flik",
+    "newtabActiveNormal": "Ny flik aktiverad",
+    "newtabActiveHover": "Inaktivera",
+    "newtabActiveTitle": "Klicka för att återställa systemets standard ny fliksida",
+    "newtabInactiveText": "Aktivera Ny Flik",
+    "newtabInactiveTitle": "Ställ in CanvasTab som din nya fliksida",
+    "newtabStatusActive": "Hanteras av CanvasTab",
+    "newtabStatusInactive": "Systemets standard ny flik"
+  },
+  "no": {
+    "ctxAdd": "Opprett undermappe",
+    "ctxRename": "Gi nytt navn til mappe",
+    "ctxDelete": "Slett mappen",
+    "appName": "📌 CanvasTab Bokmerker",
+    "manageMode": "🗃️ Administrer",
+    "visualMode": "🎨 Visuell",
+    "viewCard": "🎴 Kort",
+    "viewList": "📝 Liste",
+    "viewIcon": "📱 Ikoner",
+    "searchPlaceholder": "Søk etter bokmerker, lenker eller mapper...",
+    "loadingFolders": "Laster mapper...",
+    "versionTag": "v1.7 | Bakgrunnsbilde lysbildefremvisning",
+    "allBookmarks": "Alle bokmerker",
+    "folderStatsAll": "Totalt {count} bokmerkelenker samlet",
+    "folderStatsFolder": "Innehåller {folders} mapper, {links} lenker",
+    "folderStatsVisual": "Visuell modus | {folders} mapper, {links} lenker",
+    "emptyState": "Ingen undermapper eller bokmerker funnet her~",
+    "modalFolderTitle": "Mappeinnhold",
+    "folderCardCount": "{count} elementer",
+    "statsSearch": "Søk | Fant {folders} mapper, {links} lenker",
+    "tooltipBack": "Tilbake til overordnet",
+    "tooltipClose": "Lukk vindu",
+    "drawerTitle": "Kontrollsenter",
+    "secMode": "Dashboard-modus",
+    "secModeDesc": "Bytt mellom forenklet behandler og grenseløst visuelt dashbord",
+    "secLayout": "Søkelinjelayout",
+    "secLayoutDesc": "Juster søkeboksposisjon og dashbordsynlighet",
+    "layoutGoogleVisual": "Søk + Dashbord",
+    "layoutGoogleCollapse": "Søk + Skuff",
+    "layoutPureVisual": "Klassisk bokmerkelinje",
+    "secView": "Bokmerkestil",
+    "secViewDesc": "Bytt rutenettoppsett for bokmerkekort",
+    "secTheme": "Personlig tema",
+    "secThemeDesc": "Velg globalt systemfargetema",
+    "secLang": "Språk",
+    "secWallpaper": "Bakgrunnsinnstillinger",
+    "wallpaperDrawerDesc": "På/av, visningsmoduser, opasitet og lysbildefremvisning administreres i galleriet.",
+    "btnUploadBg": "Last opp bakgrunnsbilde",
+    "btnManageBg": "Administrer galleri",
+    "newtabStatusLabel": "Ny fane-status",
+    "btnHomepageReset": "Gjenopprett overskriftsknapp",
+    "btnNewtabToggle": "Gjenopprett standard ny fane",
+    "btnDeadLink": "Sjekk døde lenker",
+    "btnCreateFolder": "Ny mappe",
+    "brandLogoSubtitle": "Nettleser bokmerkeduk",
+    "googleVoiceTitle": "Talesøk",
+    "googleLensTitle": "Søk med bilde",
+    "googleAiModeText": "AI-modus",
+    "googleAiModeTitle": "Bytt visningsmodus",
+    "btnNewtabToggleEnable": "Aktiver CanvasTab Ny Fane",
+    "newtabActiveNormal": "Ny fane aktivert",
+    "newtabActiveHover": "Deaktiver",
+    "newtabActiveTitle": "Klikk for å gjenopprette systemets standard ny faneside",
+    "newtabInactiveText": "Aktiver Ny Fane",
+    "newtabInactiveTitle": "Sett CanvasTab som din nye faneside",
+    "newtabStatusActive": "Administreres av CanvasTab",
+    "newtabStatusInactive": "Systemets standard ny fane"
+  },
+  "da": {
+    "ctxAdd": "Opret undermappe",
+    "ctxRename": "Omdøb mappe",
+    "ctxDelete": "Slet mappe",
+    "appName": "📌 CanvasTab Bogmærker",
+    "manageMode": "🗃️ Håndter",
+    "visualMode": "🎨 Visuel",
+    "viewCard": "🎴 Kort",
+    "viewList": "📝 Liste",
+    "viewIcon": "📱 Ikoner",
+    "searchPlaceholder": "Søg i bogmærker, links eller mapper...",
+    "loadingFolders": "Indlæser mapper...",
+    "versionTag": "v1.7 | Baggrunds-diasshow",
+    "allBookmarks": "Alle bogmærker",
+    "folderStatsAll": "I alt {count} bogmærkelinks indsamlet",
+    "folderStatsFolder": "Indeholder {folders} mapper, {links} links",
+    "folderStatsVisual": "Visuel visning | {folders} mapper, {links} links",
+    "emptyState": "Ingen undermapper eller bogmærker fundet her~",
+    "modalFolderTitle": "Mappeindhold",
+    "folderCardCount": "{count} elementer",
+    "statsSearch": "Søg | Fandt {folders} mapper, {links} links",
+    "tooltipBack": "Tilbage til overordnet",
+    "tooltipClose": "Luk",
+    "drawerTitle": "Kontrolcenter",
+    "secMode": "Dashboard-tilstand",
+    "secModeDesc": "Skift mellem forenklet administrator og grænseløst visuelt dashboard",
+    "secLayout": "Søgefelt-layout",
+    "secLayoutDesc": "Juster søgefeltets position og dashboardets synlighed",
+    "layoutGoogleVisual": "Søg + Dashboard",
+    "layoutGoogleCollapse": "Søg + Skuffe",
+    "layoutPureVisual": "Klassisk bogmærkelinje",
+    "secView": "Bogmærkestil",
+    "secViewDesc": "Skift gitterlayout for bogmærkekort",
+    "secTheme": "Personligt tema",
+    "secThemeDesc": "Vælg globalt systemfarvetema",
+    "secLang": "Sprog",
+    "secWallpaper": "Indstillinger for baggrundsbillede",
+    "wallpaperDrawerDesc": "Til/fra, visningstilstande, klarhed og diasshow-indstillinger administreres i galleriet.",
+    "btnUploadBg": "Upload baggrundsbillede",
+    "btnManageBg": "Administrer galleri",
+    "newtabStatusLabel": "Ny fane-status",
+    "btnHomepageReset": "Gendan overskriftsknap",
+    "btnNewtabToggle": "Gendan standard ny fane",
+    "btnDeadLink": "Tjek for døde links",
+    "btnCreateFolder": "Ny mappe",
+    "brandLogoSubtitle": "Browser bogmærkedug",
+    "googleVoiceTitle": "Stemsøgning",
+    "googleLensTitle": "Søg med billede",
+    "googleAiModeText": "AI-tilstand",
+    "googleAiModeTitle": "Skift visningstilstand",
+    "btnNewtabToggleEnable": "Aktivér CanvasTab Ny Fane",
+    "newtabActiveNormal": "Ny fane aktiveret",
+    "newtabActiveHover": "Deaktivér",
+    "newtabActiveTitle": "Klik for at gendanne systemets standard ny faneside",
+    "newtabInactiveText": "Aktivér Ny Fane",
+    "newtabInactiveTitle": "Indstil CanvasTab som din nye faneside",
+    "newtabStatusActive": "Administreres af CanvasTab",
+    "newtabStatusInactive": "Systemets standard ny fane"
+  },
+  "fi": {
+    "ctxAdd": "Luo alikansio",
+    "ctxRename": "Nimeä kansio uudelleen",
+    "ctxDelete": "Poista kansio",
+    "appName": "📌 CanvasTab Kirjanmerkit",
+    "manageMode": "🗃️ Hallitse",
+    "visualMode": "🎨 Visuaalinen",
+    "viewCard": "🎴 Kortit",
+    "viewList": "📝 Lista",
+    "viewIcon": "📱 Kuvakkeet",
+    "searchPlaceholder": "Etsi kirjanmerkkejä, linkkejä tai kansioita...",
+    "loadingFolders": "Ladataan kansioita...",
+    "versionTag": "v1.7 | Taustakuvan diaesitys",
+    "allBookmarks": "Kaikki kirjanmerkit",
+    "folderStatsAll": "Yhteensä {count} kirjanmerkkilinkkiä kerätty",
+    "folderStatsFolder": "Sisältää {folders} kansiota, {links} linkkiä",
+    "folderStatsVisual": "Visuaalinen tila | {folders} kansiota, {links} linkkiä",
+    "emptyState": "Ei alikansioita tai kirjanmerkkejä täällä~",
+    "modalFolderTitle": "Kansion sisältö",
+    "folderCardCount": "{count} kohdetta",
+    "statsSearch": "Haku | Löytyi {folders} kansiota, {links} linkkiä",
+    "tooltipBack": "Takaisin yläkansioon",
+    "tooltipClose": "Sulje",
+    "drawerTitle": "Ohjauskeskus",
+    "secMode": "Dashboard-tila",
+    "secModeDesc": "Vaihda yksinkertaisen hallinnan ja rajattoman visuaalisen ohjauspaneelin välillä",
+    "secLayout": "Hakupalkin asettelu",
+    "secLayoutDesc": "Säädä hakukentän sijaintia ja ohjauspaneelin näkyvyyttä",
+    "layoutGoogleVisual": "Haku + Ohjauspaneeli",
+    "layoutGoogleCollapse": "Haku + Vetolaatikko",
+    "layoutPureVisual": "Klassinen kirjanmerkkipalkki",
+    "secView": "Kirjanmerkityyli",
+    "secViewDesc": "Vaihda kirjanmerkkikorttien ruudukkoasettelua",
+    "secTheme": "Personoitu teema",
+    "secThemeDesc": "Valitse järjestelmän yleinen väriteema",
+    "secLang": "Kieli",
+    "secWallpaper": "Taustakuvan asetukset",
+    "wallpaperDrawerDesc": "Päälle/pois, näyttötilat, selkeys ja diaesityksen asetukset hallitaan galleriassa.",
+    "btnUploadBg": "Lataa taustakuva",
+    "btnManageBg": "Hallitse galleriaa",
+    "newtabStatusLabel": "Uusi välilehti -tila",
+    "btnHomepageReset": "Palauta yläpainike",
+    "btnNewtabToggle": "Palauta oletus uusi välilehti",
+    "btnDeadLink": "Tarkista kuolleet linkit",
+    "btnCreateFolder": "Uusi kansio",
+    "brandLogoSubtitle": "Selaimen kirjanmerkkikangas",
+    "googleVoiceTitle": "Äänihaku",
+    "googleLensTitle": "Hae kuvalla",
+    "googleAiModeText": "AI-tila",
+    "googleAiModeTitle": "Vaihda näyttötilaa",
+    "btnNewtabToggleEnable": "Ota CanvasTab Uusi välilehti käyttöön",
+    "newtabActiveNormal": "Uusi välilehti käytössä",
+    "newtabActiveHover": "Poista käytöstä",
+    "newtabActiveTitle": "Napsauta palauttaaksesi järjestelmän oletusarvoisen uuden välilehden",
+    "newtabInactiveText": "Ota uusi välilehti käyttöön",
+    "newtabInactiveTitle": "Aseta CanvasTab uuden välilehden sivuksi",
+    "newtabStatusActive": "CanvasTabin hallinnassa",
+    "newtabStatusInactive": "Järjestelmän oletus uusi välilehti"
+  },
+  "cs": {
+    "ctxAdd": "Vytvořit podsložku",
+    "ctxRename": "Přejmenovat složku",
+    "ctxDelete": "Smazat složku",
+    "appName": "📌 Záložky CanvasTab",
+    "manageMode": "🗃️ Správce",
+    "visualMode": "🎨 Vizuální",
+    "viewCard": "🎴 Karty",
+    "viewList": "📝 Seznam",
+    "viewIcon": "📱 Ikony",
+    "searchPlaceholder": "Hledat záložky, odkazy nebo složky...",
+    "loadingFolders": "Načítání složek...",
+    "versionTag": "v1.7 | Prezentace tapet",
+    "allBookmarks": "Všechny záložky",
+    "folderStatsAll": "Celkem shromážděno {count} odkazů záložek",
+    "folderStatsFolder": "Obsahuje {folders} složek, {links} odkazů",
+    "folderStatsVisual": "Vizuální režim | {folders} složek, {links} odkazů",
+    "emptyState": "Nebyly zde nalezeny žádné podsložky ani záložky~",
+    "modalFolderTitle": "Obsah složky",
+    "folderCardCount": "{count} položek",
+    "statsSearch": "Hledat | Nalezeno {folders} složek, {links} odkazů",
+    "tooltipBack": "Zpět do nadřazené složky",
+    "tooltipClose": "Zavřít okno",
+    "drawerTitle": "Ovládací centrum",
+    "secMode": "Režim panelu",
+    "secModeDesc": "Přepnout mezi zjednodušeným správcem a bezrámovým vizuálním panelem",
+    "secLayout": "Uspořádání vyhledávací lišty",
+    "secLayoutDesc": "Upravit pozici vyhledávacího pole a viditelnost panelu",
+    "layoutGoogleVisual": "Vyhledávání + Panel",
+    "layoutGoogleCollapse": "Vyhledávání + Zásuvka",
+    "layoutPureVisual": "Klasická lišta záložek",
+    "secView": "Styl záložek",
+    "secViewDesc": "Přepnout mřížkové uspořádání karet záložek",
+    "secTheme": "Personalizované téma",
+    "secThemeDesc": "Vybrat globální barevné téma systému",
+    "secLang": "Jazyk",
+    "secWallpaper": "Nastavení tapety na pozadí",
+    "wallpaperDrawerDesc": "Zapnutí, režimy zobrazení, průhlednost a nastavení prezentace se spravují v galerii.",
+    "btnUploadBg": "Nahrát tapetu",
+    "btnManageBg": "Spravovat galerii",
+    "newtabStatusLabel": "Stav nové karty",
+    "btnHomepageReset": "Obnovit horní tlačítko",
+    "btnNewtabToggle": "Obnovit výchozí novou kartu",
+    "btnDeadLink": "Zkontrolovat nefunkční odkazy",
+    "btnCreateFolder": "Nová složka",
+    "brandLogoSubtitle": "Plátno se záložkami prohlížeče",
+    "googleVoiceTitle": "Hlasové vyhledávání",
+    "googleLensTitle": "Hledat podle obrázku",
+    "googleAiModeText": "Režim AI",
+    "googleAiModeTitle": "Přepnout režim zobrazení",
+    "btnNewtabToggleEnable": "Aktivovat CanvasTab Novou kartu",
+    "newtabActiveNormal": "Nová karta aktivována",
+    "newtabActiveHover": "Deaktivovat",
+    "newtabActiveTitle": "Klikněte pro obnovení výchozí systémové stránky nové karty",
+    "newtabInactiveText": "Aktivovat Novou kartu",
+    "newtabInactiveTitle": "Nastavit CanvasTab jako vaši stránku nové karty",
+    "newtabStatusActive": "Spravováno CanvasTabem",
+    "newtabStatusInactive": "Výchozí nová karta systému"
+  },
+  "el": {
+    "ctxAdd": "Δημιουργία υποφακέλου",
+    "ctxRename": "Μετονομασία φακέλου",
+    "ctxDelete": "Διαγραφή φακέλου",
+    "appName": "📌 CanvasTab Σελιδοδείκτες",
+    "manageMode": "🗃️ Διαχείριση",
+    "visualMode": "🎨 Οπτική",
+    "viewCard": "🎴 Κάρτες",
+    "viewList": "📝 Λίστα",
+    "viewIcon": "📱 Εικονίδια",
+    "searchPlaceholder": "Αναζήτηση σελιδοδεικτών, συνδέσμων ή φακέλων...",
+    "loadingFolders": "Φόρτωση φακέλων...",
+    "versionTag": "v1.7 | Παρουσίαση φόντου",
+    "allBookmarks": "Όλοι οι σελιδοδείκτες",
+    "folderStatsAll": "Συνολικά συλλέχθηκαν {count} σύνδεσμοι σελιδοδεικτών",
+    "folderStatsFolder": "Περιέχει {folders} φακέλους, {links} συνδέσμους",
+    "folderStatsVisual": "Οπτική προβολή | {folders} φάκελοι, {links} σύνδεσμοι",
+    "emptyState": "Δεν βρέθηκαν υποφάκελοι ή σύνδεσμοι εδώ~",
+    "modalFolderTitle": "Περιεχόμενο φακέλου",
+    "folderCardCount": "{count} στοιχεία",
+    "statsSearch": "Αναζήτηση | Βρέθηκαν {folders} φάκελοι, {links} σύνδεσμοι",
+    "tooltipBack": "Επιστροφή στον γονικό φάκελο",
+    "tooltipClose": "Κλείσιμο",
+    "drawerTitle": "Κέντρο ελέγχου",
+    "secMode": "Λειτουργία Dashboard",
+    "secModeDesc": "Εναλλαγή μεταξύ απλής διαχείρισης και οπτικού dashboard χωρίς περιθώρια",
+    "secLayout": "Διάταξη γραμμής αναζήτησης",
+    "secLayoutDesc": "Προσαρμογή θέσης πλαισίου αναζήτησης και ορατότητας του dashboard",
+    "layoutGoogleVisual": "Αναζήτηση + Dashboard",
+    "layoutGoogleCollapse": "Αναζήτηση + Συρτάρι",
+    "layoutPureVisual": "Κλασική γραμμή σελιδοδεικτών",
+    "secView": "Στυλ σελιδοδεικτών",
+    "secViewDesc": "Εναλλαγή διάταξης πλέγματος καρτών σελιδοδεικτών",
+    "secTheme": "Εξατομικευμένο θέμα",
+    "secThemeDesc": "Επιλογή γενικού θέματος χρωμάτων συστήματος",
+    "secLang": "Γλώσσα",
+    "secWallpaper": "Ρυθμίσεις ταπετσαρίας φόντου",
+    "wallpaperDrawerDesc": "Οι διακόπτες, οι λειτουργίες προβολής, η διαφάνεια και οι ρυθμίσεις παρουσίασης διαχειρίζονται στη γκαλερί.",
+    "btnUploadBg": "Μεταφόρτωση ταπετσαρίας",
+    "btnManageBg": "Διαχείριση γκαλερί",
+    "newtabStatusLabel": "Κατάσταση Νέας Καρτέλας",
+    "btnHomepageReset": "Επαναφορά κουμπιού κεφαλίδας",
+    "btnNewtabToggle": "Επαναφορά προεπιλεγμένης νέας καρτέλας",
+    "btnDeadLink": "Έλεγχος νεκρών συνδέσμων",
+    "btnCreateFolder": "Νέος φάκελος",
+    "brandLogoSubtitle": "Καμβάς σελιδοδεικτών προγράμματος περιήγησης",
+    "googleVoiceTitle": "Φωνητική αναζήτηση",
+    "googleLensTitle": "Αναζήτηση με εικόνα",
+    "googleAiModeText": "Λειτουργία AI",
+    "googleAiModeTitle": "Εναλλαγή λειτουργίας προβολής",
+    "btnNewtabToggleEnable": "Ενεργοποίηση CanvasTab Νέας Καρτέλας",
+    "newtabActiveNormal": "Η νέα καρτέλα ενεργοποιήθηκε",
+    "newtabActiveHover": "Απενεργοποίηση",
+    "newtabActiveTitle": "Κάντε κλικ για να επαναφέρετε την προεπιλεγμένη σελίδα νέας καρτέλας του συστήματος",
+    "newtabInactiveText": "Ενεργοποίηση Νέας Καρτέλας",
+    "newtabInactiveTitle": "Ορίστε το CanvasTab ως σελίδα νέας καρτέλας",
+    "newtabStatusActive": "Διαχειρίζεται από το CanvasTab",
+    "newtabStatusInactive": "Προεπιλεγμένη νέα καρτέλα συστήματος"
+  },
+  "he": {
+    "ctxAdd": "צור תת-תיקייה",
+    "ctxRename": "שנה שם תיקייה",
+    "ctxDelete": "מחק תיקייה זו",
+    "appName": "📌 סימניות CanvasTab",
+    "manageMode": "🗃️ ניהול",
+    "visualMode": "🎨 ויזואלי",
+    "viewCard": "🎴 כרטיסים",
+    "viewList": "📝 רשימה",
+    "viewIcon": "📱 סמלים",
+    "searchPlaceholder": "חיפוש סימניות, קישורים או תיקיות...",
+    "loadingFolders": "טוען תיקיות...",
+    "versionTag": "v1.7 | מצגת רקעים",
+    "allBookmarks": "כל הסימניות",
+    "folderStatsAll": "סך הכל נאספו {count} קישורי סימניות",
+    "folderStatsFolder": "מכיל {folders} תיקיות, {links} קישורים",
+    "folderStatsVisual": "מצב ויזואלי | {folders} תיקיות, {links} קישורים",
+    "emptyState": "לא נמצאו כאן תתי-תיקיות או קישורי סימניות~",
+    "modalFolderTitle": "תוכן התיקייה",
+    "folderCardCount": "{count} פריטים",
+    "statsSearch": "חיפוש | נמצאו {folders} תיקיות, {links} קישורים",
+    "tooltipBack": "חזור לתיקיית האם",
+    "tooltipClose": "סגור",
+    "drawerTitle": "מרכז בקרה",
+    "secMode": "מצב לוח בקרה",
+    "secModeDesc": "מעבר בין מנהל פשוט ללוח בקרה ויזואלי ללא שוליים",
+    "secLayout": "פריסת סרגל חיפוש",
+    "secLayoutDesc": "כוונן את מיקום תיבת החיפוש ואת נראות לוח הבקרה",
+    "layoutGoogleVisual": "חיפוש + לוח בקרה",
+    "layoutGoogleCollapse": "חיפוש + מגירה",
+    "layoutPureVisual": "סרגל סימניות קלאסי",
+    "secView": "סגנון סימניות",
+    "secViewDesc": "שינוי פריסת רשת כרטיסי הסימניות",
+    "secTheme": "ערכת נושא אישית",
+    "secThemeDesc": "בחירת ערכת נושא לצבעי המערכת הכללית",
+    "secLang": "שפה",
+    "secWallpaper": "הגדרות רקע תמונה",
+    "wallpaperDrawerDesc": "מתגי הפעלה, מצבי תצוגה, שקיפות והגדרות מצגת מנוהלים בגלריה.",
+    "btnUploadBg": "העלה רקע",
+    "btnManageBg": "נהל גלריה",
+    "newtabStatusLabel": "מצב כרטיסייה חדשה",
+    "btnHomepageReset": "שחזר כפתור כותרת",
+    "btnNewtabToggle": "שחזר כרטיסייה חדשה כברירת מחדל",
+    "btnDeadLink": "בודק קישורים שבורים",
+    "btnCreateFolder": "תיקייה חדשה",
+    "brandLogoSubtitle": "קנבס סימניות הדפדפן",
+    "googleVoiceTitle": "חיפוש קולי",
+    "googleLensTitle": "חיפוש לפי תמונה",
+    "googleAiModeText": "מצב AI",
+    "googleAiModeTitle": "החלף מצב תצוגה",
+    "btnNewtabToggleEnable": "הפעל את CanvasTab ככרטיסייה חדשה",
+    "newtabActiveNormal": "כרטיסייה חדשה מופעלת",
+    "newtabActiveHover": "השבת",
+    "newtabActiveTitle": "לחץ כדי לשחזר את דף הכרטיסייה החדשה כברירת מחדל של המערכת",
+    "newtabInactiveText": "הפעל כרטיסייה חדשה",
+    "newtabInactiveTitle": "הגדר את CanvasTab כדף הכרטיסייה החדשה שלך",
+    "newtabStatusActive": "מנוהל על ידי CanvasTab",
+    "newtabStatusInactive": "כרטיסיית ברירת מחדל של המערכת"
+  },
+  "hu": {
+    "ctxAdd": "Új almappa létrehozása",
+    "ctxRename": "Mappa átnevezése",
+    "ctxDelete": "Mappa törlése",
+    "appName": "📌 CanvasTab Könyvjelzők",
+    "manageMode": "🗃️ Kezelés",
+    "visualMode": "🎨 Vizuális",
+    "viewCard": "🎴 Kártyák",
+    "viewList": "📝 Lista",
+    "viewIcon": "📱 Ikonok",
+    "searchPlaceholder": "Könyvjelzők, linkek vagy mappák keresése...",
+    "loadingFolders": "Mappák betöltése...",
+    "versionTag": "v1.7 | Háttérkép diavetítés",
+    "allBookmarks": "Összes könyvjelző",
+    "folderStatsAll": "Összesen {count} könyvjelző link összegyűjtve",
+    "folderStatsFolder": "{folders} mappát, {links} linket tartalmaz",
+    "folderStatsVisual": "Vizuális mód | {folders} mappa, {links} link",
+    "emptyState": "Nem találhatók itt almappák vagy könyvjelző linkek~",
+    "modalFolderTitle": "Mappa tartalma",
+    "folderCardCount": "{count} elem",
+    "statsSearch": "Keresés | {folders} mappa, {links} link találva",
+    "tooltipBack": "Vissza a szülőmappához",
+    "tooltipClose": "Bezárás",
+    "drawerTitle": "Vezérlőközpont",
+    "secMode": "Vezérlőpult mód",
+    "secModeDesc": "Váltás az egyszerűsített kezelő és a keret nélküli vizuális vezérlőpult között",
+    "secLayout": "Keresősáv elrendezése",
+    "secLayoutDesc": "A keresőmező pozíciójának és a vezérlőpult láthatóságának beállítása",
+    "layoutGoogleVisual": "Keresés + Vezérlőpult",
+    "layoutGoogleCollapse": "Keresés + Fiók",
+    "layoutPureVisual": "Klasszikus könyvjelzősáv",
+    "secView": "Könyvjelző stílusa",
+    "secViewDesc": "Váltás a könyvjelzőkártyák rácsos elrendezésére",
+    "secTheme": "Személyre szabott téma",
+    "secThemeDesc": "Rendszerszintű globális színtéma kiválasztása",
+    "secLang": "Nyelv",
+    "secWallpaper": "Háttérkép beállításai",
+    "wallpaperDrawerDesc": "A be/kikapcsolás, a megjelenítési módok, az átlátszóság és a diavetítés beállításai a galériában kezelhetők.",
+    "btnUploadBg": "Háttérkép feltöltése",
+    "btnManageBg": "Galéria kezelése",
+    "newtabStatusLabel": "Új lap állapota",
+    "btnHomepageReset": "Fejlécgomb visszaállítása",
+    "btnNewtabToggle": "Alapértelmezett új lap visszaállítása",
+    "btnDeadLink": "Törött linkek ellenőrzése",
+    "btnCreateFolder": "Új mappa",
+    "brandLogoSubtitle": "Böngésző könyvjelző vászon",
+    "googleVoiceTitle": "Hangalapú keresés",
+    "googleLensTitle": "Keresés kép alapján",
+    "googleAiModeText": "AI mód",
+    "googleAiModeTitle": "Megjelenítési mód váltása",
+    "btnNewtabToggleEnable": "CanvasTab Új lap engedélyezése",
+    "newtabActiveNormal": "Új lap engedélyezve",
+    "newtabActiveHover": "Letiltás",
+    "newtabActiveTitle": "Kattintson ide a rendszer alapértelmezett új lap oldalának visszaállításához",
+    "newtabInactiveText": "Új lap engedélyezése",
+    "newtabInactiveTitle": "Állítsa be a CanvasTab-ot új lapként",
+    "newtabStatusActive": "A CanvasTab által felügyelt",
+    "newtabStatusInactive": "A rendszer alapértelmezett új lapja"
+  },
+  "ro": {
+    "ctxAdd": "Creează subdosar",
+    "ctxRename": "Redenumește dosarul",
+    "ctxDelete": "Șterge dosarul",
+    "appName": "📌 Semne de carte CanvasTab",
+    "manageMode": "🗃️ Administrare",
+    "visualMode": "🎨 Vizual",
+    "viewCard": "🎴 Carduri",
+    "viewList": "📝 Listă",
+    "viewIcon": "📱 Pictograme",
+    "searchPlaceholder": "Caută semne de carte, linkuri sau dosare...",
+    "loadingFolders": "Se încarcă dosarele...",
+    "versionTag": "v1.7 | Prezentare imagini de fundal",
+    "allBookmarks": "Toate semnele de carte",
+    "folderStatsAll": "Total de {count} linkuri colectate",
+    "folderStatsFolder": "Conține {folders} dosare, {links} linkuri",
+    "folderStatsVisual": "Mod Vizual | {folders} dosare, {links} linkuri",
+    "emptyState": "Nu s-au găsit subdosare sau semne de carte aici~",
+    "modalFolderTitle": "Conținutul dosarului",
+    "folderCardCount": "{count} elemente",
+    "statsSearch": "Căutare | S-au găsit {folders} dosare, {links} linkuri",
+    "tooltipBack": "Înapoi la dosarul părinte",
+    "tooltipClose": "Închide",
+    "drawerTitle": "Centru de control",
+    "secMode": "Mod Dashboard",
+    "secModeDesc": "Comutați între managerul simplificat și dashboardul vizual fără margini",
+    "secLayout": "Băra de căutare layout",
+    "secLayoutDesc": "Ajustați poziția căutării și vizibilitatea dashboardului",
+    "layoutGoogleVisual": "Căutare + Dashboard",
+    "layoutGoogleCollapse": "Căutare + Sertar",
+    "layoutPureVisual": "Bara clasică de semne de carte",
+    "secView": "Stil semne de carte",
+    "secViewDesc": "Schimbați aspectul grilei cardurilor",
+    "secTheme": "Temă personalizată",
+    "secThemeDesc": "Selectați tema de culori globală a sistemului",
+    "secLang": "Limbă",
+    "secWallpaper": "Setări imagine de fundal",
+    "wallpaperDrawerDesc": "Comutatoarele, modurile de afișare, opacitatea și slideshow-ul se gestionează în galerie.",
+    "btnUploadBg": "Încarcă imagine de fundal",
+    "btnManageBg": "Administrează galeria",
+    "newtabStatusLabel": "Stare Tab Nou",
+    "btnHomepageReset": "Restaurează butonul antet",
+    "btnNewtabToggle": "Restaurează Tab Nou implicit",
+    "btnDeadLink": "Verificare linkuri nefuncționale",
+    "btnCreateFolder": "Dosar nou",
+    "brandLogoSubtitle": "Pânza de semne de carte a browserului",
+    "googleVoiceTitle": "Căutare vocală",
+    "googleLensTitle": "Căutare după imagine",
+    "googleAiModeText": "Mod AI",
+    "googleAiModeTitle": "Comută modul de afișare",
+    "btnNewtabToggleEnable": "Activează CanvasTab Tab Nou",
+    "newtabActiveNormal": "Tab Nou activat",
+    "newtabActiveHover": "Dezactivează",
+    "newtabActiveTitle": "Faceți clic pentru a restaura pagina implicită de tab nou a sistemului",
+    "newtabInactiveText": "Activează Tab Nou",
+    "newtabInactiveTitle": "Setați CanvasTab ca pagină de tab nou",
+    "newtabStatusActive": "Administrat de CanvasTab",
+    "newtabStatusInactive": "Tab-ul nou implicit al sistemului"
+  },
+  "uk": {
+    "ctxAdd": "Створити підпапку",
+    "ctxRename": "Перейменувати папку",
+    "ctxDelete": "Видалити цю папку",
+    "appName": "📌 Візуальні закладки CanvasTab",
+    "manageMode": "🗃️ Менеджер",
+    "visualMode": "🎨 Візуальний",
+    "viewCard": "🎴 Картки",
+    "viewList": "📝 Список",
+    "viewIcon": "📱 Значки",
+    "searchPlaceholder": "Пошук закладок, посилань або папок...",
+    "loadingFolders": "Завантаження папок...",
+    "versionTag": "v1.7 | Слайд-шоу шпалер",
+    "allBookmarks": "Усі закладки",
+    "folderStatsAll": "Всього зібрано {count} посилань",
+    "folderStatsFolder": "Містить {folders} папок, {links} посилань",
+    "folderStatsVisual": "Візуальний режим | {folders} папок, {links} посилань",
+    "emptyState": "Тут немає підпапок або закладок~",
+    "modalFolderTitle": "Вміст папки",
+    "folderCardCount": "{count} елементів",
+    "statsSearch": "Пошук | Знайдено {folders} папок, {links} посилань",
+    "tooltipBack": "Назад до батьківської папки",
+    "tooltipClose": "Закрити",
+    "drawerTitle": "Центр управління",
+    "secMode": "Режим панелі",
+    "secModeDesc": "Перемикання між спрощеним менеджером та безрамочною панеллю",
+    "secLayout": "Макет панелі пошуку",
+    "secLayoutDesc": "Налаштування положення рядка пошуку та видимості панелі",
+    "layoutGoogleVisual": "Пошук + Панель",
+    "layoutGoogleCollapse": "Поиск + Висувний список",
+    "layoutPureVisual": "Класична панель закладок",
+    "secView": "Стиль закладок",
+    "secViewDesc": "Перемикання сітки карток закладок",
+    "secTheme": "Персональна тема",
+    "secThemeDesc": "Вибір глобальної колірної схеми системи",
+    "secLang": "Мова",
+    "secWallpaper": "Налаштування фонових шпалер",
+    "wallpaperDrawerDesc": "Увімкнення, режими відображення, чіткість та слайд-шоу налаштовуються в галереї.",
+    "btnUploadBg": "Завантажити шпалери",
+    "btnManageBg": "Керування галереєю",
+    "newtabStatusLabel": "Стан нової вкладки",
+    "btnHomepageReset": "Відновити кнопку в шапці",
+    "btnNewtabToggle": "Відновити стандартну нову вкладку",
+    "btnDeadLink": "Перевірка битих посилань",
+    "btnCreateFolder": "Створити папку",
+    "brandLogoSubtitle": "Полотно закладок браузера",
+    "googleVoiceTitle": "Голосовий пошук",
+    "googleLensTitle": "Пошук за зображенням",
+    "googleAiModeText": "Режим ШІ",
+    "googleAiModeTitle": "Зміна режиму відображення",
+    "btnNewtabToggleEnable": "Увімкнути CanvasTab на новій вкладці",
+    "newtabActiveNormal": "Нова вкладка активована",
+    "newtabActiveHover": "Вимкнути",
+    "newtabActiveTitle": "Натисніть для повернення до стандартної нової вкладки",
+    "newtabInactiveText": "Активувати нову вкладку",
+    "newtabInactiveTitle": "Використовувати CanvasTab як нову вкладку",
+    "newtabStatusActive": "Керується CanvasTab",
+    "newtabStatusInactive": "Системна нова вкладка за замовчуванням"
   }
 };
 
@@ -242,14 +1855,128 @@ const THEMES_LIST = [
 ];
 
 const LANGUAGES_LIST = [
-  { id: 'zh-CN', name: '简体中文' },
-  { id: 'zh-TW', name: '繁體中文' },
-  { id: 'en', name: 'English' },
-  { id: 'ja', name: '日本語' },
-  { id: 'ko', name: '한국어' },
-  { id: 'es', name: 'Español' },
-  { id: 'fr', name: 'Français' },
-  { id: 'de', name: 'Deutsch' }
+  {
+    "id": "zh-CN",
+    "name": "简体中文"
+  },
+  {
+    "id": "zh-TW",
+    "name": "繁體中文"
+  },
+  {
+    "id": "en",
+    "name": "English"
+  },
+  {
+    "id": "ja",
+    "name": "日本語"
+  },
+  {
+    "id": "ko",
+    "name": "한국어"
+  },
+  {
+    "id": "es",
+    "name": "Español"
+  },
+  {
+    "id": "fr",
+    "name": "Français"
+  },
+  {
+    "id": "de",
+    "name": "Deutsch"
+  },
+  {
+    "id": "it",
+    "name": "Italiano"
+  },
+  {
+    "id": "ru",
+    "name": "Русский"
+  },
+  {
+    "id": "pt",
+    "name": "Português"
+  },
+  {
+    "id": "nl",
+    "name": "Nederlands"
+  },
+  {
+    "id": "pl",
+    "name": "Polski"
+  },
+  {
+    "id": "tr",
+    "name": "Türkçe"
+  },
+  {
+    "id": "ar",
+    "name": "العربية"
+  },
+  {
+    "id": "hi",
+    "name": "हिन्दी"
+  },
+  {
+    "id": "th",
+    "name": "ไทย"
+  },
+  {
+    "id": "vi",
+    "name": "Tiếng Việt"
+  },
+  {
+    "id": "id",
+    "name": "Bahasa Indonesia"
+  },
+  {
+    "id": "ms",
+    "name": "Bahasa Melayu"
+  },
+  {
+    "id": "sv",
+    "name": "Svenska"
+  },
+  {
+    "id": "no",
+    "name": "Norsk"
+  },
+  {
+    "id": "da",
+    "name": "Dansk"
+  },
+  {
+    "id": "fi",
+    "name": "Suomi"
+  },
+  {
+    "id": "cs",
+    "name": "Čeština"
+  },
+  {
+    "id": "el",
+    "name": "Ελληνικά"
+  },
+  {
+    "id": "he",
+    "name": "עברית"
+  },
+  {
+    "id": "hu",
+    "name": "Magyar"
+  },
+  {
+    "id": "ro",
+    "name": "Română"
+  },
+  {
+    "id": "uk",
+    "name": "Українська"
+  }
+];
+
 ];
 
 let currentLang = 'en';
@@ -361,36 +2088,25 @@ function applyTranslations() {
   }
   document.querySelector('.version-tag').textContent = t.versionTag;
 
-  const manageBtn = document.querySelector('.mode-btn[data-mode="manage"]');
-  if (manageBtn) {
-    const text = t.manageMode.replace(emojiRegex, '');
-    manageBtn.innerHTML = `${SVGS.manage} <span class="btn-text">${text}</span>`;
-  }
-  
-  const visualBtn = document.querySelector('.mode-btn[data-mode="visual"]');
-  if (visualBtn) {
-    const text = t.visualMode.replace(emojiRegex, '');
-    visualBtn.innerHTML = `${SVGS.visual} <span class="btn-text">${text}</span>`;
-  }
-  
-  const viewCardBtn = document.querySelector('.view-btn[data-mode="card"]');
-  if (viewCardBtn) {
-    const text = t.viewCard.replace(emojiRegex, '');
-    viewCardBtn.innerHTML = `${SVGS.viewCard} <span class="btn-text">${text}</span>`;
-  }
-  
-  const viewListBtn = document.querySelector('.view-btn[data-mode="list"]');
-  if (viewListBtn) {
-    const text = t.viewList.replace(emojiRegex, '');
-    viewListBtn.innerHTML = `${SVGS.viewList} <span class="btn-text">${text}</span>`;
-  }
-  
-  const viewIconBtn = document.querySelector('.view-btn[data-mode="icon"]');
-  if (viewIconBtn) {
-    const text = t.viewIcon.replace(emojiRegex, '');
-    viewIconBtn.innerHTML = `${SVGS.viewIcon} <span class="btn-text">${text}</span>`;
-  }
-  
+  // 1. 顶部栏/按钮与输入框翻译
+  const txtAddFolderBtn = document.getElementById('txt-add-folder-btn');
+  if (txtAddFolderBtn) txtAddFolderBtn.textContent = t.btnCreateFolder;
+
+  const addGlobalBtn = document.getElementById('add-folder-global-btn');
+  if (addGlobalBtn) addGlobalBtn.title = t.btnCreateFolder;
+
+  const googleAddFolderText = document.getElementById('google-add-folder-text');
+  if (googleAddFolderText) googleAddFolderText.textContent = t.btnCreateFolder;
+
+  const ctxTxtAdd = document.getElementById('ctx-txt-add');
+  if (ctxTxtAdd) ctxTxtAdd.textContent = t.ctxAdd;
+
+  const ctxTxtRename = document.getElementById('ctx-txt-rename');
+  if (ctxTxtRename) ctxTxtRename.textContent = t.ctxRename;
+
+  const ctxTxtDelete = document.getElementById('ctx-txt-delete');
+  if (ctxTxtDelete) ctxTxtDelete.textContent = t.ctxDelete;
+
   const searchInput = document.getElementById('search-input');
   if (searchInput) searchInput.placeholder = t.searchPlaceholder;
   
@@ -400,57 +2116,158 @@ function applyTranslations() {
   const modalBack = document.getElementById('modal-back-btn');
   if (modalBack) modalBack.title = t.tooltipBack;
 
+  // 2. Google 主区大 Logo 与搜索区域翻译
+  const brandSubtitle = document.querySelector('.brand-logo-subtitle');
+  if (brandSubtitle) brandSubtitle.textContent = t.brandLogoSubtitle;
+
+  const googleSearchInput = document.getElementById('google-search-input');
+  if (googleSearchInput) googleSearchInput.placeholder = t.searchPlaceholder;
+
+  const voiceBtn = document.getElementById('google-voice-btn');
+  if (voiceBtn) voiceBtn.title = t.googleVoiceTitle;
+
+  const lensBtn = document.getElementById('google-lens-btn');
+  if (lensBtn) lensBtn.title = t.googleLensTitle;
+
+  const aiModeText = document.getElementById('google-ai-mode-text');
+  if (aiModeText) aiModeText.textContent = t.googleAiModeText;
+
+  const aiModeBtn = document.getElementById('google-ai-mode-btn');
+  if (aiModeBtn) aiModeBtn.title = t.googleAiModeTitle;
+
+  const loadingPlaceholder = document.querySelector('.loading-placeholder');
+  if (loadingPlaceholder) loadingPlaceholder.textContent = t.loadingFolders;
+
+  const collapseText = document.getElementById('google-collapse-toggle-text');
+  if (collapseText) {
+    const isOpen = document.body.classList.contains('google-collapse-board-open');
+    if (isOpen) {
+      collapseText.textContent = currentLang.startsWith('zh') ? '收起书签看板' : 'Hide bookmark board';
+    } else {
+      collapseText.textContent = currentLang.startsWith('zh') ? '展开书签看板' : 'Show bookmark board';
+    }
+  }
+
   // 返回上一级按钮翻译
   const universalBackText = document.querySelector('#universal-folder-back-btn span');
   if (universalBackText) {
-    universalBackText.textContent = currentLang.startsWith('zh') ? '返回上一层' : 'Back';
+    universalBackText.textContent = t.tooltipBack;
   }
   const googleBackText = document.getElementById('google-back-folder-text');
   if (googleBackText) {
-    googleBackText.textContent = currentLang.startsWith('zh') ? '返回上一级' : 'Back';
+    googleBackText.textContent = t.tooltipBack;
   }
 
-  // 壁纸翻译
-  const lblEnableBg = document.getElementById('lbl-enable-bg') || document.getElementById('drawer-lbl-enable-bg');
-  if (lblEnableBg) lblEnableBg.textContent = currentLang.startsWith('zh') ? '启用壁纸背景' : 'Enable Wallpaper';
-  
-  const lblEnableSlideshow = document.getElementById('lbl-enable-slideshow') || document.getElementById('drawer-lbl-enable-slideshow');
-  if (lblEnableSlideshow) lblEnableSlideshow.textContent = currentLang.startsWith('zh') ? '幻灯片播放' : 'Slideshow Mode';
-  
-  const lblBgFit = document.getElementById('lbl-bg-fit') || document.getElementById('drawer-lbl-bg-fit');
-  if (lblBgFit) lblBgFit.textContent = currentLang.startsWith('zh') ? '展示效果' : 'Display Mode';
+  // 3. 侧边滑出控制中心 (Control Drawer) 翻译
+  const txtDrawerTitle = document.getElementById('txt-drawer-title');
+  if (txtDrawerTitle) txtDrawerTitle.textContent = t.drawerTitle;
 
-  const lblBgOpacity = document.getElementById('lbl-bg-opacity') || document.getElementById('drawer-lbl-bg-opacity');
-  if (lblBgOpacity) lblBgOpacity.textContent = currentLang.startsWith('zh') ? '壁纸清晰度' : 'Wallpaper Clarity';
-  
-  const optFitCover = document.getElementById('opt-fit-cover') || document.getElementById('drawer-opt-fit-cover');
-  if (optFitCover) optFitCover.textContent = currentLang.startsWith('zh') ? '拉伸填充' : 'Cover';
-  
-  const optFitContain = document.getElementById('opt-fit-contain') || document.getElementById('drawer-opt-fit-contain');
-  if (optFitContain) optFitContain.textContent = currentLang.startsWith('zh') ? '适应缩放' : 'Contain';
-  
-  const optFitTile = document.getElementById('opt-fit-tile') || document.getElementById('drawer-opt-fit-tile');
-  if (optFitTile) optFitTile.textContent = currentLang.startsWith('zh') ? '复制平铺' : 'Tile';
-  
-  const bgUploadTrigger = document.getElementById('bg-upload-trigger') || document.getElementById('drawer-bg-upload-trigger');
-  if (bgUploadTrigger) bgUploadTrigger.textContent = currentLang.startsWith('zh') ? '上传背景图' : 'Upload Wallpaper';
+  // 看板运行模式
+  const txtSecMode = document.getElementById('txt-sec-mode');
+  if (txtSecMode) txtSecMode.textContent = t.secMode;
+  const txtSecModeDesc = document.getElementById('txt-sec-mode-desc');
+  if (txtSecModeDesc) txtSecModeDesc.textContent = t.secModeDesc;
 
-  const wpManageBtn = document.getElementById('drawer-bg-manage-btn');
-  if (wpManageBtn) {
-    wpManageBtn.textContent = currentLang.startsWith('zh') ? '管理背景库' : 'Manage Gallery';
-  }
+  const manageBtn = document.querySelector('#drawer-mode-switcher [data-mode="manage"]');
+  if (manageBtn) manageBtn.textContent = t.manageMode;
+  const visualBtn = document.querySelector('#drawer-mode-switcher [data-mode="visual"]');
+  if (visualBtn) visualBtn.textContent = t.visualMode;
+
+  // 搜索栏布局
+  const txtSecLayout = document.getElementById('txt-sec-layout');
+  if (txtSecLayout) txtSecLayout.textContent = t.secLayout;
+  const txtSecLayoutDesc = document.getElementById('txt-sec-layout-desc');
+  if (txtSecLayoutDesc) txtSecLayoutDesc.textContent = t.secLayoutDesc;
+
+  const layoutBtn1 = document.querySelector('#drawer-layout-switcher [data-layout="google-visual"]');
+  if (layoutBtn1) layoutBtn1.textContent = t.layoutGoogleVisual;
+  const layoutBtn2 = document.querySelector('#drawer-layout-switcher [data-layout="google-collapse"]');
+  if (layoutBtn2) layoutBtn2.textContent = t.layoutGoogleCollapse;
+  const layoutBtn3 = document.querySelector('#drawer-layout-switcher [data-layout="pure-visual"]');
+  if (layoutBtn3) layoutBtn3.textContent = t.layoutPureVisual;
+
+  // 书签显示样式
+  const txtSecView = document.getElementById('txt-sec-view');
+  if (txtSecView) txtSecView.textContent = t.secView;
+  const txtSecViewDesc = document.getElementById('txt-sec-view-desc');
+  if (txtSecViewDesc) txtSecViewDesc.textContent = t.secViewDesc;
+
+  const viewCardBtn = document.querySelector('#drawer-view-switcher [data-view="card"]');
+  if (viewCardBtn) viewCardBtn.textContent = t.viewCard;
+  const viewListBtn = document.querySelector('#drawer-view-switcher [data-view="list"]');
+  if (viewListBtn) viewListBtn.textContent = t.viewList;
+  const viewIconBtn = document.querySelector('#drawer-view-switcher [data-view="icon"]');
+  if (viewIconBtn) viewIconBtn.textContent = t.viewIcon;
+
+  // 个性化主题
+  const txtSecTheme = document.getElementById('txt-sec-theme');
+  if (txtSecTheme) txtSecTheme.textContent = t.secTheme;
+  const txtSecThemeDesc = document.getElementById('txt-sec-theme-desc');
+  if (txtSecThemeDesc) txtSecThemeDesc.textContent = t.secThemeDesc;
+
+  // 多国语言
+  const txtSecLang = document.getElementById('txt-sec-lang');
+  if (txtSecLang) txtSecLang.textContent = t.secLang;
+
+  // 壁纸背景设置
+  const txtSecWallpaper = document.getElementById('txt-sec-wallpaper');
+  if (txtSecWallpaper) txtSecWallpaper.textContent = t.secWallpaper;
+  const txtWpDrawerDesc = document.getElementById('txt-wallpaper-drawer-desc');
+  if (txtWpDrawerDesc) txtWpDrawerDesc.textContent = t.wallpaperDrawerDesc;
+
+  const btnUploadBg = document.getElementById('drawer-bg-upload-trigger');
+  if (btnUploadBg) btnUploadBg.textContent = t.btnUploadBg;
+  const btnManageBg = document.getElementById('drawer-bg-manage-btn');
+  if (btnManageBg) btnManageBg.textContent = t.btnManageBg;
+
+  const newtabStatusRowLabel = document.querySelector('#drawer-homepage-status-row span:first-child');
+  if (newtabStatusRowLabel) newtabStatusRowLabel.textContent = t.newtabStatusLabel;
+
+  const btnHomepageReset = document.getElementById('drawer-btn-homepage-reset');
+  if (btnHomepageReset) btnHomepageReset.textContent = t.btnHomepageReset;
+  const btnNewtabToggle = document.getElementById('drawer-btn-newtab-toggle');
+  if (btnNewtabToggle) btnNewtabToggle.textContent = t.btnNewtabToggle;
+
+  const btnDeadLink = document.getElementById('dead-link-check-btn');
+  if (btnDeadLink) btnDeadLink.textContent = t.btnDeadLink;
+
+  // 4. 壁纸管理弹窗 (Gallery Manager Modal) 翻译
   const txtWpManagerTitle = document.getElementById('txt-wp-manager-title');
-  if (txtWpManagerTitle) {
-    txtWpManagerTitle.textContent = currentLang.startsWith('zh') ? '背景壁纸库管理' : 'Wallpaper Gallery Management';
-  }
+  if (txtWpManagerTitle) txtWpManagerTitle.textContent = t.drawerTitle;
+
   const txtWpManagerDesc = document.getElementById('txt-wp-manager-desc');
-  if (txtWpManagerDesc) {
-    txtWpManagerDesc.textContent = currentLang.startsWith('zh') 
-      ? '您最多可以上传 15 张自定义壁纸背景。点击卡片可直接应用为当前背景。' 
-      : 'You can upload up to 15 custom wallpapers. Click a card to set it as current background.';
+  if (txtWpManagerDesc) txtWpManagerDesc.textContent = t.wallpaperDrawerDesc;
+
+  const wpManagerText = (id, textVal) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = textVal;
+  };
+
+  wpManagerText('txt-wp-playback-title', currentLang.startsWith('zh') ? '播放设置' : 'Playback settings');
+  wpManagerText('txt-wp-playback-desc', currentLang.startsWith('zh') ? '在二处控制壁纸循环模式' : 'Configure wallpaper automatic loop.');
+  wpManagerText('txt-wp-display-title', t.secWallpaper);
+  wpManagerText('txt-wp-display-desc', t.wallpaperDrawerDesc);
+  wpManagerText('txt-wp-enable', currentLang.startsWith('zh') ? '启用壁纸' : 'Enable wallpaper');
+  wpManagerText('txt-wp-fit', currentLang.startsWith('zh') ? '背景模式' : 'Background mode');
+  wpManagerText('txt-wp-opacity', currentLang.startsWith('zh') ? '壁纸清晰度' : 'Wallpaper clarity');
+  wpManagerText('txt-wp-fit-cover', currentLang.startsWith('zh') ? '填充' : 'Cover');
+  wpManagerText('txt-wp-fit-contain', currentLang.startsWith('zh') ? '适应' : 'Contain');
+  wpManagerText('txt-wp-fit-repeat', currentLang.startsWith('zh') ? '平铺' : 'Tile');
+  wpManagerText('txt-wp-auto-switch', currentLang.startsWith('zh') ? '自动切换' : 'Auto switch');
+  wpManagerText('txt-wp-playback-mode', currentLang.startsWith('zh') ? '播放模式' : 'Playback mode');
+  wpManagerText('txt-wp-playback-interval', currentLang.startsWith('zh') ? '切换间隔' : 'Switch interval');
+  wpManagerText('txt-wp-mode-sequential', currentLang.startsWith('zh') ? '顺序播放' : 'Sequential');
+  wpManagerText('txt-wp-mode-random', currentLang.startsWith('zh') ? '随机播放' : 'Random');
+  wpManagerText('wp-manager-save-btn', currentLang.startsWith('zh') ? '保存设置' : 'Save settings');
+
+  const intervalSelect = document.getElementById('wp-manager-slideshow-interval');
+  if (intervalSelect) {
+    Array.from(intervalSelect.options).forEach(option => {
+      option.textContent = currentLang.startsWith('zh') ? `${option.value} 秒` : `${option.value} seconds`;
+    });
   }
 
-  // 首次安装向导弹窗多语言翻译
+  // 5. Onboarding / 欢迎引导弹窗翻译
   const onboardingTitle = document.getElementById('onboarding-title');
   if (onboardingTitle) {
     if (currentLang === 'zh-CN') onboardingTitle.textContent = '🎉 感谢安装 CanvasTab！';
@@ -466,8 +2283,8 @@ function applyTranslations() {
   const onboardingDesc = document.getElementById('onboarding-desc');
   if (onboardingDesc) {
     if (currentLang === 'zh-CN') onboardingDesc.innerHTML = '本插件已就绪。为了符合你的浏览习惯，请选择是否将本看板作为你的<b>默认新标签页</b>？';
-    else if (currentLang === 'zh-TW') onboardingDesc.innerHTML = '本插件已就緒。為了符合你的瀏覽習慣，請選擇是否將本看板作為你的<b>預設新分頁</b>？';
-    else if (currentLang === 'es') onboardingDesc.innerHTML = 'La extensión está lista. Para adaptarse a tus hábitos de navegación, ¿deseas configurar CanvasTab como tu <b>nueva pestaña predeterminada</b>?';
+    else if (currentLang === 'zh-TW') onboardingDesc.innerHTML = '本插件已就緒。為了符合你的瀏覽習慣，請選擇是否将本看板作為你的<b>預設新分頁</b>？';
+    else if (currentLang === 'es') onboardingDesc.innerHTML = 'La extensión está lista. Para adaptarse a tus habits de navigation, ¿deseas configurar CanvasTab como tu <b>nueva pestaña predeterminada</b>?';
     else if (currentLang === 'ja') onboardingDesc.innerHTML = '拡張機能の準備ができました。ブラウジングの習慣に合わせて、CanvasTab を<b>デフォルトの新しいタブページ</b>に設定しますか？';
     else if (currentLang === 'ko') onboardingDesc.innerHTML = '확장 프로그램이 준비되었습니다. 브라우징 습관에 맞추어 CanvasTab을 <b>기본 새 탭 페이지</b>로 설정하시겠습니까?';
     else if (currentLang === 'fr') onboardingDesc.innerHTML = 'L\'extension est prête. Pour s\'adapter à vos habitudes de navigation, souhaitez-vous définir CanvasTab comme <b>nouvel onglet par défaut</b> ?';
@@ -499,15 +2316,8 @@ function applyTranslations() {
     else btnOnboardingHomepage.textContent = 'No';
   }
 
-  // 新建文件夹按钮翻译
-  const txtAddFolderBtn = document.getElementById('txt-add-folder-btn');
-  if (txtAddFolderBtn) {
-    txtAddFolderBtn.textContent = currentLang.startsWith('zh') ? '新建文件夹' : 'New Folder';
-  }
-  const addGlobalBtn = document.getElementById('add-folder-global-btn');
-  if (addGlobalBtn) {
-    addGlobalBtn.title = currentLang.startsWith('zh') ? '在当前目录下新建文件夹' : 'Create new folder in current directory';
-  }
+  // 渲染新标签页接管状态 (指示器与按钮)
+  checkNewtabVisibility();
 
   // 动态渲染语言和主题下拉菜单内容
   renderLanguageSelector();
@@ -535,10 +2345,11 @@ function checkNewtabVisibility() {
 // 根据新标签页启用状态渲染按钮、指示灯和面板的实际 UI
 function renderNewtabState(isEnabled) {
   const btn = document.getElementById('header-set-homepage-btn');
-  const statusDot = document.getElementById('homepage-status-dot');
-  const statusText = document.getElementById('homepage-status-text');
+  const statusDot = document.getElementById('drawer-homepage-status-dot') || document.getElementById('homepage-status-dot');
+  const statusText = document.getElementById('drawer-homepage-status-text') || document.getElementById('homepage-status-text');
   const resetBtn = document.getElementById('btn-homepage-reset');
   const drawerNewtabToggle = document.getElementById('drawer-btn-newtab-toggle');
+  const t = i18n[currentLang] || i18n.en;
 
   // 1. 始终保持顶部主按钮显示，更新内容与状态类名以展示已设置/取消接管交互
   if (btn) {
@@ -547,17 +2358,17 @@ function renderNewtabState(isEnabled) {
       btn.classList.add('is-homepage-active'); // 复用原本的 CSS 高亮样式
       btn.innerHTML = `
         <span class="btn-icon">${SVGS.check}</span>
-        <span class="btn-text-normal">${currentLang.startsWith('zh') ? '新标签页已开启' : 'New Tab Enabled'}</span>
-        <span class="btn-text-hover" style="display: none;">${currentLang.startsWith('zh') ? '取消接管' : 'Disable'}</span>
+        <span class="btn-text-normal">${t.newtabActiveNormal}</span>
+        <span class="btn-text-hover" style="display: none;">${t.newtabActiveHover}</span>
       `;
-      btn.title = currentLang.startsWith('zh') ? '点击恢复使用浏览器默认新标签页' : 'Click to restore system default New Tab page';
+      btn.title = t.newtabActiveTitle;
     } else {
       btn.classList.remove('is-homepage-active');
       btn.innerHTML = `
         <span class="btn-icon">${SVGS.homepage}</span>
-        <span class="btn-text">${currentLang.startsWith('zh') ? '开启新标签页' : 'Enable New Tab'}</span>
+        <span class="btn-text">${t.newtabInactiveText}</span>
       `;
-      btn.title = currentLang.startsWith('zh') ? '开启 CanvasTab 接管浏览器新标签页' : 'Enable CanvasTab as your New Tab page';
+      btn.title = t.newtabInactiveTitle;
     }
   }
 
@@ -565,20 +2376,18 @@ function renderNewtabState(isEnabled) {
   if (statusDot && statusText) {
     if (isEnabled) {
       statusDot.style.backgroundColor = '#10b981'; // 亮绿灯
-      statusText.textContent = currentLang.startsWith('zh') ? '已由 CanvasTab 接管' : 'Taken over by CanvasTab';
+      statusText.textContent = t.newtabStatusActive;
       statusText.style.color = '#10b981';
     } else {
       statusDot.style.backgroundColor = '#9ca3af'; // 灰色
-      statusText.textContent = currentLang.startsWith('zh') ? '系统默认新标签页' : 'System Default New Tab';
+      statusText.textContent = t.newtabStatusInactive;
       statusText.style.color = 'var(--text-secondary)';
     }
   }
 
   // 3. 更新设置侧栏底部的接管状态控制按钮文本
   if (drawerNewtabToggle) {
-    drawerNewtabToggle.textContent = isEnabled
-      ? (currentLang.startsWith('zh') ? '恢复浏览器原生新标签页' : 'Restore Native New Tab')
-      : (currentLang.startsWith('zh') ? '开启 CanvasTab 新标签页' : 'Enable CanvasTab New Tab');
+    drawerNewtabToggle.textContent = isEnabled ? t.btnNewtabToggle : t.btnNewtabToggleEnable;
   }
 
   // 隐藏无用的主页重置按钮
@@ -790,7 +2599,7 @@ function buildFolderTreeNode(folder) {
   itemEl.innerHTML = `
     <span class="folder-toggle${toggleClass}">${toggleSymbol}</span>
     <span class="folder-icon">${iconSvg}</span>
-    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 4px;">${folder.title}${countBadge}</span>
+    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 4px;">${escapeHtml(folder.title)}${countBadge}</span>
     <div class="folder-actions" style="display: flex; gap: 4px; align-items: center; opacity: 0; transition: opacity 0.2s ease;">
       <button class="sidebar-action-btn add-subfolder-btn" title="${currentLang.startsWith('zh') ? '新建子文件夹' : 'Create Subfolder'}" data-id="${folder.id}">
         <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1129,7 +2938,7 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
         <div class="favicon-wrapper">
           <span class="favicon-fallback">${SVGS.folder}</span>
         </div>
-        <div class="bookmark-title">${folder.title || '...'}</div>
+        <div class="bookmark-title">${escapeHtml(folder.title || '...')}</div>
       </div>
       <div class="folder-card-indicator">${textBadge}</div>
     `;
@@ -1263,9 +3072,9 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
           <img class="favicon-img" src="${faviconUrl}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" alt="">
           <span class="favicon-fallback" style="display: none;">${initial}</span>
         </div>
-        <div class="bookmark-title">${bookmark.title || 'No Title'}</div>
+        <div class="bookmark-title">${escapeHtml(bookmark.title || 'No Title')}</div>
       </div>
-      <div class="card-bottom">${hostname}</div>
+      <div class="card-bottom">${escapeHtml(hostname)}</div>
     `;
 
     grid.appendChild(card);
@@ -1598,7 +3407,7 @@ function renderSearchEngineSelector() {
     if (engine.id.startsWith('custom-')) {
       opt.innerHTML = `
         <div class="engine-info-wrap">
-          <span class="engine-icon-wrapper">${iconHtml}</span> <span>${engine.name}</span>
+          <span class="engine-icon-wrapper">${iconHtml}</span> <span>${escapeHtml(engine.name)}</span>
         </div>
         <span class="engine-delete-btn" title="${currentLang.startsWith('zh') ? '删除此引擎' : 'Delete Engine'}">&times;</span>
       `;
@@ -1627,7 +3436,7 @@ function renderSearchEngineSelector() {
       if (engine.id.startsWith('custom-')) {
         gOpt.innerHTML = `
           <div class="engine-info-wrap">
-            <span class="engine-icon-wrapper">${iconHtml}</span> <span>${engine.name}</span>
+            <span class="engine-icon-wrapper">${iconHtml}</span> <span>${escapeHtml(engine.name)}</span>
           </div>
           <span class="engine-delete-btn" title="${currentLang.startsWith('zh') ? '删除此引擎' : 'Delete Engine'}">&times;</span>
         `;
@@ -1636,7 +3445,7 @@ function renderSearchEngineSelector() {
           deleteCustomSearchEngine(engine.id);
         });
       } else {
-        gOpt.innerHTML = `<span class="engine-icon-wrapper">${iconHtml}</span> <span>${engine.name}</span>`;
+        gOpt.innerHTML = `<span class="engine-icon-wrapper">${iconHtml}</span> <span>${escapeHtml(engine.name)}</span>`;
       }
       gOpt.addEventListener('click', (e) => {
         e.stopPropagation();

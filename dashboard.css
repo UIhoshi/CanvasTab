@@ -1193,6 +1193,12 @@ body[data-theme="light"] .bookmark-card:hover .favicon-wrapper {
   pointer-events: auto;
 }
 
+/* 壁纸管理弹窗外侧不使用模糊，便于直接观察遮罩透明度。 */
+#wp-manager-modal-overlay {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 .folder-modal {
   width: 90%;
   max-width: 1440px; /* 在宽屏上扩容宽度展示 */
@@ -1594,6 +1600,11 @@ body.has-wallpaper .wallpaper-overlay {
   pointer-events: none;
   transition: opacity 0.15s ease;
   opacity: 0;
+}
+
+/* 背景库打开时，隐藏页面底层遮罩，透明度只调节管理弹窗外侧的遮罩。 */
+body.wallpaper-manager-open #wallpaper-mask {
+  opacity: 0 !important;
 }
 
 body[data-theme="dark"] .wallpaper-mask {
@@ -2940,6 +2951,40 @@ body[data-search-layout="google-collapse"] .google-add-folder-btn {
   white-space: nowrap;
 }
 
+/* 卡片视图：文件夹名称与对象统计采用自然换行，避免长名称覆盖统计信息。 */
+.cards-grid.view-mode-card .folder-card .bookmark-title {
+  min-width: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.cards-grid.view-mode-card .folder-card .folder-card-indicator {
+  position: static;
+  align-self: stretch;
+  margin-top: 6px;
+  padding-left: 52px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cards-grid.view-mode-card .folder-card .favicon-wrapper {
+  width: 44px;
+  height: 44px;
+}
+
+.cards-grid.view-mode-card .folder-card .favicon-fallback .svg-icon {
+  width: 26px;
+  height: 26px;
+}
+
 .sidebar-header {
   padding: 22px 20px;
 }
@@ -4178,6 +4223,148 @@ body[data-drawer-side="left"] .control-drawer.active {
   border: 1px solid var(--border-color);
   backdrop-filter: blur(20px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.wp-manager-settings-section,
+.wp-playback-settings {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-card) 72%, transparent);
+}
+
+.wp-manager-settings-heading,
+.wp-playback-settings-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.wp-manager-settings-heading h4,
+.wp-playback-settings-heading h4 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.wp-manager-settings-heading span,
+.wp-playback-settings-heading span {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  text-align: right;
+}
+
+.wp-manager-settings-grid,
+.wp-playback-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wp-manager-settings-grid .panel-row,
+.wp-playback-controls .panel-row {
+  min-width: 0;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wp-manager-settings-grid .panel-row label,
+.wp-playback-controls .panel-row label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.wp-manager-settings-grid .panel-row select,
+.wp-playback-controls .panel-row select {
+  width: 100%;
+  min-width: 0;
+  padding: 7px 8px;
+}
+
+.wp-manager-settings-grid .panel-row input[type="checkbox"],
+.wp-playback-controls .panel-row input[type="checkbox"] {
+  align-self: flex-start;
+}
+
+.wp-manager-slider {
+  width: 100%;
+  max-width: none;
+  flex: none;
+  gap: 8px;
+  justify-content: initial;
+}
+
+.wp-manager-slider input[type="range"] {
+  width: 100%;
+}
+
+.wp-manager-slider span {
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  text-align: left;
+}
+
+.wp-playback-controls .panel-row select:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.wp-manager-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+#wp-manager-save-btn {
+  width: auto;
+  min-width: 128px;
+  margin: 0;
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+#wp-manager-save-btn.is-dirty {
+  opacity: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 16px var(--accent-glow);
+}
+
+#wp-manager-save-status {
+  color: #34d399;
+  font-size: 0.78rem;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#wp-manager-save-status.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 620px) {
+  .wp-manager-settings-heading,
+  .wp-playback-settings-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .wp-manager-settings-heading span,
+  .wp-playback-settings-heading span {
+    text-align: left;
+  }
+
+  .wp-manager-settings-grid,
+  .wp-playback-controls {
+    grid-template-columns: 1fr;
+  }
 }
 
 .wp-grid {

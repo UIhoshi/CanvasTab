@@ -1,6 +1,6 @@
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
-    chrome.storage.local.set({ newtabEnabled: true });
+    chrome.storage.local.set({ isNewtabDisabled: false, onboarding_completed: false });
     chrome.tabs.create({ url: 'dashboard.html?onboarding=true' });
   }
 });

@@ -4,14 +4,14 @@
 
 - **Manifest:** `manifest.json` (Manifest V3; New Tab override: `dashboard.html`).
 - **User surfaces:** New Tab dashboard (`dashboard.html`) and toolbar popup (`popup.html`).
-- **Primary docs:** `README.md`, `PRIVACY.md`, and `NEXT_STEPS.md`.
+- **Primary docs:** `README.md`, `PRIVACY.md`, `NEXT_STEPS.md`, and `CODE_MAP.md`.
 
 ## L2 — Flow & Lifecycle
 
 - **Service-worker flow:** `background.js` handles installation, toolbar-popup state, and New Tab navigation actions.
 - **Dashboard flow:** `dashboard.js` loads and manages bookmarks, searches, themes, languages, wallpapers, and settings.
 - **Popup flow:** `popup.js` provides a compact bookmark view and opens the dashboard.
-- **Outstanding lifecycle verification:** wallpaper-manager save/persistence/playback behavior remains pending in `NEXT_STEPS.md`.
+- **Wallpaper regression:** user-reported real Chrome verification completed; retain `NEXT_STEPS.md` for deferred post-release work.
 
 ## L3 — Control & Verification
 
@@ -27,5 +27,4 @@
 
 ## Unconfirmed Points
 
-- [ ] Wallpaper-manager settings persist correctly across New Tab and extension reloads in real Chrome.
 - [ ] Favicon error fallback behavior under the extension's default CSP.

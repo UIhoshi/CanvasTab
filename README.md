@@ -5,7 +5,7 @@
   <br/>
   <strong>An aesthetic, minimal card-style browser bookmarks manager and customizable New Tab dashboard.</strong>
   <br/><br/>
-  <a href="https://chromewebstore.google.com"><img src="https://img.shields.io/badge/Chrome-Web%20Store-4285F4?logo=googlechrome&logoColor=white" alt="Chrome Web Store"/></a>
+  <img src="https://img.shields.io/badge/Chrome-Web%20Store-4285F4?logo=googlechrome&logoColor=white" alt="Available on Chrome Web Store"/>
   <img src="https://img.shields.io/badge/Manifest-V3-brightgreen"/>
   <img src="https://img.shields.io/badge/License-MIT-blue"/>
 </div>
@@ -54,7 +54,8 @@ CanvasTab does not collect or transmit bookmark and preference data to an applic
 
 ## 📦 Installation
 
-Chrome Web Store publication is not available yet.
+CanvasTab is available on the Chrome Web Store. Search for **CanvasTab** in the store until the
+project records its direct listing URL here.
 
 Or load unpacked for development:
 1. Clone this repository

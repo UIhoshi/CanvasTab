@@ -18,4 +18,6 @@ CanvasTab is a Manifest V3 Chrome/Edge extension with vanilla HTML, CSS, and Jav
 
 - Keep the extension dependency-free unless a change is explicitly approved.
 - Update `PROJECT_MAP.md` with structural, permission, or validation-command changes.
+- Update `CODE_MAP.md` with affected entrypoints, key functions, state/storage, interface/event,
+  or validation-navigation changes.
 - Record material, resolved failures in `.learnings/ERRORS.md` without secrets or raw logs.

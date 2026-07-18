@@ -7,11 +7,10 @@ Then follow the repository-declared logic entry chain when applicable.
 
 # CanvasTab Next Steps
 
-## Pending: Real Chrome Regression Test
+## Completed: Real Chrome Regression Test
 
-The wallpaper manager save-settings fix is implemented and pushed, but the final
-interactive test must be performed on another computer in a real Chrome extension
-context.
+The wallpaper-manager save-settings fix was verified by the user in a real Chrome extension
+context. Keep this checklist as the repeatable regression procedure for a future release.
 
 ### Test checklist
 
@@ -25,10 +24,10 @@ context.
 - Confirm slideshow timing and random/sequential playback behave correctly.
 - Confirm the same values survive extension reload through `chrome.storage.local`.
 
-### Completion condition
+### Status
 
-Mark this plan complete only after the real Chrome interaction and persistence
-checks pass on the other computer.
+Completed by user-provided real-Chrome verification on 2026-07-19. This result is recorded as
+user evidence; repeat it after future wallpaper-manager changes.
 
 ## Deferred Until The Next Store Release
 

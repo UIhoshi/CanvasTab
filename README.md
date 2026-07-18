@@ -16,12 +16,12 @@
 
 - **Card-style Visualization** — Browse bookmarks in card grid, list, or icon views
 - **8 Premium Themes** — Midnight Dark, Frosted Silver, Neon Aurora, Deep Ocean, Forest Green, Sunset Orange, Sakura Rose, Cyberpunk Neon
-- **Custom Wallpaper Canvas** — Upload up to 6 images with opacity control and slideshow mode
+- **Custom Wallpaper Canvas** — Upload up to 15 images with opacity control and slideshow mode
 
 - **Multi-in-One Search** — Google, Bing, default browser search, and custom search engines
 - **Folder Management** — Create, delete, and drag-and-drop folders across the sidebar tree and card grid
-- **Multilingual** — English, Simplified Chinese, Traditional Chinese, Japanese, Korean, Spanish, French, German
-- **100% Local & Private** — Zero data collection, everything stays in your browser
+- **Multilingual** — 30 interface languages, including English, Simplified Chinese, Traditional Chinese, Japanese, Korean, Spanish, French, and German
+- **Privacy-first local storage** — Bookmark organization and preferences stay in the browser; see [Privacy](#-privacy) for external-resource details
 
 ## 📸 Screenshots & Gallery
 
@@ -50,11 +50,11 @@ Works on any Chromium-based browser including **Google Chrome** and **Microsoft 
 
 ## 🔒 Privacy
 
-CanvasTab collects **zero user data**. See [PRIVACY.md](./PRIVACY.md) for full details.
+CanvasTab does not collect or transmit bookmark and preference data to an application backend. See [PRIVACY.md](./PRIVACY.md) for full details, including third-party font requests.
 
 ## 📦 Installation
 
-Install directly from the [Chrome Web Store](https://chromewebstore.google.com) *(link coming soon)*.
+Chrome Web Store publication is not available yet.
 
 Or load unpacked for development:
 1. Clone this repository

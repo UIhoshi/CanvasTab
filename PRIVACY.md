@@ -39,9 +39,9 @@ All data saved by CanvasTab stays **100% on your local device**:
 
 ## Third-Party Services
 
-CanvasTab does **not** use any third-party analytics, advertising, or tracking services.
+CanvasTab does **not** use third-party analytics, advertising, or tracking services, and it does not send bookmark or preference data to an application backend.
 
-The extension loads fonts from Google Fonts CDN (`fonts.googleapis.com`) for display purposes only. No user data is associated with these requests.
+The dashboard and popup currently load the Inter font from Google Fonts (`fonts.googleapis.com`). Those requests connect the browser to Google's servers and are subject to Google's network and privacy policies. When the Chrome extension APIs are unavailable (for example, in a mock/browser-preview context), the favicon fallback can request a favicon from Google's favicon service using a bookmark hostname. In normal installed-extension operation, CanvasTab uses Chrome's extension favicon endpoint instead.
 
 ## Data Sharing
 

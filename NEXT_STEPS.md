@@ -29,3 +29,16 @@ context.
 
 Mark this plan complete only after the real Chrome interaction and persistence
 checks pass on the other computer.
+
+## Deferred Until The Next Store Release
+
+The currently published Chrome Web Store build must not receive functional-code changes in this
+workspace until the next release is planned. Track, but do not implement, these follow-ups here:
+
+- Replace inline favicon `onerror` handlers with JavaScript event listeners so the fallback works
+  under the Manifest V3 extension-page CSP.
+- Reconcile the manifest version, in-app version labels, and the next release tag.
+- Replace the remaining system emoji strings in localized UI labels if the SVG-only design
+  requirement remains in scope.
+- Decide whether to package fonts and remove the Google favicon fallback, or retain the current
+  integrations with the privacy disclosure already added to `PRIVACY.md`.

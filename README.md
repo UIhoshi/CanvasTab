@@ -54,8 +54,7 @@ CanvasTab does not collect or transmit bookmark and preference data to an applic
 
 ## 📦 Installation
 
-CanvasTab is available on the Chrome Web Store. Search for **CanvasTab** in the store until the
-project records its direct listing URL here.
+Install [**CanvasTab** from the Chrome Web Store](https://chromewebstore.google.com/detail/canvastab-wallpaper-canva/lnknhneommhncadmclepfkhpglbbhpek?hl=zh-CN).
 
 Or load unpacked for development:
 1. Clone this repository

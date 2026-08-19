@@ -1624,6 +1624,7 @@ body.has-wallpaper .wallpaper-overlay {
   pointer-events: none;
   transition: opacity 0.15s ease;
   opacity: 0;
+  background-color: var(--bg-primary);
 }
 
 /* 背景库打开时，隐藏页面底层遮罩，透明度只调节管理弹窗外侧的遮罩。 */

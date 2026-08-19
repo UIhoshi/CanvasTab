@@ -21,7 +21,7 @@
 | `background.js` | `updatePopupState()` | Switches the toolbar between direct dashboard launch and `popup.html`. |
 | `dashboard.js` | early New Tab redirect, `loadSavedSettings()`, `setStorageItem()` | Restores and persists dashboard settings; when disabled, routes Chrome to its existing New Tab target and Edge to `about:blank` to prevent the Edge override loop. |
 | `dashboard.js` | `loadBookmarksTree()`, `renderSidebar()`, `renderItems()` | Reads Chrome bookmarks and renders the main bookmark surfaces; every visual-folder level shows a parent-navigation card before the create-folder card and remains on that folder after creation. |
-| `dashboard.js` | `setTheme()`, `selectLanguage()`, `renderThemeSelector()` | Applies and persists visual theme/language choices. |
+| `dashboard.js` | `setTheme()`, `selectLanguage()`, `renderThemeSelector()` | Applies and persists visual theme/language choices, including the drawer's selected-theme state. |
 | `dashboard.js` | `saveWallpaperManagerSettings()`, `applyBackgroundSettings()`, `nextSlide()` | Owns wallpaper-manager persistence and slideshow behavior. |
 | `dashboard.js` | `triggerWebSearch()`, `selectSearchEngine()` | Runs browser/default/custom search flows. |
 | `dashboard.js` | `setupEventListeners()`, `setupSyncListeners()`, `setupControlSurface()` | Binds dashboard DOM events, bookmark sync, and the settings drawer. |

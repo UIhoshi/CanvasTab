@@ -19,8 +19,8 @@
 | Path | Key symbols | Responsibility |
 | --- | --- | --- |
 | `background.js` | `updatePopupState()` | Switches the toolbar between direct dashboard launch and `popup.html`. |
-| `dashboard.js` | `loadSavedSettings()`, `setStorageItem()` | Restores and persists dashboard settings. |
-| `dashboard.js` | `loadBookmarksTree()`, `renderSidebar()`, `renderItems()` | Reads Chrome bookmarks and renders the main bookmark surfaces. |
+| `dashboard.js` | early New Tab redirect, `loadSavedSettings()`, `setStorageItem()` | Restores and persists dashboard settings; when disabled, routes Chrome to its existing New Tab target and Edge to `about:blank` to prevent the Edge override loop. |
+| `dashboard.js` | `loadBookmarksTree()`, `renderSidebar()`, `renderItems()` | Reads Chrome bookmarks and renders the main bookmark surfaces; every visual-folder level shows a parent-navigation card before the create-folder card and remains on that folder after creation. |
 | `dashboard.js` | `setTheme()`, `selectLanguage()`, `renderThemeSelector()` | Applies and persists visual theme/language choices. |
 | `dashboard.js` | `saveWallpaperManagerSettings()`, `applyBackgroundSettings()`, `nextSlide()` | Owns wallpaper-manager persistence and slideshow behavior. |
 | `dashboard.js` | `triggerWebSearch()`, `selectSearchEngine()` | Runs browser/default/custom search flows. |
@@ -34,7 +34,7 @@
 | Display | `theme`, `language`, `mainMode`, `viewMode`, `searchLayout`, `drawerSide`, `sidebarCollapsed` | Primarily owned by `dashboard.js`; persisted through local and Chrome storage helpers. |
 | Wallpaper | `wallpaperEnabled`, `wallpaperFit`, `wallpaperOpacity`, `customBgList`, `currentBgIndex`, `slideshowEnabled`, `slideshowMode`, `slideshowIntervalSeconds` | Managed by wallpaper-manager functions in `dashboard.js`. |
 | Search | `searchEngine`, `customSearchEngines` | Managed by search-selector functions in `dashboard.js`. |
-| New Tab state | `isNewtabDisabled`, `onboarding_completed`, `isHomepageSet` | Shared between dashboard and `background.js`; controls popup/direct-launch behavior. |
+| New Tab state | `isNewtabDisabled`, `onboarding_completed`, `isHomepageSet` | Shared between dashboard and `background.js`; controls popup/direct-launch behavior. Chrome restores its verified New Tab target; Edge uses a blank-page fallback because its native target re-enters the static override. |
 
 ## Interfaces and Validation
 
@@ -44,9 +44,9 @@
 | Chrome Storage API | Persists New Tab, theme, language, wallpaper, and search settings | Reload New Tab and extension; confirm retained values. |
 | Wallpaper manager DOM | `wp-manager-*` controls and `wp-manager-save-btn` | Follow the completed regression checklist in `NEXT_STEPS.md` after changes. |
 | Static checks | JavaScript syntax | `node --check background.js`, `node --check dashboard.js`, `node --check popup.js` |
+| Cross-browser New Tab cancellation | `isNewtabDisabled` → Chrome native target / Edge blank fallback | Reload unpacked extension; test Ctrl+T with takeover enabled and disabled in Edge and Chrome. |
 
 ## Known Gaps
 
 - Favicon error fallback still uses inline `onerror` handlers; defer its CSP-compatible fix until
   the next store release.
-- Align manifest, in-app, and release version labels in the next release.

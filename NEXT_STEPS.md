@@ -36,7 +36,7 @@ workspace until the next release is planned. Track, but do not implement, these 
 
 - Replace inline favicon `onerror` handlers with JavaScript event listeners so the fallback works
   under the Manifest V3 extension-page CSP.
-- Reconcile the manifest version, in-app version labels, and the next release tag.
+- Completed in v2.2.0: aligned the manifest version, all localized in-app version labels, and the release tag.
 - Replace the remaining system emoji strings in localized UI labels if the SVG-only design
   requirement remains in scope.
 - Decide whether to package fonts and remove the Google favicon fallback, or retain the current

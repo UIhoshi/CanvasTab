@@ -3810,6 +3810,23 @@ body[data-search-layout="google-collapse"].google-collapse-board-open .toggle-ar
   transform: translateY(-2px);
 }
 
+.back-folder-card {
+  border-color: color-mix(in srgb, var(--text-secondary) 45%, var(--border-color));
+  background: color-mix(in srgb, var(--text-secondary) 5%, transparent);
+  color: var(--text-secondary);
+}
+
+.back-folder-card:hover,
+.back-folder-card:focus-visible {
+  border-color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+  color: var(--text-primary);
+}
+
+.back-folder-card .new-folder-card-icon {
+  background: color-mix(in srgb, var(--text-secondary) 14%, transparent);
+}
+
 .new-folder-card-icon {
   width: 28px;
   height: 28px;

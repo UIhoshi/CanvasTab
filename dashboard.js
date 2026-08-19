@@ -1,9 +1,11 @@
-// 早期重定向判定：如果已配置不将此插件用作新标签页，且当前是以默认新标签形式加载（无 mode 参数，即 Ctrl+T 触发），则立刻重定向至 Chrome 原生新标签页
+// 早期重定向判定：Chrome 使用已验证的 chrome://new-tab-page/。
+// Edge 的 edge://newtab/ 会再次命中静态覆盖而形成循环，因此禁用界面时降级为 about:blank。
 (() => {
   const urlParams = new URLSearchParams(window.location.search);
   if (localStorage.getItem('isNewtabDisabled') === 'true' && !urlParams.has('mode')) {
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.update) {
-      chrome.tabs.update({ url: 'chrome://new-tab-page/' });
+      const isEdge = /Edg\//.test(navigator.userAgent);
+      chrome.tabs.update({ url: isEdge ? 'about:blank' : 'chrome://new-tab-page/' });
     }
   }
 })();
@@ -48,7 +50,7 @@ const i18n = {
     "viewIcon": "📱 Icon",
     "searchPlaceholder": "Search bookmarks, links or folders...",
     "loadingFolders": "Loading folders...",
-    "versionTag": "v1.7 | Wallpaper Slideshow",
+    "versionTag": "v2.2.0 | Wallpaper Slideshow",
     "allBookmarks": "All Bookmarks",
     "folderStatsAll": "Total of {count} bookmark links collected",
     "folderStatsFolder": "Contains {folders} folders, {links} links",
@@ -116,7 +118,7 @@ const i18n = {
     "viewIcon": "📱 图标",
     "searchPlaceholder": "搜索书签、链接或关键词...",
     "loadingFolders": "加载文件夹中...",
-    "versionTag": "v1.7 | 幻灯壁纸版",
+    "versionTag": "v2.2.0 | 幻灯壁纸版",
     "allBookmarks": "所有书签",
     "folderStatsAll": "共收录了 {count} 个网页链接",
     "folderStatsFolder": "包含 {folders} 个子目录，{links} 个网页链接",
@@ -184,7 +186,7 @@ const i18n = {
     "viewIcon": "📱 圖標",
     "searchPlaceholder": "搜尋書籤、連結或關鍵詞...",
     "loadingFolders": "載入資料夾中...",
-    "versionTag": "v1.7 | 幻燈壁紙版",
+    "versionTag": "v2.2.0 | 幻燈壁紙版",
     "allBookmarks": "所有書籤",
     "folderStatsAll": "共收錄了 {count} 個網頁連結",
     "folderStatsFolder": "包含 {folders} 個子目錄，{links} 個網頁連結",
@@ -252,7 +254,7 @@ const i18n = {
     "viewIcon": "📱 Iconos",
     "searchPlaceholder": "Buscar marcadores, enlaces o carpetas...",
     "loadingFolders": "Cargando carpetas...",
-    "versionTag": "v1.7 | Presentación de fondo",
+    "versionTag": "v2.2.0 | Presentación de fondo",
     "allBookmarks": "Todos los marcadores",
     "folderStatsAll": "Total de {count} enlaces recopilados",
     "folderStatsFolder": "Contiene {folders} carpetas, {links} enlaces",
@@ -320,7 +322,7 @@ const i18n = {
     "viewIcon": "📱 アイコン",
     "searchPlaceholder": "ブックマーク、リンク、フォルダを検索...",
     "loadingFolders": "フォルダを読み込み中...",
-    "versionTag": "v1.7 | スライドショー背景",
+    "versionTag": "v2.2.0 | スライドショー背景",
     "allBookmarks": "すべてのブックマーク",
     "folderStatsAll": "合計 {count} 個のリンクが登録されています",
     "folderStatsFolder": "内訳: {folders} フォルダ、{links} リンク",
@@ -388,7 +390,7 @@ const i18n = {
     "viewIcon": "📱 아이콘",
     "searchPlaceholder": "북마크, 링크 또는 폴더 검색...",
     "loadingFolders": "폴더 로드 중...",
-    "versionTag": "v1.7 | 슬라이드쇼 배경",
+    "versionTag": "v2.2.0 | 슬라이드쇼 배경",
     "allBookmarks": "모든 북마크",
     "folderStatsAll": "총 {count}개의 북마크 링크 수집됨",
     "folderStatsFolder": "{folders}개 폴더, {links}개 링크 포함",
@@ -456,7 +458,7 @@ const i18n = {
     "viewIcon": "📱 Icônes",
     "searchPlaceholder": "Rechercher des favoris, liens ou dossiers...",
     "loadingFolders": "Chargement des dossiers...",
-    "versionTag": "v1.7 | Diaporama",
+    "versionTag": "v2.2.0 | Diaporama",
     "allBookmarks": "Tous les signets",
     "folderStatsAll": "Total de {count} liens collectés",
     "folderStatsFolder": "Contient {folders} dossiers, {links} liens",
@@ -524,7 +526,7 @@ const i18n = {
     "viewIcon": "📱 Symbole",
     "searchPlaceholder": "Lesezeichen, Links oder Ordner suchen...",
     "loadingFolders": "Ordner werden geladen...",
-    "versionTag": "v1.7 | Hintergrund-Diashow",
+    "versionTag": "v2.2.0 | Hintergrund-Diashow",
     "allBookmarks": "Alle Lesezeichen",
     "folderStatsAll": "Insgesamt {count} Links gesammelt",
     "folderStatsFolder": "Enthält {folders} Ordner, {links} Links",
@@ -592,7 +594,7 @@ const i18n = {
     "viewIcon": "📱 Icone",
     "searchPlaceholder": "Cerca segnalibri, link o cartelle...",
     "loadingFolders": "Caricamento cartelle...",
-    "versionTag": "v1.7 | Presentazione sfondo",
+    "versionTag": "v2.2.0 | Presentazione sfondo",
     "allBookmarks": "Tutti i segnalibri",
     "folderStatsAll": "Totale di {count} collegamenti raccolti",
     "folderStatsFolder": "Contiene {folders} cartelle, {links} link",
@@ -660,7 +662,7 @@ const i18n = {
     "viewIcon": "📱 Значки",
     "searchPlaceholder": "Поиск закладок, ссылок или папок...",
     "loadingFolders": "Загрузка папок...",
-    "versionTag": "v1.7 | Слайд-шоу обоев",
+    "versionTag": "v2.2.0 | Слайд-шоу обоев",
     "allBookmarks": "Все закладки",
     "folderStatsAll": "Всего собрано {count} ссылок",
     "folderStatsFolder": "Содержит {folders} папок, {links} ссылок",
@@ -728,7 +730,7 @@ const i18n = {
     "viewIcon": "📱 Ícones",
     "searchPlaceholder": "Pesquisar favoritos, links ou pastas...",
     "loadingFolders": "Carregando pastas...",
-    "versionTag": "v1.7 | Slideshow de fundo",
+    "versionTag": "v2.2.0 | Slideshow de fundo",
     "allBookmarks": "Todos os favoritos",
     "folderStatsAll": "Total de {count} links coletados",
     "folderStatsFolder": "Contém {folders} pastas, {links} links",
@@ -796,7 +798,7 @@ const i18n = {
     "viewIcon": "📱 Pictogrammen",
     "searchPlaceholder": "Zoek bladwijzers, links of mappen...",
     "loadingFolders": "Mappen laden...",
-    "versionTag": "v1.7 | Diavoorstelling achtergrond",
+    "versionTag": "v2.2.0 | Diavoorstelling achtergrond",
     "allBookmarks": "Alle bladwijzers",
     "folderStatsAll": "Totaal {count} links verzameld",
     "folderStatsFolder": "Bevat {folders} mappen, {links} links",
@@ -864,7 +866,7 @@ const i18n = {
     "viewIcon": "📱 Ikony",
     "searchPlaceholder": "Szukaj zakładek, linków lub folderów...",
     "loadingFolders": "Ładowanie folderów...",
-    "versionTag": "v1.7 | Pokaz slajdów tapet",
+    "versionTag": "v2.2.0 | Pokaz slajdów tapet",
     "allBookmarks": "Wszystkie zakładki",
     "folderStatsAll": "Łącznie zebrano {count} linków",
     "folderStatsFolder": "Zawiera {folders} folderów, {links} linków",
@@ -932,7 +934,7 @@ const i18n = {
     "viewIcon": "📱 Simge",
     "searchPlaceholder": "Yer imlerini, bağlantıları veya klasörleri ara...",
     "loadingFolders": "Klasörler yükleniyor...",
-    "versionTag": "v1.7 | Duvar Kağıdı Slayt Gösterisi",
+    "versionTag": "v2.2.0 | Duvar Kağıdı Slayt Gösterisi",
     "allBookmarks": "Tüm Yer İmleri",
     "folderStatsAll": "Toplam {count} bağlantı toplandı",
     "folderStatsFolder": "{folders} klasör, {links} bağlantı içeriyor",
@@ -1000,7 +1002,7 @@ const i18n = {
     "viewIcon": "📱 أيقونات",
     "searchPlaceholder": "البحث عن الإشارات المرجعية، الروابط أو المجلدات...",
     "loadingFolders": "جاري تحميل المجلدات...",
-    "versionTag": "v1.7 | عرض خلفيات متسلسل",
+    "versionTag": "v2.2.0 | عرض خلفيات متسلسل",
     "allBookmarks": "جميع الإشارات المرجعية",
     "folderStatsAll": "تم جمع إجمالي {count} من الروابط",
     "folderStatsFolder": "يحتوي على {folders} مجلدات، {links} روابط",
@@ -1068,7 +1070,7 @@ const i18n = {
     "viewIcon": "📱 चिह्न",
     "searchPlaceholder": "बुकमार्क, लिंक या फ़ोल्डर खोजें...",
     "loadingFolders": "फ़ोल्डर लोड हो रहे हैं...",
-    "versionTag": "v1.7 | वॉलपेपर स्लाइड शो",
+    "versionTag": "v2.2.0 | वॉलपेपर स्लाइड शो",
     "allBookmarks": "सभी बुकमार्क",
     "folderStatsAll": "कुल {count} लिंक एकत्रित किए गए",
     "folderStatsFolder": "इसमें {folders} फ़ोल्डर, {links} लिंक शामिल हैं",
@@ -1136,7 +1138,7 @@ const i18n = {
     "viewIcon": "📱 ไอคอน",
     "searchPlaceholder": "ค้นหาบุ๊กมาร์ก ลิงก์ หรือโฟลเดอร์...",
     "loadingFolders": "กำลังโหลดโฟลเดอร์...",
-    "versionTag": "v1.7 | สไลด์โชว์พื้นหลัง",
+    "versionTag": "v2.2.0 | สไลด์โชว์พื้นหลัง",
     "allBookmarks": "บุ๊กมาร์กทั้งหมด",
     "folderStatsAll": "รวบรวมลิงก์ทั้งหมด {count} รายการ",
     "folderStatsFolder": "มี {folders} โฟลเดอร์, {links} ลิงก์",
@@ -1204,7 +1206,7 @@ const i18n = {
     "viewIcon": "📱 Biểu tượng",
     "searchPlaceholder": "Tìm kiếm dấu trang, liên kết hoặc thư mục...",
     "loadingFolders": "Đang tải thư mục...",
-    "versionTag": "v1.7 | Trình chiếu hình nền",
+    "versionTag": "v2.2.0 | Trình chiếu hình nền",
     "allBookmarks": "Tất cả dấu trang",
     "folderStatsAll": "Tổng cộng thu thập {count} liên kết",
     "folderStatsFolder": "Chứa {folders} thư mục, {links} liên kết",
@@ -1272,7 +1274,7 @@ const i18n = {
     "viewIcon": "📱 Ikon",
     "searchPlaceholder": "Cari markah, tautan, atau folder...",
     "loadingFolders": "Memuat folder...",
-    "versionTag": "v1.7 | Slideshow Latar Belakang",
+    "versionTag": "v2.2.0 | Slideshow Latar Belakang",
     "allBookmarks": "Semua Markah",
     "folderStatsAll": "Total {count} tautan terkumpul",
     "folderStatsFolder": "Berisi {folders} folder, {links} tautan",
@@ -1340,7 +1342,7 @@ const i18n = {
     "viewIcon": "📱 Ikon",
     "searchPlaceholder": "Cari penanda buku, pautan, atau folder...",
     "loadingFolders": "Memuatkan folder...",
-    "versionTag": "v1.7 | Tayangan Slaid Latar Belakang",
+    "versionTag": "v2.2.0 | Tayangan Slaid Latar Belakang",
     "allBookmarks": "Semua Penanda Buku",
     "folderStatsAll": "Jumlah {count} pautan dikumpulkan",
     "folderStatsFolder": "Mengandungi {folders} folder, {links} pautan",
@@ -1408,7 +1410,7 @@ const i18n = {
     "viewIcon": "📱 Ikoner",
     "searchPlaceholder": "Sök efter bokmärken, länkar eller mappar...",
     "loadingFolders": "Laddar mappar...",
-    "versionTag": "v1.7 | Bakgrundsbilder bildspel",
+    "versionTag": "v2.2.0 | Bakgrundsbilder bildspel",
     "allBookmarks": "Alla bokmärken",
     "folderStatsAll": "Totalt {count} bokmärkeslänkar samlade",
     "folderStatsFolder": "Innehåller {folders} mappar, {links} länkar",
@@ -1476,7 +1478,7 @@ const i18n = {
     "viewIcon": "📱 Ikoner",
     "searchPlaceholder": "Søk etter bokmerker, lenker eller mapper...",
     "loadingFolders": "Laster mapper...",
-    "versionTag": "v1.7 | Bakgrunnsbilde lysbildefremvisning",
+    "versionTag": "v2.2.0 | Bakgrunnsbilde lysbildefremvisning",
     "allBookmarks": "Alle bokmerker",
     "folderStatsAll": "Totalt {count} bokmerkelenker samlet",
     "folderStatsFolder": "Innehåller {folders} mapper, {links} lenker",
@@ -1544,7 +1546,7 @@ const i18n = {
     "viewIcon": "📱 Ikoner",
     "searchPlaceholder": "Søg i bogmærker, links eller mapper...",
     "loadingFolders": "Indlæser mapper...",
-    "versionTag": "v1.7 | Baggrunds-diasshow",
+    "versionTag": "v2.2.0 | Baggrunds-diasshow",
     "allBookmarks": "Alle bogmærker",
     "folderStatsAll": "I alt {count} bogmærkelinks indsamlet",
     "folderStatsFolder": "Indeholder {folders} mapper, {links} links",
@@ -1612,7 +1614,7 @@ const i18n = {
     "viewIcon": "📱 Kuvakkeet",
     "searchPlaceholder": "Etsi kirjanmerkkejä, linkkejä tai kansioita...",
     "loadingFolders": "Ladataan kansioita...",
-    "versionTag": "v1.7 | Taustakuvan diaesitys",
+    "versionTag": "v2.2.0 | Taustakuvan diaesitys",
     "allBookmarks": "Kaikki kirjanmerkit",
     "folderStatsAll": "Yhteensä {count} kirjanmerkkilinkkiä kerätty",
     "folderStatsFolder": "Sisältää {folders} kansiota, {links} linkkiä",
@@ -1680,7 +1682,7 @@ const i18n = {
     "viewIcon": "📱 Ikony",
     "searchPlaceholder": "Hledat záložky, odkazy nebo složky...",
     "loadingFolders": "Načítání složek...",
-    "versionTag": "v1.7 | Prezentace tapet",
+    "versionTag": "v2.2.0 | Prezentace tapet",
     "allBookmarks": "Všechny záložky",
     "folderStatsAll": "Celkem shromážděno {count} odkazů záložek",
     "folderStatsFolder": "Obsahuje {folders} složek, {links} odkazů",
@@ -1748,7 +1750,7 @@ const i18n = {
     "viewIcon": "📱 Εικονίδια",
     "searchPlaceholder": "Αναζήτηση σελιδοδεικτών, συνδέσμων ή φακέλων...",
     "loadingFolders": "Φόρτωση φακέλων...",
-    "versionTag": "v1.7 | Παρουσίαση φόντου",
+    "versionTag": "v2.2.0 | Παρουσίαση φόντου",
     "allBookmarks": "Όλοι οι σελιδοδείκτες",
     "folderStatsAll": "Συνολικά συλλέχθηκαν {count} σύνδεσμοι σελιδοδεικτών",
     "folderStatsFolder": "Περιέχει {folders} φακέλους, {links} συνδέσμους",
@@ -1816,7 +1818,7 @@ const i18n = {
     "viewIcon": "📱 סמלים",
     "searchPlaceholder": "חיפוש סימניות, קישורים או תיקיות...",
     "loadingFolders": "טוען תיקיות...",
-    "versionTag": "v1.7 | מצגת רקעים",
+    "versionTag": "v2.2.0 | מצגת רקעים",
     "allBookmarks": "כל הסימניות",
     "folderStatsAll": "סך הכל נאספו {count} קישורי סימניות",
     "folderStatsFolder": "מכיל {folders} תיקיות, {links} קישורים",
@@ -1884,7 +1886,7 @@ const i18n = {
     "viewIcon": "📱 Ikonok",
     "searchPlaceholder": "Könyvjelzők, linkek vagy mappák keresése...",
     "loadingFolders": "Mappák betöltése...",
-    "versionTag": "v1.7 | Háttérkép diavetítés",
+    "versionTag": "v2.2.0 | Háttérkép diavetítés",
     "allBookmarks": "Összes könyvjelző",
     "folderStatsAll": "Összesen {count} könyvjelző link összegyűjtve",
     "folderStatsFolder": "{folders} mappát, {links} linket tartalmaz",
@@ -1952,7 +1954,7 @@ const i18n = {
     "viewIcon": "📱 Pictograme",
     "searchPlaceholder": "Caută semne de carte, linkuri sau dosare...",
     "loadingFolders": "Se încarcă dosarele...",
-    "versionTag": "v1.7 | Prezentare imagini de fundal",
+    "versionTag": "v2.2.0 | Prezentare imagini de fundal",
     "allBookmarks": "Toate semnele de carte",
     "folderStatsAll": "Total de {count} linkuri colectate",
     "folderStatsFolder": "Conține {folders} dosare, {links} linkuri",
@@ -2020,7 +2022,7 @@ const i18n = {
     "viewIcon": "📱 Значки",
     "searchPlaceholder": "Пошук закладок, посилань або папок...",
     "loadingFolders": "Завантаження папок...",
-    "versionTag": "v1.7 | Слайд-шоу шпалер",
+    "versionTag": "v2.2.0 | Слайд-шоу шпалер",
     "allBookmarks": "Усі закладки",
     "folderStatsAll": "Всього зібрано {count} посилань",
     "folderStatsFolder": "Містить {folders} папок, {links} посилань",
@@ -2772,11 +2774,12 @@ function loadBookmarksTree() {
     if (isOtherBookmarksFolder(activeFolderId)) activeFolderId = '1';
 
     renderSidebar();
-    refreshMainView();
 
     const modalOverlay = document.getElementById('folder-modal-overlay');
     if (modalOverlay && modalOverlay.classList.contains('active') && modalActiveFolderId) {
       loadModalFolderContent(modalActiveFolderId);
+    } else {
+      refreshMainView();
     }
   });
 }
@@ -3307,9 +3310,33 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
     return;
   }
 
-  const animationOffset = isSearching ? 0 : 1;
+  const showVisualBackCard = !isSearching &&
+    targetContainerId === 'modal-cards-grid' &&
+    currentMode === 'visual' &&
+    modalActiveFolderId;
+  const animationOffset = isSearching ? 0 : (showVisualBackCard ? 2 : 1);
 
-  // 1. 如果非搜索状态，在每一层首位追加“新建文件夹”卡片
+  // Every visual-folder level keeps navigation in its card grid: put it before creation.
+  if (showVisualBackCard) {
+    const backFolderCard = document.createElement('button');
+    backFolderCard.type = 'button';
+    backFolderCard.className = 'new-folder-card back-folder-card';
+    backFolderCard.setAttribute('aria-label', i18n[currentLang].tooltipBack);
+    backFolderCard.innerHTML = `
+      <div class="new-folder-card-icon">${SVGS.back}</div>
+      <div class="new-folder-card-label">${i18n[currentLang].tooltipBack}</div>
+    `;
+    backFolderCard.addEventListener('click', () => {
+      if (modalActiveFolderId === modalRootFolderId) {
+        closeFolderModal();
+      } else {
+        handleModalBack();
+      }
+    });
+    grid.appendChild(backFolderCard);
+  }
+
+  // 1. 如果非搜索状态，在导航卡片后追加“新建文件夹”卡片
   if (!isSearching) {
     const newFolderCard = document.createElement('div');
     newFolderCard.className = 'new-folder-card';
@@ -3327,14 +3354,17 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
       } else {
         parentId = '1';
       }
+
+      // A visual folder is rendered inside the modal. Create directly in that modal's
+      // active folder instead of routing through the root-level global action.
+      if (targetContainerId === 'modal-cards-grid') {
+        handleCreateSubfolder(parentId);
+        return;
+      }
       
       const addGlobalBtn = document.getElementById('add-folder-global-btn');
       if (addGlobalBtn) {
-        if (targetContainerId === 'modal-cards-grid') {
-          modalActiveFolderId = parentId;
-        } else {
-          activeFolderId = parentId;
-        }
+        activeFolderId = parentId;
         addGlobalBtn.click();
       }
     });
@@ -3629,7 +3659,12 @@ function handleCreateSubfolder(parentFolderId) {
       foldersCache[newId] = [];
       bookmarksCache[newId] = [];
       renderSidebar();
-      refreshMainView();
+      const modalOverlay = document.getElementById('folder-modal-overlay');
+      if (modalOverlay && modalOverlay.classList.contains('active') && modalActiveFolderId) {
+        loadModalFolderContent(modalActiveFolderId);
+      } else {
+        refreshMainView();
+      }
     }
   }
 }
@@ -4846,14 +4881,19 @@ function setupEventListeners() {
     addGlobalBtn.addEventListener('click', () => {
       let parentId = '1';
       if (currentMode === 'visual') {
-        const rootFoldersList = allFolders.filter(folder => 
-          folder.parentId === '0' || 
-          folder.parentId === 'root' || 
-          !allFolders.some(f => f.id === folder.parentId)
-        );
-        if (rootFoldersList.length > 0) {
-          const bookmarkBar = rootFoldersList.find(f => f.id === '1');
-          parentId = bookmarkBar ? bookmarkBar.id : rootFoldersList[0].id;
+        const modalOverlay = document.getElementById('folder-modal-overlay');
+        if (modalOverlay?.classList.contains('active') && modalActiveFolderId) {
+          parentId = modalActiveFolderId;
+        } else {
+          const rootFoldersList = allFolders.filter(folder =>
+            folder.parentId === '0' ||
+            folder.parentId === 'root' ||
+            !allFolders.some(f => f.id === folder.parentId)
+          );
+          if (rootFoldersList.length > 0) {
+            const bookmarkBar = rootFoldersList.find(f => f.id === '1');
+            parentId = bookmarkBar ? bookmarkBar.id : rootFoldersList[0].id;
+          }
         }
       } else {
         if (activeFolderId && activeFolderId !== 'all') {
@@ -5015,7 +5055,10 @@ function setupEventListeners() {
       setStorageItem('onboarding_completed', 'true');
       setStorageItem('isNewtabDisabled', 'true');
       checkNewtabVisibility();
-      alert(currentLang.startsWith('zh') ? '已设定为使用浏览器默认新标签页。后续可在控制中心修改。' : 'Set to use system default New Tab page. You can change this later in settings.');
+      const isEdge = /Edg\//.test(navigator.userAgent);
+      alert(isEdge
+        ? (currentLang.startsWith('zh') ? '已停用 CanvasTab 新标签页界面。Edge 新标签页将显示为空白页。' : 'CanvasTab New Tab is disabled. Edge new tabs will open as blank pages.')
+        : (currentLang.startsWith('zh') ? '已设定为使用浏览器默认新标签页。后续可在控制中心修改。' : 'Set to use system default New Tab page. You can change this later in settings.'));
       if (onboardingOverlay) onboardingOverlay.classList.remove('active');
     });
   }
@@ -5032,9 +5075,10 @@ function setupEventListeners() {
     } else {
       setStorageItem('isNewtabDisabled', 'true');
       checkNewtabVisibility();
-      alert(currentLang.startsWith('zh')
-        ? '已取消接管，已恢复浏览器默认新标签页。在新开标签页时生效。'
-        : 'New Tab override disabled. System default New Tab page restored.');
+      const isEdge = /Edg\//.test(navigator.userAgent);
+      alert(isEdge
+        ? (currentLang.startsWith('zh') ? '已停用 CanvasTab 新标签页界面。Edge 新标签页将显示为空白页。' : 'CanvasTab New Tab is disabled. Edge new tabs will open as blank pages.')
+        : (currentLang.startsWith('zh') ? '已取消接管，已恢复浏览器默认新标签页。在新开标签页时生效。' : 'New Tab override disabled. System default New Tab page restored.'));
     }
   };
 

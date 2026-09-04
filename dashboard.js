@@ -2248,6 +2248,7 @@ let expandedFolderIds = new Set(['1', '2']); // 缓存树形文件夹的展开�
 let viewMode = 'card'; // 'card' | 'list' | 'icon'
 let currentMode = ''; // 'manage' | 'visual' (极简管理 vs 无界视觉)
 let theme = 'dark'; // 'dark' | 'light' | 'aurora' (配色主题)
+let autoThemeRefreshTimer = null;
 
 // 背景壁纸与幻灯片控制变量
 let wallpaperEnabled = false;
@@ -2276,6 +2277,10 @@ let customEngines = [];
 let modalRootFolderId = null;
 let modalActiveFolderId = null;
 let contextMenuFolderId = null;
+let visualContextTarget = null;
+const selectedVisualItemKeys = new Set();
+let bookmarkMutationInProgress = false;
+let isBatchSelectionMode = false;
 
 // 拖拽悬停触发弹窗/导航的定时器 (Spring-loaded Folders)
 let dragHoverTimer = null;
@@ -2723,6 +2728,9 @@ function loadSavedSettings() {
   renderSearchEngineSelector();
 
   applyBackgroundSettings();
+  // setupEventListeners runs before this persisted-state restore. Re-sync so the
+  // first time the drawer is opened it reflects the actual saved modes.
+  syncDrawerControls();
 }
 
 // 初始化应用
@@ -2779,7 +2787,9 @@ function loadBookmarksTree() {
     if (modalOverlay && modalOverlay.classList.contains('active') && modalActiveFolderId) {
       loadModalFolderContent(modalActiveFolderId);
     } else {
-      refreshMainView();
+      // A bookmark refresh is not folder navigation: retain an active batch
+      // session when its current card surface is refreshed.
+      refreshMainView(true);
     }
   });
 }
@@ -3076,7 +3086,14 @@ function expandToFolder(folderId) {
 
 // ================= 主运行模式切换 =================
 function setMainMode(mode) {
-  if (currentMode === mode) return;
+  if (!['manage', 'visual'].includes(mode)) mode = 'manage';
+  if (currentMode === mode) {
+    document.querySelectorAll('#drawer-mode-switcher .drawer-opt-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+    return;
+  }
+  clearBatchSelectionForNavigation();
   currentMode = mode;
   localStorage.setItem('mainMode', mode);
 
@@ -3086,6 +3103,9 @@ function setMainMode(mode) {
     } else {
       btn.classList.remove('active');
     }
+  });
+  document.querySelectorAll('#drawer-mode-switcher .drawer-opt-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
   });
 
   const sidebar = document.getElementById('sidebar');
@@ -3100,11 +3120,11 @@ function setMainMode(mode) {
   }
 }
 
-function refreshMainView() {
+function refreshMainView(preserveBatchSelection = false) {
   if (currentMode === 'visual') {
     loadVisualRootLayer();
   } else {
-    selectFolder(activeFolderId || '1');
+    selectFolder(activeFolderId || '1', false, preserveBatchSelection);
   }
 }
 
@@ -3144,7 +3164,8 @@ function loadVisualRootLayer() {
 }
 
 // 选中具体目录
-function selectFolder(id, fromSidebar = false) {
+function selectFolder(id, fromSidebar = false, preserveBatchSelection = false) {
+  if (!preserveBatchSelection) clearBatchSelectionForNavigation();
   activeFolderId = id;
   
   if (id) {
@@ -3299,6 +3320,11 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
   const googleSearchInput = document.getElementById('google-search-input');
   const isSearching = (searchInput && searchInput.value.trim() !== '') || 
                       (googleSearchInput && googleSearchInput.value.trim() !== '');
+  const isVisualManagementSurface = currentMode === 'visual' &&
+    (targetContainerId === 'cards-grid' || targetContainerId === 'modal-cards-grid');
+  const isBatchManagementSurface = targetContainerId === 'cards-grid' ||
+    (currentMode === 'visual' && targetContainerId === 'modal-cards-grid');
+  renderBatchModeToolbar(grid, targetContainerId, isBatchManagementSurface);
 
   if (isSearching && subFolders.length === 0 && bookmarks.length === 0) {
     grid.innerHTML = `
@@ -3382,7 +3408,8 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
     const subItemCount = (foldersCache[folder.id] || []).length + (bookmarksCache[folder.id] || []).length;
     const textBadge = i18n[currentLang].folderCardCount.replace('{count}', subItemCount);
 
-    const isSystemFolder = folder.id === '0' || folder.id === '1' || folder.id === '2' || folder.id === '3' || folder.parentId === '0' || folder.parentId === 'root';
+    const isSystemFolder = isSystemFolderNode(folder);
+    const isSelected = selectedVisualItemKeys.has(getVisualItemKey('folder', folder.id));
 
     card.innerHTML = `
       <div class="card-actions" style="position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s ease; z-index: 10;">
@@ -3393,11 +3420,14 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
         <button class="card-action-btn rename-folder-btn" title="${currentLang.startsWith('zh') ? '重命名文件夹' : 'Rename Folder'}" data-id="${folder.id}">
           <svg style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
-        <button class="card-action-btn delete-folder-btn" title="${currentLang.startsWith('zh') ? '删除此文件夹' : 'Delete Folder'}" data-id="${folder.id}">
-          <svg style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-        </button>
+        ${!isVisualManagementSurface ? `
+          <button class="card-action-btn delete-folder-btn" title="${currentLang.startsWith('zh') ? '删除此文件夹' : 'Delete Folder'}" data-id="${folder.id}">
+            <svg style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2 2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        ` : ''}
         ` : ''}
       </div>
+      ${(isVisualManagementSurface || (isBatchSelectionMode && isBatchManagementSurface)) && !isSystemFolder ? `<span class="visual-selection-marker ${isSelected ? 'is-selected' : ''}" aria-hidden="true">${SVGS.check}</span>${isVisualManagementSurface ? `<button class="visual-delete-corner" type="button" title="${currentLang.startsWith('zh') ? '删除此文件夹' : 'Delete folder'}" aria-label="${currentLang.startsWith('zh') ? '删除此文件夹' : 'Delete folder'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2 2V6m3 0V4a2 2 0 0 1 2 2v2"/></svg></button>` : ''}` : ''}
       <div class="card-top">
         <div class="favicon-wrapper">
           <span class="favicon-fallback">${SVGS.folder}</span>
@@ -3465,9 +3495,13 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
 
     card.addEventListener('click', (e) => {
       // 排除点击动作按钮
-      if (e.target.closest('.card-action-btn')) return;
+      if (e.target.closest('.card-action-btn, .visual-delete-corner')) return;
 
       e.preventDefault();
+      if (isBatchSelectionMode && isBatchManagementSurface && !isSystemFolder) {
+        toggleVisualItemSelection('folder', folder.id);
+        return;
+      }
       if (targetContainerId === 'modal-cards-grid') {
         navigateInsideModal(folder.id, folder.title);
       } else {
@@ -3480,14 +3514,35 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
     });
 
     grid.appendChild(card);
-  });
 
+    if (isVisualManagementSurface) {
+      card.classList.toggle('is-visual-selected', isSelected);
+      card.classList.add('visual-management-card');
+      card.classList.toggle('is-batch-selectable', isBatchSelectionMode);
+      card.querySelector('.visual-delete-corner').addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        handleDeleteVisualFolder(folder.id);
+      });
+      card.addEventListener('contextmenu', event => showVisualContextMenu(event, {
+        type: 'folder', id: folder.id, title: folder.title
+      }));
+    } else if (isBatchSelectionMode && isBatchManagementSurface && !isSystemFolder) {
+      card.classList.toggle('is-visual-selected', isSelected);
+      card.classList.add('visual-management-card');
+      card.classList.add('is-batch-selectable');
+    }
+  });
   // 3. 渲染网页书签
   bookmarks.forEach((bookmark, index) => {
-    const card = document.createElement('a');
+    const isManagedBookmarkSurface = isVisualManagementSurface ||
+      (isBatchSelectionMode && isBatchManagementSurface);
+    const card = document.createElement(isManagedBookmarkSurface ? 'div' : 'a');
     card.className = 'bookmark-card';
-    card.href = bookmark.url;
-    card.target = '_blank';
+    if (!isManagedBookmarkSurface) {
+      card.href = bookmark.url;
+      card.target = '_blank';
+    }
     card.title = bookmark.title;
     card.style.animationDelay = `${(subFolders.length + index + animationOffset) * 20}ms`;
 
@@ -3518,7 +3573,8 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
 
     const initial = bookmark.title ? bookmark.title.charAt(0).toUpperCase() : '?';
 
-    card.innerHTML = `
+    const isSelected = selectedVisualItemKeys.has(getVisualItemKey('bookmark', bookmark.id));
+    const bookmarkCardContent = `
       <div class="card-top">
         <div class="favicon-wrapper">
           <img class="favicon-img" src="${faviconUrl}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" alt="">
@@ -3529,7 +3585,41 @@ function renderItems(subFolders, bookmarks, targetContainerId = 'cards-grid') {
       <div class="card-bottom">${escapeHtml(hostname)}</div>
     `;
 
-    card.addEventListener('click', () => recordRecentVisit(bookmark));
+    card.innerHTML = isManagedBookmarkSurface
+      ? `<a class="visual-bookmark-link" href="${escapeHtml(bookmark.url)}" target="_blank" rel="noopener">${bookmarkCardContent}</a><span class="visual-selection-marker ${isSelected ? 'is-selected' : ''}" aria-hidden="true">${SVGS.check}</span>${isVisualManagementSurface ? `<button class="visual-delete-corner" type="button" title="${currentLang.startsWith('zh') ? '删除此链接' : 'Delete link'}" aria-label="${currentLang.startsWith('zh') ? '删除此链接' : 'Delete link'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2 2V6m3 0V4a2 2 0 0 1 2 2v2"/></svg></button>` : ''}`
+      : bookmarkCardContent;
+
+    if (isVisualManagementSurface) {
+      card.classList.toggle('is-visual-selected', isSelected);
+      card.classList.add('visual-management-card');
+      card.classList.toggle('is-batch-selectable', isBatchSelectionMode);
+      card.querySelector('.visual-bookmark-link').addEventListener('click', event => {
+        if (isBatchSelectionMode && isBatchManagementSurface) {
+          event.preventDefault();
+          toggleVisualItemSelection('bookmark', bookmark.id);
+          return;
+        }
+        recordRecentVisit(bookmark);
+      });
+      card.querySelector('.visual-delete-corner').addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        handleDeleteBookmark(bookmark.id);
+      });
+      card.addEventListener('contextmenu', event => showVisualContextMenu(event, {
+        type: 'bookmark', id: bookmark.id, title: bookmark.title
+      }));
+    } else if (isBatchSelectionMode && isBatchManagementSurface) {
+      card.classList.toggle('is-visual-selected', isSelected);
+      card.classList.add('visual-management-card');
+      card.classList.add('is-batch-selectable');
+      card.querySelector('.visual-bookmark-link').addEventListener('click', event => {
+        event.preventDefault();
+        toggleVisualItemSelection('bookmark', bookmark.id);
+      });
+    } else {
+      card.addEventListener('click', () => recordRecentVisit(bookmark));
+    }
 
     grid.appendChild(card);
   });
@@ -3554,6 +3644,130 @@ function isDescendant(parentId, childId) {
     temp = allFolders.find(f => f.id === temp.parentId);
   }
   return false;
+}
+
+function isSystemFolderNode(folder) {
+  return !folder || folder.id === '0' || folder.id === '1' || folder.id === '2' || folder.id === '3' ||
+    folder.parentId === '0' || folder.parentId === 'root';
+}
+
+function getVisualItemKey(type, id) {
+  return `${type}:${id}`;
+}
+
+function getBookmarkById(bookmarkId) {
+  for (const [parentId, bookmarks] of Object.entries(bookmarksCache)) {
+    if (parentId === 'all') continue;
+    const bookmark = bookmarks.find(item => item.id === bookmarkId);
+    if (bookmark) return { ...bookmark, parentId };
+  }
+  return null;
+}
+
+function getVisualTarget(type, id) {
+  if (type === 'folder') {
+    const folder = getFolderById(id);
+    return folder && !isSystemFolderNode(folder) ? { type, id, item: folder } : null;
+  }
+  const bookmark = getBookmarkById(id);
+  return bookmark ? { type, id, item: bookmark } : null;
+}
+
+function clearBatchSelectionForNavigation() {
+  isBatchSelectionMode = false;
+  selectedVisualItemKeys.clear();
+}
+
+function refreshVisualManagementSurface() {
+  const modalOverlay = document.getElementById('folder-modal-overlay');
+  if (modalOverlay?.classList.contains('active') && modalActiveFolderId) {
+    loadModalFolderContent(modalActiveFolderId);
+  } else if (currentMode === 'visual') {
+    loadVisualRootLayer();
+  } else {
+    selectFolder(activeFolderId || '1', false, true);
+  }
+}
+
+function toggleVisualItemSelection(type, id) {
+  const target = getVisualTarget(type, id);
+  if (!target) return;
+  const key = getVisualItemKey(type, id);
+  if (selectedVisualItemKeys.has(key)) selectedVisualItemKeys.delete(key);
+  else selectedVisualItemKeys.add(key);
+  refreshVisualManagementSurface();
+}
+
+function enterBatchSelection() {
+  isBatchSelectionMode = true;
+  refreshVisualManagementSurface();
+}
+
+function exitBatchSelection() {
+  clearBatchSelectionForNavigation();
+  refreshVisualManagementSurface();
+}
+
+function renderBatchModeToolbar(grid, targetContainerId, isBatchManagementSurface) {
+  const toolbarId = `batch-mode-toolbar-${targetContainerId}`;
+  const previousToolbar = document.getElementById(toolbarId);
+  if (!isBatchManagementSurface) {
+    previousToolbar?.remove();
+    return;
+  }
+
+  const toolbar = previousToolbar || document.createElement('div');
+  toolbar.id = toolbarId;
+  toolbar.className = `batch-mode-toolbar ${isBatchSelectionMode ? 'is-active' : ''}`;
+  const selectedCount = getNormalizedVisualSelection().length;
+  const isZh = currentLang.startsWith('zh');
+  toolbar.innerHTML = isBatchSelectionMode
+    ? `<span>${isZh ? `批量删除已启用：已选 ${selectedCount} 项` : `Batch delete enabled: ${selectedCount} selected`}</span><div><button type="button" data-batch-mode-action="delete" ${selectedCount ? '' : 'disabled'}>${isZh ? '删除已选' : 'Delete selected'}</button><button type="button" data-batch-mode-action="exit">${isZh ? '退出批量' : 'Exit batch'}</button></div>`
+    : `<span>${isZh ? '批量删除模式' : 'Batch delete mode'}</span><button type="button" data-batch-mode-action="enter">${isZh ? '启用批量' : 'Enable batch'}</button>`;
+  if (!previousToolbar) grid.before(toolbar);
+  toolbar.onclick = event => {
+    const action = event.target.closest('[data-batch-mode-action]')?.dataset.batchModeAction;
+    if (action === 'enter') enterBatchSelection();
+    if (action === 'exit') exitBatchSelection();
+    if (action === 'delete') handleDeleteSelectedVisualItems();
+  };
+}
+
+function getNormalizedVisualSelection() {
+  const rawTargets = Array.from(selectedVisualItemKeys)
+    .map(key => {
+      const [type, id] = key.split(':');
+      return getVisualTarget(type, id);
+    })
+    .filter(Boolean);
+  const folderIds = new Set(rawTargets.filter(target => target.type === 'folder').map(target => target.id));
+  const keptFolderIds = new Set(Array.from(folderIds).filter(folderId => {
+    let current = getFolderById(folderId);
+    while (current?.parentId) {
+      if (folderIds.has(current.parentId)) return false;
+      current = getFolderById(current.parentId);
+    }
+    return true;
+  }));
+  return rawTargets.filter(target => {
+    if (target.type === 'folder') return keptFolderIds.has(target.id);
+    let current = getFolderById(target.item.parentId);
+    while (current) {
+      if (keptFolderIds.has(current.id)) return false;
+      current = getFolderById(current.parentId);
+    }
+    return true;
+  });
+}
+
+function getFolderTreeImpact(folderId, visited = new Set()) {
+  if (visited.has(folderId)) return { folders: 0, bookmarks: 0 };
+  visited.add(folderId);
+  const childImpact = (foldersCache[folderId] || []).reduce((total, child) => {
+    const impact = getFolderTreeImpact(child.id, visited);
+    return { folders: total.folders + impact.folders, bookmarks: total.bookmarks + impact.bookmarks };
+  }, { folders: 1, bookmarks: (bookmarksCache[folderId] || []).length });
+  return childImpact;
 }
 
 function getFolderById(folderId) {
@@ -3626,6 +3840,89 @@ function handleDeleteFolder(folderId) {
       refreshMainView();
     }
   }
+}
+
+function handleDeleteVisualFolder(folderId) {
+  const target = getVisualTarget('folder', folderId);
+  if (target) requestVisualDeletion([target]);
+}
+
+function handleDeleteBookmark(bookmarkId) {
+  const target = getVisualTarget('bookmark', bookmarkId);
+  if (target) requestVisualDeletion([target]);
+}
+
+function requestVisualDeletion(targets) {
+  if (!targets.length) return;
+
+  const impact = targets.reduce((total, target) => {
+    if (target.type === 'bookmark') return { folders: total.folders, bookmarks: total.bookmarks + 1 };
+    const folderImpact = getFolderTreeImpact(target.id);
+    return {
+      folders: total.folders + folderImpact.folders,
+      bookmarks: total.bookmarks + folderImpact.bookmarks
+    };
+  }, { folders: 0, bookmarks: 0 });
+  const itemCount = impact.folders + impact.bookmarks;
+  const isZh = currentLang.startsWith('zh');
+  const message = isZh
+    ? `确定永久删除 ${impact.folders} 个文件夹和 ${impact.bookmarks} 个链接（共 ${itemCount} 项）吗？`
+    : `Permanently delete ${impact.folders} folders and ${impact.bookmarks} links (${itemCount} items total)?`;
+  if (!confirm(message)) return;
+
+  bookmarkMutationInProgress = true;
+  let remaining = targets.length;
+  const complete = () => {
+    remaining -= 1;
+    if (remaining > 0) return;
+    selectedVisualItemKeys.clear();
+    bookmarkMutationInProgress = false;
+    if (typeof chrome !== 'undefined' && chrome.bookmarks) loadBookmarksTree();
+    else refreshVisualManagementSurface();
+  };
+
+  targets.forEach(target => {
+    if (typeof chrome !== 'undefined' && chrome.bookmarks) {
+      if (target.type === 'folder') chrome.bookmarks.removeTree(target.id, complete);
+      else chrome.bookmarks.remove(target.id, complete);
+      return;
+    }
+    if (target.type === 'folder') removeMockFolderTree(target.id);
+    else removeMockBookmark(target.id);
+    complete();
+  });
+}
+
+function removeMockBookmark(bookmarkId) {
+  Object.keys(bookmarksCache).forEach(parentId => {
+    if (parentId !== 'all') {
+      bookmarksCache[parentId] = bookmarksCache[parentId].filter(bookmark => bookmark.id !== bookmarkId);
+    }
+  });
+  bookmarksCache.all = getAllFlatBookmarks();
+}
+
+function removeMockFolderTree(folderId) {
+  const folderIds = new Set();
+  const collect = id => {
+    if (folderIds.has(id)) return;
+    folderIds.add(id);
+    (foldersCache[id] || []).forEach(child => collect(child.id));
+  };
+  collect(folderId);
+  allFolders = allFolders.filter(folder => !folderIds.has(folder.id));
+  Object.keys(foldersCache).forEach(parentId => {
+    foldersCache[parentId] = (foldersCache[parentId] || []).filter(folder => !folderIds.has(folder.id));
+    if (folderIds.has(parentId)) delete foldersCache[parentId];
+  });
+  Object.keys(bookmarksCache).forEach(parentId => {
+    if (folderIds.has(parentId)) delete bookmarksCache[parentId];
+  });
+  bookmarksCache.all = getAllFlatBookmarks();
+}
+
+function handleDeleteSelectedVisualItems() {
+  requestVisualDeletion(getNormalizedVisualSelection());
 }
 
 // 创建文件夹
@@ -3712,14 +4009,32 @@ function moveBookmark(bookmarkId, targetFolderId) {
 // ================= 主题控制 (性能优化：瞬间秒切消除卡顿) =================
 function setTheme(newTheme) {
   theme = newTheme;
+  if (autoThemeRefreshTimer) {
+    clearTimeout(autoThemeRefreshTimer);
+    autoThemeRefreshTimer = null;
+  }
 
   // 【性能调优】：临时挂载禁用 transition 的类，消除百余张卡片背景/阴影/边框渐变动画造成的严重卡顿
   document.body.classList.add('disable-transitions');
   
   let appliedTheme = newTheme;
   if (newTheme === 'auto') {
-    const hour = new Date().getHours();
+    const now = new Date();
+    const hour = now.getHours();
     appliedTheme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
+
+    // Auto is a real day/night mode, not a one-time decision made at load.
+    // Re-evaluate at the next 06:00 or 18:00 boundary in the browser's locale.
+    const nextBoundary = new Date(now);
+    if (hour < 6) {
+      nextBoundary.setHours(6, 0, 0, 0);
+    } else if (hour < 18) {
+      nextBoundary.setHours(18, 0, 0, 0);
+    } else {
+      nextBoundary.setDate(nextBoundary.getDate() + 1);
+      nextBoundary.setHours(6, 0, 0, 0);
+    }
+    autoThemeRefreshTimer = setTimeout(() => setTheme('auto'), Math.max(1000, nextBoundary - now));
   }
   
   document.body.setAttribute('data-theme', appliedTheme);
@@ -4485,12 +4800,16 @@ function showImageLightbox(imgSrc) {
 
 // ================= 视图模式控制 =================
 function setViewMode(mode) {
+  if (!['card', 'list', 'icon'].includes(mode)) mode = 'card';
   viewMode = mode;
   localStorage.setItem('viewMode', mode);
 
   // 1. 更新按钮高亮
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  document.querySelectorAll('#drawer-view-switcher .drawer-opt-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === mode);
   });
 
   const grid = document.getElementById('cards-grid');
@@ -4517,6 +4836,7 @@ function setViewMode(mode) {
 
 // ================= 弹窗管理 =================
 function openFolderModal(folderId, folderTitle) {
+  clearBatchSelectionForNavigation();
   modalRootFolderId = folderId;
   modalActiveFolderId = folderId;
 
@@ -4533,6 +4853,7 @@ function openFolderModal(folderId, folderTitle) {
 }
 
 function navigateInsideModal(folderId, folderTitle) {
+  clearBatchSelectionForNavigation();
   modalActiveFolderId = folderId;
 
   const modalTitle = document.getElementById('modal-folder-title');
@@ -4559,6 +4880,7 @@ function handleModalBack() {
 
   const currentFolder = allFolders.find(f => f.id === modalActiveFolderId);
   if (currentFolder && currentFolder.parentId) {
+    clearBatchSelectionForNavigation();
     const parentFolderId = currentFolder.parentId;
     
     if (parentFolderId === modalRootFolderId) {
@@ -4590,6 +4912,7 @@ function hideFolderContextMenu() {
   const menu = document.getElementById('custom-context-menu');
   if (menu) menu.style.display = 'none';
   contextMenuFolderId = null;
+  visualContextTarget = null;
 }
 
 function showFolderContextMenu(event, folderId) {
@@ -4602,12 +4925,67 @@ function showFolderContextMenu(event, folderId) {
     folder.id === '0' || folder.id === '1' || folder.id === '2' || folder.id === '3' ||
     folder.parentId === '0' || folder.parentId === 'root'
   );
+  const addItem = document.getElementById('ctx-add-folder');
   const siblingItem = document.getElementById('ctx-add-sibling-folder');
   const renameItem = document.getElementById('ctx-rename-folder');
   const deleteItem = document.getElementById('ctx-delete-folder');
+  ['ctx-visual-select', 'ctx-visual-delete-selected', 'ctx-visual-delete'].forEach(id => {
+    const item = document.getElementById(id);
+    if (item) item.style.display = 'none';
+  });
+  visualContextTarget = null;
+  if (addItem) addItem.style.display = 'flex';
   [siblingItem, renameItem, deleteItem].forEach(item => {
     if (item) item.style.display = isSystemFolder ? 'none' : 'flex';
   });
+
+  menu.style.display = 'flex';
+  const left = Math.min(event.clientX, window.innerWidth - menu.offsetWidth - 8);
+  const top = Math.min(event.clientY, window.innerHeight - menu.offsetHeight - 8);
+  menu.style.left = `${Math.max(8, left)}px`;
+  menu.style.top = `${Math.max(8, top)}px`;
+}
+
+function showVisualContextMenu(event, target) {
+  event.preventDefault();
+  event.stopPropagation();
+  const menu = document.getElementById('custom-context-menu');
+  if (!menu) return;
+
+  contextMenuFolderId = null;
+  visualContextTarget = target;
+  ['ctx-add-folder', 'ctx-add-sibling-folder', 'ctx-rename-folder', 'ctx-delete-folder'].forEach(id => {
+    const item = document.getElementById(id);
+    if (item) item.style.display = 'none';
+  });
+
+  const key = getVisualItemKey(target.type, target.id);
+  const isSelected = selectedVisualItemKeys.has(key);
+  const selectItem = document.getElementById('ctx-visual-select');
+  const selectText = document.getElementById('ctx-txt-visual-select');
+  const deleteSelectedItem = document.getElementById('ctx-visual-delete-selected');
+  const deleteSelectedText = document.getElementById('ctx-txt-visual-delete-selected');
+  const deleteItem = document.getElementById('ctx-visual-delete');
+  const deleteText = document.getElementById('ctx-txt-visual-delete');
+  const isZh = currentLang.startsWith('zh');
+
+  if (selectItem && selectText) {
+    selectText.textContent = isSelected
+      ? (isZh ? '取消批量选择' : 'Remove from batch')
+      : (isZh ? '加入批量删除' : 'Add to batch delete');
+    selectItem.style.display = 'flex';
+  }
+  if (deleteSelectedItem && deleteSelectedText) {
+    const selectedCount = getNormalizedVisualSelection().length;
+    deleteSelectedItem.style.display = selectedCount ? 'flex' : 'none';
+    deleteSelectedText.textContent = isZh ? `删除已选（${selectedCount}）` : `Delete selected (${selectedCount})`;
+  }
+  if (deleteItem && deleteText) {
+    deleteText.textContent = target.type === 'folder'
+      ? (isZh ? '删除此文件夹' : 'Delete folder')
+      : (isZh ? '删除此链接' : 'Delete link');
+    deleteItem.style.display = 'flex';
+  }
 
   menu.style.display = 'flex';
   const left = Math.min(event.clientX, window.innerWidth - menu.offsetWidth - 8);
@@ -4818,6 +5196,35 @@ function setupEventListeners() {
       });
     }
   });
+  const visualSelectContextItem = document.getElementById('ctx-visual-select');
+  const visualDeleteSelectedContextItem = document.getElementById('ctx-visual-delete-selected');
+  const visualDeleteContextItem = document.getElementById('ctx-visual-delete');
+  if (visualSelectContextItem) {
+    visualSelectContextItem.addEventListener('click', () => {
+      const target = visualContextTarget;
+      hideFolderContextMenu();
+      if (target) {
+        // Right-click selection is also an explicit entry into batch mode.
+        isBatchSelectionMode = true;
+        toggleVisualItemSelection(target.type, target.id);
+      }
+    });
+  }
+  if (visualDeleteSelectedContextItem) {
+    visualDeleteSelectedContextItem.addEventListener('click', () => {
+      hideFolderContextMenu();
+      handleDeleteSelectedVisualItems();
+    });
+  }
+  if (visualDeleteContextItem) {
+    visualDeleteContextItem.addEventListener('click', () => {
+      const target = visualContextTarget;
+      hideFolderContextMenu();
+      if (!target) return;
+      if (target.type === 'folder') handleDeleteVisualFolder(target.id);
+      else handleDeleteBookmark(target.id);
+    });
+  }
   document.addEventListener('click', (e) => {
     if (!contextMenu?.contains(e.target)) hideFolderContextMenu();
   });
@@ -5254,7 +5661,7 @@ function setupEventListeners() {
 // 监听书签变动，保持实时同步
 function setupSyncListeners() {
   const handleUpdate = () => {
-    loadBookmarksTree();
+    if (!bookmarkMutationInProgress) loadBookmarksTree();
   };
 
   chrome.bookmarks.onCreated.addListener(handleUpdate);

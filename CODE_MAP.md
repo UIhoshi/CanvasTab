@@ -1,6 +1,6 @@
 # Code Map
 
-> **Freshness:** Reviewed commit: `fd5df3a` | Updated: `2026-07-19`
+> **Freshness:** Working tree review: `7123957` + visual card deletion | Updated: `2026-09-05`
 >
 > This is a source-backed navigation aid, not runtime proof. Re-read the named source and run the
 > matching validation before making behavior claims.
@@ -21,7 +21,8 @@
 | `background.js` | `updatePopupState()` | Switches the toolbar between direct dashboard launch and `popup.html`. |
 | `dashboard.js` | early New Tab redirect, `loadSavedSettings()`, `setStorageItem()` | Restores and persists dashboard settings; when disabled, routes Chrome to its existing New Tab target and Edge to `about:blank` to prevent the Edge override loop. |
 | `dashboard.js` | `loadBookmarksTree()`, `renderSidebar()`, `renderItems()` | Reads Chrome bookmarks and renders the main bookmark surfaces; every visual-folder level shows a parent-navigation card before the create-folder card and remains on that folder after creation. |
-| `dashboard.js` | `setTheme()`, `selectLanguage()`, `renderThemeSelector()` | Applies and persists visual theme/language choices, including the drawer's selected-theme state. |
+| `dashboard.js` | `requestVisualDeletion()`, `handleDeleteSelectedVisualItems()`, `renderBatchModeToolbar()`, `clearBatchSelectionForNavigation()` | Folder/link deletion: visual mode provides lower-right and right-click single delete; a persistent batch toolbar works on both dashboard card modes, but its selection scope resets when the user navigates to another folder level. |
+| `dashboard.js` | `setMainMode()`, `setViewMode()`, `setTheme()`, `selectLanguage()`, `renderThemeSelector()` | Applies and persists dashboard mode, card/list/icon mode, theme, and language choices; initial restore re-syncs drawer active states, and Auto theme re-evaluates at the next local 06:00/18:00 boundary. |
 | `dashboard.js` | `saveWallpaperManagerSettings()`, `applyBackgroundSettings()`, `nextSlide()` | Owns wallpaper-manager persistence and slideshow behavior. |
 | `dashboard.js` | `triggerWebSearch()`, `selectSearchEngine()` | Runs browser/default/custom search flows. |
 | `dashboard.js` | `setupEventListeners()`, `setupSyncListeners()`, `setupControlSurface()` | Binds dashboard DOM events, bookmark sync, and the settings drawer. |
@@ -35,6 +36,7 @@
 | Wallpaper | `wallpaperEnabled`, `wallpaperFit`, `wallpaperOpacity`, `customBgList`, `currentBgIndex`, `slideshowEnabled`, `slideshowMode`, `slideshowIntervalSeconds` | Managed by wallpaper-manager functions in `dashboard.js`. |
 | Search | `searchEngine`, `customSearchEngines` | Managed by search-selector functions in `dashboard.js`. |
 | New Tab state | `isNewtabDisabled`, `onboarding_completed`, `isHomepageSet` | Shared between dashboard and `background.js`; controls popup/direct-launch behavior. Chrome restores its verified New Tab target; Edge uses a blank-page fallback because its native target re-enters the static override. |
+| Batch deletion | `isBatchSelectionMode`, `selectedVisualItemKeys`, `visualContextTarget`, `bookmarkMutationInProgress` | Persistent within the current dashboard-card folder level and shared by visual and sidebar-manager card views; selecting a different level clears it, while a same-surface refresh retains it. Toolbar popup is excluded. |
 
 ## Interfaces and Validation
 
@@ -45,6 +47,7 @@
 | Wallpaper manager DOM | `wp-manager-*` controls and `wp-manager-save-btn` | Follow the completed regression checklist in `NEXT_STEPS.md` after changes. |
 | Static checks | JavaScript syntax | `node --check background.js`, `node --check dashboard.js`, `node --check popup.js` |
 | Cross-browser New Tab cancellation | `isNewtabDisabled` → Chrome native target / Edge blank fallback | Reload unpacked extension; test Ctrl+T with takeover enabled and disabled in Edge and Chrome. |
+| Card deletion and batch mode | `.visual-delete-corner`, visual context-menu actions, `batch-mode-toolbar`, Chrome Bookmarks remove/removeTree | Verify individual visual folder/link deletion; entering batch through the toolbar or context menu; direct card selection; reset on folder-level navigation; and the selected card's lower-right pale checkmark and 75% scale. Confirm toolbar popup is unchanged. |
 
 ## Known Gaps
 

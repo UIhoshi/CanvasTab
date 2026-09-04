@@ -9,7 +9,7 @@
 ## L2 — Flow & Lifecycle
 
 - **Service-worker flow:** `background.js` handles installation, toolbar-popup state, and New Tab navigation actions.
-- **Dashboard flow:** `dashboard.js` loads and manages bookmarks, searches, themes, languages, wallpapers, and settings.
+- **Dashboard flow:** `dashboard.js` loads and manages bookmarks, searches, themes, languages, wallpapers, settings, visual-mode card deletion, and persistent batch deletion in both dashboard card modes.
 - **Popup flow:** `popup.js` provides a compact bookmark view and opens the dashboard.
 - **Wallpaper regression:** user-reported real Chrome verification completed; retain `NEXT_STEPS.md` for deferred post-release work.
 
@@ -18,6 +18,7 @@
 - **Permissions:** `bookmarks`, `favicon`, `search`, and `storage`, declared in `manifest.json`.
 - **Static checks:** `node --check background.js`, `node --check dashboard.js`, `node --check popup.js`.
 - **Runtime check:** load unpacked in Chrome and execute the regression checklist in `NEXT_STEPS.md`.
+- **Card deletion:** visual cards use confirmation-gated Chrome Bookmarks `remove` / `removeTree`; the dashboard’s visual and sidebar-manager card views share persistent batch selection with parent/descendant normalization.
 
 ## L4 — Base & Dependencies
 

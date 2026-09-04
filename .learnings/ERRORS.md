@@ -2,6 +2,13 @@
 
 Use this file only for material, resolved project failures. Do not include credentials, personal paths, raw logs, or speculative findings.
 
+## 2026-09-05 — Dashboard card rendering failed after a mode-control update
+- Symptom: Reloading the unpacked extension reported a dashboard error; the dashboard could not render its cards, so control-center state changes appeared absent.
+- Root cause: A drawer-mode active-state statement was inserted into `renderItems()` instead of `setMainMode()`, where its `mode` identifier was out of scope.
+- Correction: Remove the misplaced statement and update the drawer-mode controls only inside `setMainMode()`. Add a minimal DOM-harness execution check for the settings functions in addition to syntax checking.
+- Prevention: For context-sensitive edits, inspect the exact target function after applying the patch; syntax checks do not detect an undefined identifier on an unexecuted render path.
+- Verification: `node --check dashboard.js`, `git diff --check`, and a minimal-DOM execution harness for `setMainMode()`, `setViewMode()`, and `setTheme()` pass.
+
 ## 2026-07-20 — Browser-specific New Tab redirect failed in Edge
 - Symptom: Disabling CanvasTab's New Tab UI while the extension remained enabled opened `ERR_INVALID_URL` in Edge.
 - Root cause: The Chrome-verified cancellation path hard-coded `chrome://new-tab-page/`. Edge transformed that incompatible target into invalid `edge://new-tab-page/`; its correct `edge://newtab/` target re-enters the active static override and loops.

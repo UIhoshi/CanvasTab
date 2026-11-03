@@ -1,6 +1,6 @@
 # Code Map
 
-> **Freshness:** Working tree review: `7123957` + visual card deletion | Updated: `2026-09-05`
+> **Freshness:** Working tree review: `v2.3.1` (`12b4401` + recent visits limit 30) | Updated: `2026-11-03`
 >
 > This is a source-backed navigation aid, not runtime proof. Re-read the named source and run the
 > matching validation before making behavior claims.
@@ -21,6 +21,7 @@
 | `background.js` | `updatePopupState()` | Switches the toolbar between direct dashboard launch and `popup.html`. |
 | `dashboard.js` | early New Tab redirect, `loadSavedSettings()`, `setStorageItem()` | Restores and persists dashboard settings; when disabled, routes Chrome to its existing New Tab target and Edge to `about:blank` to prevent the Edge override loop. |
 | `dashboard.js` | `loadBookmarksTree()`, `renderSidebar()`, `renderItems()` | Reads Chrome bookmarks and renders the main bookmark surfaces; every visual-folder level shows a parent-navigation card before the create-folder card and remains on that folder after creation. |
+| `dashboard.js` | `loadRecentVisits()`, `recordRecentVisit()`, `renderRecentVisits()` | Persists and renders up to `MAX_RECENT_VISITS` (30) recently visited bookmark links (`recentVisits`). |
 | `dashboard.js` | `requestVisualDeletion()`, `handleDeleteSelectedVisualItems()`, `renderBatchModeToolbar()`, `clearBatchSelectionForNavigation()` | Folder/link deletion: visual mode provides lower-right and right-click single delete; a persistent batch toolbar works on both dashboard card modes, but its selection scope resets when the user navigates to another folder level. |
 | `dashboard.js` | `setMainMode()`, `setViewMode()`, `setTheme()`, `selectLanguage()`, `renderThemeSelector()` | Applies and persists dashboard mode, card/list/icon mode, theme, and language choices; initial restore re-syncs drawer active states, and Auto theme re-evaluates at the next local 06:00/18:00 boundary. |
 | `dashboard.js` | `saveWallpaperManagerSettings()`, `applyBackgroundSettings()`, `nextSlide()` | Owns wallpaper-manager persistence and slideshow behavior. |
